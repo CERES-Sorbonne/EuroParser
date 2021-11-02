@@ -1,10 +1,9 @@
-import json
-from typing import Any, List
+from typing import List
 from bs4 import BeautifulSoup
 
 from europarser.models import FileToTransform, Pivot
 from europarser.transformers.transformer import Transformer
-from europarser.utils import date, trad_months, dic_months
+from europarser.utils import dic_months, find_date
 
 
 class PivotTransformer(Transformer):
@@ -17,7 +16,6 @@ class PivotTransformer(Transformer):
 
         corpus = []
 
-        # tous les articles commencent par une image, j'ai ajouté manuellement des balises article avant chaque image dans le html
         articles = soup.find_all("article")
         for article in articles:
             doc = {}
@@ -28,19 +26,27 @@ class PivotTransformer(Transformer):
                 self._add_error(e, article)
                 continue
             try:
-                day, day_nb, month, year = date.findall(article.find("span", attrs={"class": "DocHeader"}).text)[
-                    0].split()
-            except:
-                try:
-                    day_nb, month, year = article.find("span", attrs={"class": "DocHeader"}).text.split()[:3]
-                    if day_nb == "Thursday,":
-                        day_nb, month, year = "1", "juillet", "2004"
-                except:
-                    day_nb, month, year = article.find("span",
-                                                       attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text.split()[:3]
-            if "," in month:
-                day_nb, month = month[:-1], trad_months[day_nb]
+                doc_header = article.find("span", attrs={"class": "DocHeader"})
+                year = day_nb = month = None
+                # is there a doc header ?
+                if doc_header:
+                    text = doc_header.text.strip()
+                    day_nb, month, year = find_date(text)
+
+                # if no date was found yet look in another section
+                if not month:
+                    doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text.strip()
+                    day_nb, month, year = doc_sub_section.split()[:3]
+
+                if not all([year, month, day_nb]):
+                    print("No proper date was found")
+                    continue
+            except Exception as e:
+                print("New unhandled case " + str(e))
+                continue
+
             doc["date"] = " ".join([year, dic_months[month], day_nb])
+
             try:
                 doc["titre"] = article.find("div", attrs={"class": "titreArticle"}).text.strip()
             except:

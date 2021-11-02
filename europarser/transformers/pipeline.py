@@ -1,3 +1,4 @@
+import concurrent.futures
 import json
 from typing import List, Tuple
 
@@ -9,9 +10,10 @@ from europarser.transformers.txm import TXMTransformer
 
 def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[str, OutputType]:
     pivots: List[Pivot] = []
-    for file_to_process in files:
-        transformed: List[Pivot] = PivotTransformer().transform(file_to_process)
-        pivots = [*pivots, *transformed]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(PivotTransformer().transform, f) for f in files]
+        for future in concurrent.futures.as_completed(futures):
+            pivots = [*pivots, *future.result()]
     if output == "cluster_tool":
         result = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
         result_type: OutputType = "json"

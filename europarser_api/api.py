@@ -28,7 +28,10 @@ async def handle_files(files: List[UploadFile] = File(...), output: Optional[Out
     if len(files) == 1 and files[0].filename == "":
         raise HTTPException(status_code=400, detail="No File Provided")
     # parse all files
-    to_process = [FileToTransform(name=f.filename, file=f.file.read().decode('utf-8')) for f in files]
+    try:
+        to_process = [FileToTransform(name=f.filename, file=f.file.read().decode('utf-8')) for f in files]
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid File Provided")
     # process result
     result, result_type = pipeline(to_process, output)
     result_mimetype = get_mimetype(result_type)

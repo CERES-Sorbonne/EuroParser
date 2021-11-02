@@ -87,6 +87,9 @@
           <span class="sr-only">Loading...</span>
         </div>
         <a href="#" id="download" class="btn btn-success" role="button" aria-pressed="true" style="display: none; width: 20%; margin: auto">Download Result</a>
+        <div id="error" class="alert alert-danger" role="alert" style="display: none;">
+          Error
+        </div>
       </div>
     </div>
   </div>
@@ -128,6 +131,11 @@
           document.getElementById('submit-all').style.display = "none"
           xhr.responseType = 'blob';
           xhr.onload = function (e) {
+            if(e.currentTarget.status > 300){
+              document.getElementById('loader').style.display = "none"
+              document.getElementById('error').innerHTML = e.currentTarget.statusText;
+              document.getElementById('error').style.display = "block";
+            }
             var blob = e.currentTarget.response;
             var contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
             // https://stackoverflow.com/a/23054920/
