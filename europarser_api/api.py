@@ -12,6 +12,7 @@ from europarser.transformers.pipeline import pipeline
 from europarser_api.utils import get_mimetype
 
 root_dir = os.path.dirname(__file__)
+host = os.getenv('EUROPARSER_SERVER', '')
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory=os.path.join(root_dir, "static")), name="static")
@@ -20,7 +21,7 @@ templates = Jinja2Templates(directory=os.path.join(root_dir, "templates"))
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse('main.html', {'request': request})
+    return templates.TemplateResponse('main.html', {'request': request, 'host': host})
 
 
 @app.post("/upload")
