@@ -8,11 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
-  <link href="{{ url_for('static', path='/dropzone.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', path='/basic.min.css') }}" rel="stylesheet">
+  <link href="{{host + '/static/dropzone.min.css'}}" rel="stylesheet">
+  <link href="{{host + '/static/basic.min.css'}}" rel="stylesheet">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <script src="{{ url_for('static', path='/dropzone.min.js') }}"></script>
+  <script src="{{host + '/static/dropzone.min.js'}}"></script>
   <style>
     body {
       font-family: 'Roboto', sans-serif;
@@ -102,7 +102,7 @@
 
     Dropzone.options.myDropzone = {
       paramName: 'files',
-      url: '/upload',
+      url: "{{host + '/upload'",
       autoProcessQueue: false,
       uploadMultiple: true,
       parallelUploads: 100,
