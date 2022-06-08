@@ -8,6 +8,14 @@ from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
 
 
+def process(file: str, output: Output = "pivot", name: str = "file"):
+    """
+    utility function to process only one file at a time
+    For multiple files, it's better to use the pipeline
+    """
+    return pipeline([FileToTransform(file=file, name=name)], output)
+
+
 def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[str, OutputType]:
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
