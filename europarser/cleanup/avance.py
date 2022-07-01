@@ -12,24 +12,24 @@ from europarser.models import Pivot
 
 
 
-def doublon_avance(pivot: Pivot, taillegroupe : int, NB_PIVOTS : int = 50) -> Pivot:
+def doublon_avance(pivots: List[Pivot], taillegroupe : int, NB_PIVOTS : int = 50) -> List[Pivot]:
     tqdm.write("\nDédoublonage avancé")
     with tqdm(total=2, desc = "Calcul des vecteurs BoW") as pbar:
-        avg = np.mean([len(e["texte"]) for e in pivot])
-        docspivots = sample(pivot, NB_PIVOTS)
+        avg = np.mean([len(e["texte"]) for e in pivots])
+        docspivots = sample(pivots, NB_PIVOTS)
 
         #On crée les vecteurs pour les textes (coordonnée n = occurences du mot de position n dans la liste de vocabulaire)
         vocab = set(' '.join([e["texte"] for e in docspivots]).lower().split())
         vectorizer = TfidfVectorizer(stop_words = ("english"), vocabulary = vocab)
         pbar.update()
-        tf = vectorizer.fit_transform([e["texte"] for e in pivot])
+        tf = vectorizer.fit_transform([e["texte"] for e in pivots])
         pbar.update()
         arrtf = tf.toarray()
 
         #On sépare les textes en groupes de même taille, en fonction de leur longueur
-        pivot = sorted(pivot, key=lambda pivot: len(pivot["texte"]))
-        nbgroupes = 1 + (len(pivot) // taillegroupe)
-        groupes = [pivot[i*taillegroupe:(i+1)*taillegroupe] for i in range(nbgroupes)]
+        pivots = sorted(pivots, key=lambda pivot: len(pivots["texte"]))
+        nbgroupes = 1 + (len(pivots) // taillegroupe)
+        groupes = [pivots[i*taillegroupe:(i+1)*taillegroupe] for i in range(nbgroupes)]
 
     colors = [Color("blue")] + list(Color("blue").range_to(Color("green"),nbgroupes))
     manualpbar = tqdm(groupes, desc="Calcul des vecteurs seconds / supression")
@@ -66,6 +66,6 @@ def doublon_avance(pivot: Pivot, taillegroupe : int, NB_PIVOTS : int = 50) -> Pi
 
         del doublons
     
-    pivot = list(chain.from_iterable(groupes))
+    pivots = list(chain.from_iterable(groupes))
     tqdm.write(f"Dédoublonage avancé : Il reste désormais {len(pivot)} articles.")
-    return pivot
+    return pivots

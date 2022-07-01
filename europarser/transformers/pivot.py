@@ -1,4 +1,3 @@
-import contextlib
 from typing import List
 from bs4 import BeautifulSoup
 
@@ -19,7 +18,7 @@ class PivotTransformer(Transformer):
 
         articles = soup.find_all("article")
         ids = {}
-        for nb_article, article in enumerate(articles):
+        for article in articles:
             doc = {}
             try:
                 doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
@@ -49,11 +48,11 @@ class PivotTransformer(Transformer):
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
             except:
-                if article.find("div", attrs={"class": "DocText clearfix"}) == None:
-                     continue
+                if article.find("div", attrs={"class": "DocText clearfix"}) is None:
+                    continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
-                    
+
             id_ =  ' '.join([doc["titre"], doc["journal"], doc["date"]])
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
