@@ -1,3 +1,4 @@
+import contextlib
 from typing import List
 from bs4 import BeautifulSoup
 
@@ -47,8 +48,11 @@ class PivotTransformer(Transformer):
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
             except:
-                doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
-
+                if article.find("div", attrs={"class": "DocText clearfix"}) == None:
+                     continue
+                else:
+                    doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
+                   
             corpus.append(Pivot(**doc))
 
 
