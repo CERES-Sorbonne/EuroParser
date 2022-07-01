@@ -1,2 +1,6 @@
 beautifulsoup4
 pydantic
+colour
+numpy
+tqdm
+sklearn
