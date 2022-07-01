@@ -18,6 +18,7 @@ class PivotTransformer(Transformer):
         corpus = []
 
         articles = soup.find_all("article")
+        ids = {}
         for nb_article, article in enumerate(articles):
             doc = {}
             try:
@@ -52,8 +53,11 @@ class PivotTransformer(Transformer):
                      continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
-                   
-            corpus.append(Pivot(**doc))
+                    
+            id_ =  ' '.join([doc["titre"], doc["journal"], doc["date"]])
+            if id_ not in ids:
+                corpus.append(Pivot(**doc))
+                ids.add(id_)
 
 
         return corpus
