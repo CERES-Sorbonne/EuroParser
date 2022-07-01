@@ -67,5 +67,5 @@ def doublon_avance(pivots: List[Pivot], taillegroupe : int, NB_PIVOTS : int = 50
         del doublons
     
     pivots = list(chain.from_iterable(groupes))
-    tqdm.write(f"Dédoublonage avancé : Il reste désormais {len(pivot)} articles.")
+    tqdm.write(f"Dédoublonage avancé : Il reste désormais {len(pivots)} articles.")
     return pivots
