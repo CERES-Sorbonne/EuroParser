@@ -17,7 +17,7 @@ class PivotTransformer(Transformer):
         corpus = []
 
         articles = soup.find_all("article")
-        ids = {}
+        ids = set()
         for article in articles:
             doc = {}
             try:
