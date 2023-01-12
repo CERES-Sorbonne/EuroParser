@@ -54,5 +54,7 @@ def find_date(txt: [str]) -> Tuple[str, str, str]:
         print("No valid date was found for " + txt)
         return "", "", ""
     else:
+        if len(day) == 1 :
+            day="0"+day
         real_month = dic_months[final_month]
         return day, real_month, year

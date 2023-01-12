@@ -19,8 +19,10 @@ class Pivot(BaseModel):
     date: str
     titre: str
     texte: str
+    journal_clean : str
+    keywords : str
 
 
 OutputType = Literal["csv", "json", "txt", "xml"]
-Output = Literal["pivot", "txm", "iramuteq", "gephi", "cluster_tool"]
+Output = Literal["pivot", "txm", "iramuteq", "gephi", "cluster_tool", "csv"]
 
