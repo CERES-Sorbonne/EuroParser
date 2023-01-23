@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Europress Parser</title>
+  <title>Europresse Parser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
@@ -63,8 +63,8 @@
 <body>
   
   <div class="mt-5" style="width: 30%;margin: auto; text-align: center">
-    <h1 style="font-weight: 100">Europress Converter</h1>
-    <h5 style="font-weight: 100">Convert Europress HTML Files to some text analysis formats</h5>
+    <h1 style="font-weight: 100">Convertisseur Europresse</h1>
+    <h5 style="font-weight: 100">Convertissez des HTMLs Europresse vers d'autres formats</h5>
   </div>
   <!-- <form action="/upload" class="dropzone" id="my-great-dropzone"> -->
   <div class="container mt-5">
@@ -76,20 +76,20 @@
           <div class="dropzone mb-3" id="myDropzone"></div>
           <select class="form-select form-select-lg mb-3 mySelect myBlock" aria-label=".form-select-lg example" id="output"
             name="output">
-            <option selected>Chose the output Format</option>
+            <option selected>Choisissez le format de sortie</option>
             <option value="iramuteq">IRAMUTEQ</option>
-            <option value="txm">TXM</option>
+            <option value="txm">TXM (XML)</option>
             <option value="json">JSON</option>
             <option value="csv">CSV</option>
           </select>
           <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
         </form>
         <div class="spinner-border text-light myBlock mt-3" role="status" id="loader" style="display: none;">
-          <span class="sr-only">Loading...</span>
+          <span class="sr-only">Traitement en cours...</span>
         </div>
-        <a href="#" id="download" class="btn btn-success" role="button" aria-pressed="true" style="display: none; width: 20%; margin: auto">Download Result</a>
+        <a href="#" id="download" class="btn btn-success" role="button" aria-pressed="true" style="display: none; width: 20%; margin: auto">Télécharger le résultat</a>
         <div id="error" class="alert alert-danger" role="alert" style="display: none;">
-          Error
+          Erreur
         </div>
       </div>
     </div>
