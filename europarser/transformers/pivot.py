@@ -3,7 +3,9 @@ from bs4 import BeautifulSoup
 
 from europarser.models import FileToTransform, Pivot
 from europarser.transformers.transformer import Transformer
-from europarser.utils import dic_months, find_date, trad_months
+from europarser.utils import find_date
+import re
+from europarser.daniel_light import get_KW
 
 
 class PivotTransformer(Transformer):
@@ -33,7 +35,7 @@ class PivotTransformer(Transformer):
             doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"})
             doc_sub_section = doc_sub_section.find_next_sibling("span").text.strip() if doc_sub_section else ""
 
-            year, day_nb, month = find_date(doc_header or doc_sub_section)
+            day_nb, month, year = find_date(doc_header or doc_sub_section)
 
             if not all([year, month, day_nb]):
                 print("No proper date was found")
@@ -52,10 +54,15 @@ class PivotTransformer(Transformer):
                     continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
+                    
+            # on garde uniquement le titre (sans les fioritures)
+            journal_clean = re.split(r"\(| -| no. | \d|  | ;", doc["journal"])[0]
+            doc["journal_clean"] = journal_clean
+            
+            doc["keywords"] = ", ".join(get_KW(doc["titre"], doc["texte"]))
 
-            if ", no." in doc["journal"]:
-                doc["journal"] = doc["journal"].split(", no.")[0]
-            id_ = ' '.join([doc["titre"], doc["journal"], doc["date"]])
+            id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
+
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
                 ids.add(id_)

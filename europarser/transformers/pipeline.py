@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 from europarser.models import FileToTransform, Output, Pivot, OutputType
 from europarser.transformers.iramuteq import IramuteqTransformer
+from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
 
@@ -24,7 +25,7 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[st
             pivots = [*pivots, *future.result()]
         # undouble remaining doubles
         pivots = list(set(pivots))
-    if output == "cluster_tool":
+    if output == "json":
         result = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
         result_type: OutputType = "json"
     elif output == "iramuteq":
@@ -33,6 +34,9 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[st
     elif output == "txm":
         result = TXMTransformer().transform(pivots)
         result_type = "xml"
+    elif output == "csv":
+        result = CSVTransformer().transform(pivots)
+        result_type = "csv"
     else:
         result = json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False)
         result_type: OutputType = "json"

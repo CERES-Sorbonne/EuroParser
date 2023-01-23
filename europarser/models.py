@@ -19,11 +19,13 @@ class Pivot(BaseModel):
     date: str
     titre: str
     texte: str
+    journal_clean : str
+    keywords : str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
 
 
 OutputType = Literal["csv", "json", "txt", "xml"]
-Output = Literal["pivot", "txm", "iramuteq", "gephi", "cluster_tool"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv"]
 
