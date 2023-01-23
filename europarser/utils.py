@@ -60,7 +60,7 @@ def find_date(txt: [str]) -> Tuple[str, str, str]:
         real_month = dic_months[final_month]
         return day, real_month, year
 
-    
+
 STOP_WORDS = ["ans","faire","a","abord","absolument","afin","ah","ai","aie","aient","aies","ailleurs","ainsi","ait",
               "allaient","allo","allons","allô","alors","anterieur","anterieure","anterieures","apres","après","as",
               "assez","attendu","au","aucun","aucune","aucuns","aujourd","aujourd'hui","aupres","auquel","aura","aurai",

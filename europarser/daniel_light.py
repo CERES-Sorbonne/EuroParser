@@ -1,5 +1,5 @@
 import re
-from utils import STOP_WORDS
+from europarser.utils import STOP_WORDS
 
 
 def filter_KW(liste):
