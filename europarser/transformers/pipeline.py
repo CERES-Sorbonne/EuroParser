@@ -22,6 +22,8 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[st
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
         for future in concurrent.futures.as_completed(futures):
             pivots = [*pivots, *future.result()]
+        # undouble remaining doubles
+        pivots = list(set(pivots))
     if output == "cluster_tool":
         result = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
         result_type: OutputType = "json"

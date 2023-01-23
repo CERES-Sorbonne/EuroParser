@@ -53,11 +53,12 @@ class PivotTransformer(Transformer):
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
-            id_ =  ' '.join([doc["titre"], doc["journal"], doc["date"]])
+            if ", no." in doc["journal"]:
+                doc["journal"] = doc["journal"].split(", no.")[0]
+            id_ = ' '.join([doc["titre"], doc["journal"], doc["date"]])
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
                 ids.add(id_)
-
 
         return corpus
 
