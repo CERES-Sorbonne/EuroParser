@@ -56,7 +56,7 @@ class PivotTransformer(Transformer):
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
                     
             # on garde uniquement le titre (sans les fioritures)
-            journal_clean = re.split(r"\(| -| no. | \d|  | ;", doc["journal"])[0]
+            journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
             doc["journal_clean"] = journal_clean
             
             doc["keywords"] = ", ".join(get_KW(doc["titre"], doc["texte"]))
