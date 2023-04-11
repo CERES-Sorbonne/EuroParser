@@ -62,24 +62,12 @@
       text-align: center;
       margin: auto;
       width: 100%;
+      display: none;
     }
 
     .myInput:hover{
       cursor: pointer;
     }
-
-    {##}
-    {#.myInput:checked::after{#}
-    {#  content: "✓";#}
-    {#  position: relative;#}
-    {#  top : 1em;#}
-    {#}#}
-    {##}
-    {#.myInput::after{#}
-    {#  content: "✗";#}
-    {#  position: relative;#}
-    {#  top : 1em;#}
-    {#}#}
 
     .myInput::before{
       content: "Détecter la langue ?";
@@ -113,9 +101,7 @@
             <option value="json">JSON</option>
             <option value="csv">CSV</option>
           </select>
-           <!--lang toggle -->
             <input class=" myInput" type="checkbox" id="langToggle"\>
-            &nbsp;&nbsp;
           <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
         </form>
         <div class="spinner-border text-light myBlock mt-3" role="status" id="loader" style="display: none;">

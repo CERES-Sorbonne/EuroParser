@@ -13,7 +13,7 @@ class PivotTransformer(Transformer):
     def __init__(self):
         super().__init__()
 
-    def transform(self, file_to_transform: FileToTransform, lang: bool = False) -> List[Pivot]:
+    def transform(self, file_to_transform: FileToTransform) -> List[Pivot]:
         self._logger.warning("Processing file " + file_to_transform.name)
         soup = BeautifulSoup(file_to_transform.file, 'html.parser')
 
@@ -64,9 +64,8 @@ class PivotTransformer(Transformer):
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
-            if lang:  # or True temporaire pour forcer la détection de la langue
-                langue = detect_lang(doc["texte"])
-                doc["langue"] = langue if langue else "UNK"
+            langue = detect_lang(doc["texte"])
+            doc["langue"] = langue if langue else "UNK"
 
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
