@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 
 from europarser.models import FileToTransform, Pivot
@@ -6,13 +6,14 @@ from europarser.transformers.transformer import Transformer
 from europarser.utils import find_date
 import re
 from europarser.daniel_light import get_KW
+from europarser.lang_detect import detect_lang
 
 
 class PivotTransformer(Transformer):
     def __init__(self):
         super().__init__()
 
-    def transform(self, file_to_transform: FileToTransform) -> List[Pivot]:
+    def transform(self, file_to_transform: FileToTransform, lang: bool = False) -> List[Pivot]:
         self._logger.warning("Processing file " + file_to_transform.name)
         soup = BeautifulSoup(file_to_transform.file, 'html.parser')
 
@@ -54,18 +55,21 @@ class PivotTransformer(Transformer):
                     continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
-                    
+
             # on garde uniquement le titre (sans les fioritures)
             journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
             doc["journal_clean"] = journal_clean
-            
+
             doc["keywords"] = ", ".join(get_KW(doc["titre"], doc["texte"]))
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
+
+            if lang:  # or True temporaire pour forcer la détection de la langue
+                langue = detect_lang(doc["texte"])
+                doc["langue"] = langue if langue else "UNK"
 
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
                 ids.add(id_)
 
         return corpus
-

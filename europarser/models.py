@@ -19,8 +19,9 @@ class Pivot(BaseModel):
     date: str
     titre: str
     texte: str
-    journal_clean : str
-    keywords : str
+    journal_clean: str
+    keywords: str
+    langue: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
@@ -28,4 +29,3 @@ class Pivot(BaseModel):
 
 OutputType = Literal["csv", "json", "txt", "xml"]
 Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv"]
-
