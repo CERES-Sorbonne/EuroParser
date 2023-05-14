@@ -17,9 +17,9 @@ class TXMTransformer(Transformer):
             f.write("<corpus>")
 
             for pivot in pivot_list:
-                print(pivot)
+                # print(pivot)
                 parsed = escape(pivot.texte.strip())
-                line = f"""<article titre="{re.sub('"', "'", escape(pivot.titre))}" date="{escape(pivot.date)}" journal="{escape(pivot.journal)}" journal_clean="{escape(pivot.journal_clean)}" keywords="{escape(pivot.keywords)} langue={escape(pivot.langue)}">"""
+                line = f"""<article titre="{re.sub('"', "'", escape(pivot.titre))}" date="{escape(pivot.date)}" journal="{escape(pivot.journal)}" journal_clean="{escape(pivot.journal_clean)}" keywords="{escape(pivot.keywords)}" langue="{escape(pivot.langue)}">"""
                 f.write(line)
                 f.write(parsed)
                 f.write("</article>")
