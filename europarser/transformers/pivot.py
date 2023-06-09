@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 from bs4 import BeautifulSoup
 
 from europarser.models import FileToTransform, Pivot
@@ -6,6 +6,7 @@ from europarser.transformers.transformer import Transformer
 from europarser.utils import find_date
 import re
 from europarser.daniel_light import get_KW
+from europarser.lang_detect import detect_lang
 
 
 class PivotTransformer(Transformer):
@@ -68,9 +69,11 @@ class PivotTransformer(Transformer):
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
+            langue = detect_lang(doc["texte"])
+            doc["langue"] = langue if langue else "UNK"
+
             if id_ not in ids:
                 corpus.append(Pivot(**doc))
                 ids.add(id_)
 
         return corpus
-

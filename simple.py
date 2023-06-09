@@ -3,7 +3,7 @@ import json
 
 from europarser import process
 
-output = "iramuteq"
+output = "txm"
 
 if __name__ == "__main__":
   with open(os.path.join(os.path.dirname(__file__), 'examples/resources', '1.HTML'), 'r') as f:
