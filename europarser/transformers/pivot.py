@@ -54,12 +54,17 @@ class PivotTransformer(Transformer):
                     continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
-                    
+
+            try:
+                doc["auteur"] = article.find("div", attrs={"class": "docAuthors"}).text.strip().lower()
+            except:
+                doc["auteur"] = "Unknown"
+
             # on garde uniquement le titre (sans les fioritures)
             journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
             doc["journal_clean"] = journal_clean
             
-            doc["keywords"] = ", ".join(get_KW(doc["titre"], doc["texte"]))
+            doc["keywords"] = ", ".join([x.lower() for x in get_KW(doc["titre"], doc["texte"])])
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 

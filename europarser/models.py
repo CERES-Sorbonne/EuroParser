@@ -16,11 +16,12 @@ class Error(BaseModel):
 
 class Pivot(BaseModel):
     journal: str
-    date: str
-    titre: str
-    texte: str
     journal_clean : str
-    keywords : str
+    titre: str
+    date: str
+    auteur: str
+    texte: str
+    keywords: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
