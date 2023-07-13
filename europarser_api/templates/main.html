@@ -55,33 +55,25 @@
     }
 
     .myBlock{
-      display: block;
+      display: flex;
       margin: auto;
+    }
+
+    .myDivInput{
+        margin: auto 1vh 1vh 45%;
     }
 
     .myInput{
-      text-align: center;
       margin: auto;
-      width: 100%;
-      display: none;
     }
 
-    .myInput:hover{
-      cursor: pointer;
-    }
-
-    .myInput::before{
-      content: "Détecter la langue ?";
-      position: relative;
-      top : 1em;
-    }
 
 
   </style>
 </head>
 
 <body>
-  
+
   <div class="mt-5" style="width: 30%;margin: auto; text-align: center">
     <h1 style="font-weight: 100">Convertisseur Europresse</h1>
     <h5 style="font-weight: 100">Convertissez des HTMLs Europresse vers d'autres formats</h5>
@@ -94,16 +86,34 @@
       justify-content: center; ">
         <form method="post" enctype="multipart/form-data" action="/upload" id="myForm">
           <div class="dropzone mb-3" id="myDropzone"></div>
-          <select class="form-select form-select-lg mb-3 mySelect myBlock" aria-label=".form-select-lg example" id="output"
-            name="output">
-            <option selected>Choisissez le format de sortie</option>
-            <option value="iramuteq">IRAMUTEQ</option>
-            <option value="txm">TXM (XML)</option>
-            <option value="json">JSON</option>
-            <option value="csv">CSV</option>
-            <option value="stats">Statistiques</option>
-          </select>
-            <input class=" myInput" type="checkbox" id="langToggle"\>
+{#          <select class="form-select form-select-lg mb-3 mySelect myBlock" aria-label=".form-select-lg example" id="output"#}
+{#            name="output">#}
+{#            <option selected>Choisissez le format de sortie</option>#}
+{#            <option value="iramuteq">IRAMUTEQ</option>#}
+{#            <option value="txm">TXM (XML)</option>#}
+{#            <option value="json">JSON</option>#}
+{#            <option value="csv">CSV</option>#}
+{#            <option value="stats">Statistiques</option>#}
+{#          </select>#}
+
+            <div class="myDivInput">
+                <input type="checkbox" id="iramuteq" name="output" value="iramuteq" class="myInput"> <label for="iramuteq">IRAMUTEQ</label>
+            </div>
+            <div class="myDivInput">
+                <input type="checkbox" id="txm" name="output" value="txm" class="myInput"> <label for="txm">TXM (XML)</label>
+            </div>
+            <div class="myDivInput">
+                <input type="checkbox" id="json" name="output" value="json" class="myInput">  <label for="json">JSON</label>
+            </div>
+            <div class="myDivInput">
+                <input type="checkbox" id="csv" name="output" value="csv" class="myInput"> <label for="csv">CSV</label>
+            </div>
+            <div class="myDivInput">
+                <input type="checkbox" id="stats" name="output" value="stats" class="myInput"> <label for="stats">Statistiques</label>
+            </div>
+
+
+{#            <input class=" myInput" type="checkbox" id="langToggle"\>#}
           <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
         </form>
         <div class="spinner-border text-light myBlock mt-3" role="status" id="loader" style="display: none;">
@@ -117,6 +127,11 @@
     </div>
   </div>
   <script>
+      document.getElementsByClassName('myInput').forEach(function (item) {
+          item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
+        });
+
+
     function saveBlob(blob, fileName) {
       var download = document.getElementById('download');
       download.href = window.URL.createObjectURL(blob);
@@ -132,6 +147,7 @@
       maxFiles: 100,
       // addRemoveLinks: true,
       // headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+
       init: function () {
         dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
 
@@ -141,22 +157,55 @@
           e.preventDefault();
           e.stopPropagation();
           dzClosure.processQueue();
-        });
+
+        })
 
         //send all the form data along with the files:
         this.on("sendingmultiple", function (data, xhr, formData) {
-          formData.append("output", document.getElementById('output').value);
-            formData.append("langToggle", document.getElementById('langToggle').checked);
+            let checked  = false   ;
+
+            if (document.getElementById('iramuteq').checked) {
+                formData.append("output","iramuteq");
+                checked = true;
+            }
+            if (document.getElementById('txm').checked) {
+                formData.append("output","txm");
+                checked = true;
+            }
+            if (document.getElementById('json').checked) {
+                formData.append("output","json");
+                checked = true;
+            }
+            if (document.getElementById('csv').checked) {
+                formData.append("output","csv");
+                checked = true;
+            }
+            if (document.getElementById('stats').checked) {
+                formData.append("output","stats");
+                checked = true;
+            }
+
+
           for (let el of data) {
             let blob = new Blob([el], { type: el.type });
             formData.append("files", blob, el.name)
           }
-          document.getElementById('loader').style.display = "block"
-          document.getElementById('submit-all').style.display = "none"
+          document.getElementById('loader').style.display = "block";
+          document.getElementById('submit-all').style.display = "none";
+
+
+
+          len_ = document.getElementsByClassName("myInput").length
+            for (let i = 0; i < len_; i++) {
+                document.getElementsByClassName("myInput")[i].disabled = true;
+                document.getElementsByClassName("myInput")[i].cursor = "not-allowed";
+                document.getElementsByClassName("myDivInput")[i].style.opacity = "0.5";
+            }
+
           xhr.responseType = 'blob';
           xhr.onload = function (e) {
             if(e.currentTarget.status > 300){
-              document.getElementById('loader').style.display = "none"
+              document.getElementById('loader').style.display = "none";
               document.getElementById('error').innerHTML = e.currentTarget.statusText;
               document.getElementById('error').style.display = "block";
             }
@@ -165,7 +214,7 @@
             // https://stackoverflow.com/a/23054920/
             var fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
             document.getElementById('download').style.display = "block";
-            document.getElementById('loader').style.display = "none"
+            document.getElementById('loader').style.display = "none";
             saveBlob(blob, fileName);
           }
           xhr.send(formData)

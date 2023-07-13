@@ -24,7 +24,7 @@ class StatsTransformer(Transformer):
         super(StatsTransformer, self).__init__()
 
     def transform(self, pivot_list: List[Pivot]) -> dict:
-        df = pd.DataFrame.from_records([p.model_dump() for p in pivot_list])
+        df = pd.DataFrame.from_records([p.dict() for p in pivot_list])
 
         df["journal"] = df.journal.map(clean)
         df["titre"] = df.titre.map(clean)

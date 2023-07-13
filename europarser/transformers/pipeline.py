@@ -18,7 +18,7 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
     return pipeline([FileToTransform(file=file, name=name)], output)
 
 
-def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[str, OutputType]:
+def pipeline(files: List[FileToTransform], output: Output = "pivot") -> List[Tuple[str, OutputType]]:
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
@@ -26,22 +26,25 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[st
             pivots = [*pivots, *future.result()]
         # undouble remaining doubles
         pivots = list(set(pivots))
-    if output == "json":
-        result = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
-        result_type: OutputType = "json"
-    elif output == "iramuteq":
-        result = IramuteqTransformer().transform(pivots)
-        result_type = "txt"
-    elif output == "txm":
-        result = TXMTransformer().transform(pivots)
-        result_type = "xml"
-    elif output == "csv":
-        result = CSVTransformer().transform(pivots)
-        result_type = "csv"
-    elif output == "stats":
-        result = json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2)
-        result_type = "json"
-    else:
-        result = json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False)
-        result_type: OutputType = "json"
-    return result, result_type
+
+    results: List[str] = []
+    results_types: List[OutputType] = []
+    if "json" in output:
+        results.append(json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False))
+        results_types.append("json")
+    if "iramuteq" in output:
+        results.append(IramuteqTransformer().transform(pivots))
+        results_types.append("txt")
+    if "txm" in output:
+        results.append(TXMTransformer().transform(pivots))
+        results_types.append("xml")
+    if "csv" in output:
+        results.append(CSVTransformer().transform(pivots))
+        results_types.append("csv")
+    if "stats" in output:
+        results.append(json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2))
+        results_types.append("json")
+    if not results:
+        results.append(json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False))
+        results_types.append("json")
+    return results, results_types
