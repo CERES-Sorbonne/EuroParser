@@ -7,6 +7,7 @@ from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
+from europarser.transformers.stats import StatsTransformer
 
 
 def process(file: str, output: Output = "pivot", name: str = "file"):
@@ -37,6 +38,9 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[st
     elif output == "csv":
         result = CSVTransformer().transform(pivots)
         result_type = "csv"
+    elif output == "stats":
+        result = json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2)
+        result_type = "json"
     else:
         result = json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False)
         result_type: OutputType = "json"
