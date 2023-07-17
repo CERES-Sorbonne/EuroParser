@@ -28,5 +28,5 @@ class Pivot(BaseModel):
         return hash((self.journal, self.date, self.titre))
 
 
-OutputType = Literal["csv", "json", "txt", "xml"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv", "stats"]
+OutputType = Literal["csv", "json", "txt", "xml", "zip"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv", "stats", "processed_stats"]

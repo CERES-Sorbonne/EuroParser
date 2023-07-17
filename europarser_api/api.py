@@ -29,6 +29,7 @@ class Outputs(str, Enum):
     gephi = "gephi"
     csv = "csv"
     stats = "stats"
+    processed_stats = "processed_stats"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -52,9 +53,14 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
         result = result[0]
         result_type = result_type[0]
         output = output[0]
-        print(result_type)
+        if not isinstance(result, bytes):
+            result = io.StringIO(result)
+        else:
+            result = io.BytesIO(result)
+
+
         return StreamingResponse(
-            io.StringIO(result),
+            result,
             media_type=get_mimetype(result_type),
             headers={'Content-Disposition': f'attachment; filename={output.value}.{result_type}'}
         )

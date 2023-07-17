@@ -111,7 +111,9 @@
             <div class="myDivInput">
                 <input type="checkbox" id="stats" name="output" value="stats" class="myInput"> <label for="stats">Statistiques</label>
             </div>
-
+            <div class="myDivInput">
+                <input type="checkbox" id="processed_stats" name="output" value="processed_stats" class="myInput"> <label for="processed_stats">Statistiques traitées</label>
+            </div>
 
 {#            <input class=" myInput" type="checkbox" id="langToggle"\>#}
           <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
@@ -182,6 +184,10 @@
             }
             if (document.getElementById('stats').checked) {
                 formData.append("output","stats");
+                checked = true;
+            }
+            if (document.getElementById('processed_stats').checked) {
+                formData.append("output","processed_stats");
                 checked = true;
             }
 
