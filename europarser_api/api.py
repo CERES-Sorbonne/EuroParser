@@ -30,6 +30,7 @@ class Outputs(str, Enum):
     csv = "csv"
     stats = "stats"
     processed_stats = "processed_stats"
+    plots = "plots"
 
 
 @app.get("/", response_class=HTMLResponse)

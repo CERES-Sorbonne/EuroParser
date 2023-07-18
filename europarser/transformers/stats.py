@@ -9,6 +9,7 @@ import zipfile
 import io
 
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def clean(s: str) -> str:
@@ -28,9 +29,27 @@ def make_index(data, key):
     return {k: v for k, v in x if v}
 
 
+def sort_dates(ls:List[str]) -> List[datetime]:
+    return [sort_date(s) for s in ls]
+
+def sort_date(s: str) -> datetime:
+    return datetime.strptime(s, "%m-%Y")
+
+N_TOP = 5
+
+
 class StatsTransformer(Transformer):
     def __init__(self):
         super(StatsTransformer, self).__init__()
+        self.sorted_months = None
+        self.monthly_index_kw = None
+        self.monthly_stats = None
+        self.journal_stats = None
+        self.index_kw = None
+        self.index_data = None
+        self.quick_stats = None
+        self.data = None
+
 
     def transform(self, pivot_list: List[Pivot]) -> dict:
         df = pd.DataFrame.from_records([p.dict() for p in pivot_list])
@@ -73,7 +92,7 @@ class StatsTransformer(Transformer):
         # index_mois_kw = {moi: {kw: e for kw, e in index_mois_kw[moi].items() if e} for moi in mois}
         # index_journal_mois = {journal: {moi: e for moi, e in index_journal_mois[journal].items() if e} for journal in journaux}
 
-        return {
+        self.data = {
             "journal": index_journal,
             "mois": index_mois,
             "auteur": index_auteur,
@@ -81,67 +100,125 @@ class StatsTransformer(Transformer):
             "mois_kw": index_mois_kw,
             "mot_cle": kw_index,
         }
-
-
-
+        return self.data
 
     def get_stats(self, pivot_list: List[Pivot]) -> bytes:
-        data = self.transform(pivot_list)
+        if not self.data:
+            self.transform(pivot_list)
 
-        data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in data["mois_kw"].items()}
-        data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in data["journal_mois"].items()}
-        index_data = {
-            k: make_index(data, k) for k in data.keys()
-        }
-        quick_stats = {
-            "nb_auteurs": len(index_data["auteur"]),
-            "nb_journaux": len(index_data["journal"]),
-            "nb_mots_cles": len(index_data["mot_cle"]),
+        self.data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["mois_kw"].items()}
+        self.data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["journal_mois"].items()}
+
+        self.index_data = {
+            k: make_index(self.data, k) for k in self.data.keys()
         }
 
-        monthly_stats = {
+        self.quick_stats = {
+            "nb_auteurs": len(self.index_data["auteur"]),
+            "nb_journaux": len(self.index_data["journal"]),
+            "nb_mots_cles": len(self.index_data["mot_cle"]),
+        }
+
+        self.monthly_stats = {
             mois: {
-                "nb_articles": len(data["mois"][mois]),
-                "nb_mots_cles": index_data["mois_kw"][mois],
-                "nb_journaux": len(data["mois"][mois]),
-            } for mois in data["mois"].keys()
+                "nb_articles": len(self.data["mois"][mois]),
+                "nb_mots_cles": self.index_data["mois_kw"][mois],
+                "nb_journaux": len(self.data["mois"][mois]),
+                "nb_auteurs": len([e for e in self.data["auteur"].values() if any(x in self.data["mois"][mois] for x in e)]),
+            } for mois in self.data["mois"].keys()
         }
 
-        journal_stats = {
+        self.journal_stats = {
             journal: {
-                "nb_articles": len(data["journal"][journal]),
-                "nb_mots_cles": index_data["journal_mois"][journal],
-                "nb_mois": len(data["journal_mois"][journal]),
-            } for journal in data["journal"].keys()
+                "nb_articles": len(self.data["journal"][journal]),
+                "nb_mots_cles": self.index_data["journal_mois"][journal],
+                "nb_mois": len(self.data["journal_mois"][journal]),
+            } for journal in self.data["journal"].keys()
         }
 
-        index_kw = index_data["mot_cle"]
+        self.index_kw = self.index_data["mot_cle"]
 
-        monthly_index_kw = {
-            mois: make_index(data["mois_kw"], mois) for mois in data["mois_kw"].keys()
+        self.monthly_index_kw = {
+            mois: make_index(self.data["mois_kw"], mois) for mois in self.data["mois_kw"].keys()
         }
-        quick_stats = pd.DataFrame(quick_stats, index=["Valeur"])
-        monthly_stats = pd.DataFrame(monthly_stats).T
-        journal_stats = pd.DataFrame(journal_stats).T
-        index_kw = pd.DataFrame(index_kw, index=["Valeur"]).T
-        monthly_index_kw = pd.DataFrame(monthly_index_kw)
+
+        self.quick_stats = pd.DataFrame(self.quick_stats, index=["Valeur"])
+        self.monthly_stats = pd.DataFrame(self.monthly_stats).T
+        self.journal_stats = pd.DataFrame(self.journal_stats).T
+        self.index_kw = pd.DataFrame(self.index_kw, index=["Valeur"]).T
+        self.monthly_index_kw = pd.DataFrame(self.monthly_index_kw)
+
+        self.monthly_stats = self.monthly_stats.sort_index(key=sort_dates)
+        self.monthly_index_kw = self.monthly_index_kw.reindex(sorted(self.monthly_index_kw.columns, key=sort_date), axis=1)
 
         with io.BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
-                temp_zip.writestr('quick_stats.csv', quick_stats.to_csv())
-                temp_zip.writestr('monthly_stats.csv', monthly_stats.to_csv())
-                temp_zip.writestr('journal_stats.csv', journal_stats.to_csv())
-                temp_zip.writestr('index_kw.csv', index_kw.to_csv())
-                temp_zip.writestr('monthly_index_kw.csv', monthly_index_kw.to_csv())
+                temp_zip.writestr('quick_stats.csv', self.quick_stats.to_csv())
+                temp_zip.writestr('monthly_stats.csv', self.monthly_stats.to_csv())
+                temp_zip.writestr('journal_stats.csv', self.journal_stats.to_csv())
+                temp_zip.writestr('index_kw.csv', self.index_kw.to_csv())
+                temp_zip.writestr('monthly_index_kw.csv', self.monthly_index_kw.to_csv())
 
                 with io.BytesIO() as bytes_io:
                     with pd.ExcelWriter(bytes_io, engine='xlsxwriter') as writer:
-                        quick_stats.to_excel(writer, sheet_name='quick_stats')
-                        monthly_stats.to_excel(writer, sheet_name='monthly_stats')
-                        journal_stats.to_excel(writer, sheet_name='journal_stats')
-                        index_kw.to_excel(writer, sheet_name='index_kw')
-                        monthly_index_kw.to_excel(writer, sheet_name='monthly_index_kw')
+                        self.quick_stats.to_excel(writer, sheet_name='quick_stats')
+                        self.monthly_stats.to_excel(writer, sheet_name='monthly_stats')
+                        self.journal_stats.to_excel(writer, sheet_name='journal_stats')
+                        self.index_kw.to_excel(writer, sheet_name='index_kw')
+                        self.monthly_index_kw.to_excel(writer, sheet_name='monthly_index_kw')
 
                     with temp_zip.open("stats.xlsx", "w") as f:
                         f.write(bytes_io.getvalue())
             return zip_io.getvalue()
+
+    def get_plots(self, pivot_list: List[Pivot]) -> bytes:
+        if not self.monthly_index_kw:
+            self.get_stats(pivot_list)
+
+        self.sorted_months = sorted(self.data["mois"].keys(), key=lambda x: datetime.strptime(x, "%m-%Y"))
+
+        with io.BytesIO() as zip_io:
+            with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
+                for key in self.monthly_stats.keys():
+                    fig, ax = plt.subplots(figsize=(10, 5))
+                    ax.plot(self.sorted_months, [self.monthly_stats[key][mois] for mois in self.sorted_months])
+                    ax.set_title(f"Nombre de {key[3:]} par mois")
+                    ax.set_xlabel("Mois")
+                    ax.set_ylabel(f"{key = }")
+
+                    plt.xticks(rotation=45)
+
+                    temp_bytes_io = io.BytesIO()
+                    plt.savefig(temp_bytes_io, format="png")
+                    temp_bytes_io.seek(0)
+
+                    temp_zip.writestr(f'{key}.png', temp_bytes_io.getvalue())
+                    plt.close()
+
+                for rank in range(3):
+                    temp_zip.writestr(f'top_{N_TOP}_kw_{rank}.png', self.plot_kw(rank))
+
+            zip_io.seek(0)
+            return zip_io.getvalue()
+
+    def plot_kw(self, rank: int = 0) -> bytes:
+        fig, ax = plt.subplots(figsize=(10, 5))
+
+        start, end = (rank * N_TOP, (rank + 1) * N_TOP)
+
+        for kw in self.index_kw.index[start: end]:
+            ax.plot(self.sorted_months, [self.monthly_index_kw[mois][kw] for mois in self.sorted_months], label=kw)
+
+        ax.set_title(f"Évolution des mots clés {start + 1} à {end} les plus utilisés")
+        ax.set_xlabel("Mois")
+        ax.set_ylabel(f"Nombre d'articles")
+        plt.legend()
+
+        plt.xticks(rotation=45)
+
+        temp_bytes_io = io.BytesIO()
+        plt.savefig(temp_bytes_io, format="png")
+        temp_bytes_io.seek(0)
+        plt.close()
+        return temp_bytes_io.getvalue()
+

@@ -47,6 +47,9 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[Li
     if "processed_stats" in output:
         results.append(StatsTransformer().get_stats(pivots))
         results_types.append("zip")
+    if "plots" in output:
+        results.append(StatsTransformer().get_plots(pivots))
+        results_types.append("zip")
     if not results:
         results.append(json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False))
         results_types.append("json")

@@ -29,4 +29,4 @@ class Pivot(BaseModel):
 
 
 OutputType = Literal["csv", "json", "txt", "xml", "zip"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv", "stats", "processed_stats"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv", "stats", "processed_stats", "plots"]
