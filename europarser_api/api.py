@@ -1,16 +1,16 @@
 import io
+# import logging
 import os
 import zipfile
 from enum import Enum
-from typing import Optional, List
-import gzip
+from typing import List  # , Optional
 
-from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File, Query
+from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File  # , Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from europarser.models import FileToTransform, Output
+from europarser.models import FileToTransform  # , Output
 from europarser.transformers.pipeline import pipeline
 from europarser_api.utils import get_mimetype
 
@@ -54,6 +54,7 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
         result = result[0]
         result_type = result_type[0]
         output = output[0]
+
         if not isinstance(result, bytes):
             result = io.StringIO(result)
         else:
@@ -69,7 +70,16 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
         for out, res, type_ in zip(output, result, result_type):
+            print(f"{out = } {type_ = }")
+            if type_ == "zip":
+                temp_zip.mkdir(out.value)
+                with zipfile.ZipFile(io.BytesIO(res), mode='r') as z:
+                    for f in z.namelist():
+                        temp_zip.writestr(f"{out.value}/{f}", z.read(f))
+                continue
+
             temp_zip.writestr(f"{out.value}.{type_}", res)
+
     zip_io.seek(0)
     return StreamingResponse(
         zip_io,
