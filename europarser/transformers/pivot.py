@@ -1,4 +1,9 @@
-from typing import List, Dict, Any
+import sys
+
+if sys.version_info < (3, 9):
+    from __future__ import annotations
+
+from typing import List
 from bs4 import BeautifulSoup
 
 from europarser.models import FileToTransform, Pivot

@@ -1,3 +1,8 @@
+import sys
+
+if sys.version_info < (3, 9):
+    from __future__ import annotations
+
 import re
 from typing import Tuple
 
