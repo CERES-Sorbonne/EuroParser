@@ -1,7 +1,6 @@
 import sys
 
-if sys.version_info < (3, 9):
-    from __future__ import annotations
+# if sys.version_info < (3, 9):
 #     from __future__ import annotations
 
 from typing import List
@@ -47,6 +46,10 @@ class PivotTransformer(Transformer):
             if not all([year, month, day_nb]):
                 print("No proper date was found")
                 continue
+
+            doc["annee"] = year
+            doc["mois"] = month
+            doc["jour"] = day_nb
 
             doc["date"] = " ".join([year, month, day_nb])
 

@@ -23,11 +23,14 @@ class Pivot(BaseModel):
     journal: str
     journal_clean : str
     titre: str
+    annee: str
+    mois: str
+    jour: str
     date: str
     auteur: str
     texte: str
     keywords: str
-    langue :str
+    langue: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
