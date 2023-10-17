@@ -1,7 +1,7 @@
 import sys
 
-if sys.version_info < (3, 9):
-    from __future__ import annotations
+# if sys.version_info < (3, 9):
+#     from __future__ import annotations
 
 import concurrent.futures
 import json
@@ -23,7 +23,7 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
     return pipeline([FileToTransform(file=file, name=name)], output)
 
 
-def pipeline(files: List[FileToTransform], output: Output = "pivot") -> Tuple[List[str, bytes], List[OutputType]]:
+def pipeline(files: List[FileToTransform], output: Output = "pivot"):  # -> Tuple[List[str, bytes], List[OutputType]]:
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
