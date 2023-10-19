@@ -23,10 +23,11 @@ class Pivot(BaseModel):
     journal: str
     journal_clean : str
     titre: str
-    annee: str
-    mois: str
-    jour: str
+    annee: int
+    mois: int
+    jour: int
     date: str
+    epoch: int
     auteur: str
     texte: str
     keywords: str

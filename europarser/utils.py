@@ -4,7 +4,8 @@ import sys
 #     from __future__ import annotations
 
 import re
-from typing import Tuple
+from typing import Tuple, Optional
+from datetime import date
 
 date_regex = [
     find_french_date_1 := re.compile(
@@ -21,7 +22,7 @@ trad_months = {"January": "janvier", "February": "février", "March": "mars", "A
 
 
 
-def find_date(txt: [str]) -> Tuple[str, str, str]:
+def find_date(txt: [str]) -> Optional[date]:
     """
     Utility function to extract a date from aa given string
     :return: a 3 strings tuple: day number, month, year
@@ -58,12 +59,14 @@ def find_date(txt: [str]) -> Tuple[str, str, str]:
 
     if final_month not in dic_months:
         print("No valid date was found for " + txt)
-        return "", "", ""
+        # return "", "", ""
+        return None
     else:
         if len(day) == 1 :
             day="0"+day
         real_month = dic_months[final_month]
-        return day, real_month, year
+        # return day, real_month, year
+        return date(int(year), int(real_month), int(day))
 
 
 STOP_WORDS = ["ans","faire","a","abord","absolument","afin","ah","ai","aie","aient","aies","ailleurs","ainsi","ait",

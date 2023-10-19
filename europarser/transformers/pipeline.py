@@ -30,7 +30,7 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot"):  # -> Tupl
         for future in concurrent.futures.as_completed(futures):
             pivots = [*pivots, *future.result()]
         # undouble remaining doubles
-        pivots = list(set(pivots))
+        pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
     results: List[str | bytes] = []
     results_types: List[OutputType] = []

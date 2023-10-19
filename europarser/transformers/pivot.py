@@ -5,6 +5,7 @@ import sys
 
 from typing import List
 from bs4 import BeautifulSoup
+from datetime import date
 
 from europarser.models import FileToTransform, Pivot
 from europarser.transformers.transformer import Transformer
@@ -41,17 +42,38 @@ class PivotTransformer(Transformer):
             doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"})
             doc_sub_section = doc_sub_section.find_next_sibling("span").text.strip() if doc_sub_section else ""
 
-            day_nb, month, year = find_date(doc_header or doc_sub_section)
+            # day_nb, month, year = find_date(doc_header or doc_sub_section)
+            #
+            # if not all([year, month, day_nb]):
+            #     print("No proper date was found")
+            #     continue
+            #
+            # doc["annee"] = year
+            # doc["mois"] = month
+            # doc["jour"] = day_nb
+            #
+            #
+            #
+            # doc["epoch"] = date(int(year), int(month), int(day_nb)).toordinal()
 
-            if not all([year, month, day_nb]):
-                print("No proper date was found")
-                continue
+            # doc["date"] = " ".join([year, month, day_nb])
 
-            doc["annee"] = year
-            doc["mois"] = month
-            doc["jour"] = day_nb
+            date = find_date(doc_header or doc_sub_section)
+            if date:
+                doc["date"] = date.strftime("%Y %m %d")
 
-            doc["date"] = " ".join([year, month, day_nb])
+                doc["annee"] = date.year
+                doc["mois"] = date.month
+                doc["jour"] = date.day
+
+                doc["epoch"] = date.toordinal()
+
+            else:
+                doc["date"] = None
+                doc["annee"] = None
+                doc["mois"] = None
+                doc["jour"] = None
+                doc["epoch"] = None
 
             try:
                 doc["titre"] = article.find("div", attrs={"class": "titreArticle"}).text.strip()
