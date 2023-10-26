@@ -5,7 +5,7 @@ import sys
 
 import concurrent.futures
 import json
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 from europarser.models import FileToTransform, Output, Pivot, OutputType
 from europarser.transformers.gephi import GephiTransformer
@@ -24,9 +24,9 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
     return pipeline([FileToTransform(file=file, name=name)], output)
 
 
-def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tuple[List[str, bytes], List[OutputType]]:
+def pipeline(files: List[FileToTransform], outputs: List[Output] = ["pivot"]):  # -> Tuple[List[str, bytes], List[OutputType]]:
     pivots: List[Pivot] = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
         for future in concurrent.futures.as_completed(futures):
             pivots = [*pivots, *future.result()]
@@ -37,18 +37,15 @@ def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tup
         stats_data = StatsTransformer().transform(pivots)
     else:
         stats_data = None
-    results: List[str | bytes] = []
-    results_types: List[OutputType] = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
+    results: List[dict[str, OutputType | Any] | bytes] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_output, output, pivots, stats_data) for output in outputs]
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
-            results.append(res[0])
-            results_types.append(res[1])
+            results.append({'type': res[1], 'data': res[0], 'output': res[2]})
     if not results:
-        results.append(json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False))
-        results_types.append("json")
-    return results, results_types
+        results.append({'data': json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False), 'output': 'json'})
+    return results
 
 
 def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tuple:
@@ -57,16 +54,16 @@ def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tup
 
     match output:
         case "json":
-            return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json"
+            return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json", output
         case "iramuteq":
-            return IramuteqTransformer().transform(pivots), "txt"
+            return IramuteqTransformer().transform(pivots), "txt", output
         case "txm":
-            return TXMTransformer().transform(pivots), "xml"
+            return TXMTransformer().transform(pivots), "xml", output
         case "csv":
-            return CSVTransformer().transform(pivots), "csv"
+            return CSVTransformer().transform(pivots), "csv", output
         case "stats":
-            return json.dumps(stats_data, ensure_ascii=False, indent=2), "json"
+            return json.dumps(stats_data, ensure_ascii=False, indent=2), "json", output
         case "processed_stats":
-            return stats_transformer.get_stats(pivots), "zip"
+            return stats_transformer.get_stats(pivots), "zip", output
         case "plots":
-            return stats_transformer.get_plots(pivots), "zip"
+            return stats_transformer.get_plots(pivots), "zip", output

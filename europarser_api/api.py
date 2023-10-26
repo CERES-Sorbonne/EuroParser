@@ -48,28 +48,30 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
     # process result
-    result, result_type = pipeline(to_process, output)
+    results = pipeline(to_process, output)
 
-    if len(result) == 1:
-        result = result[0]
-        result_type = result_type[0]
+    if len(results) == 1:
+        result = results[0]
         output = output[0]
 
-        if not isinstance(result, bytes):
-            result = io.StringIO(result)
+        if not isinstance(result['data'], bytes):
+            result['data'] = io.StringIO(result)
         else:
-            result = io.BytesIO(result)
+            result['data'] = io.BytesIO(result)
 
 
         return StreamingResponse(
-            result,
-            media_type=get_mimetype(result_type),
-            headers={'Content-Disposition': f'attachment; filename={output.value}.{result_type}'}
+            result['data'],
+            media_type=get_mimetype(result['output']),
+            headers={'Content-Disposition': f"attachment; filename={output.value}.{result['type']}"}
         )
 
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
-        for out, res, type_ in zip(output, result, result_type):
+        for result in results:
+            out = result['output']
+            res = result['data']
+            type_ = result['type']
             print(f"{out = } {type_ = }")
             if type_ == "zip":
                 temp_zip.mkdir(out.value)
