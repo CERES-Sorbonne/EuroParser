@@ -55,9 +55,9 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
         output = output[0]
 
         if not isinstance(result['data'], bytes):
-            result['data'] = io.StringIO(result)
+            result['data'] = io.StringIO(result['data'])
         else:
-            result['data'] = io.BytesIO(result)
+            result['data'] = io.BytesIO(result['data'])
 
 
         return StreamingResponse(
