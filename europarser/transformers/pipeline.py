@@ -48,6 +48,7 @@ def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tup
 
 
 def process_output(output: Output, pivots: List[Pivot]) -> Tuple:
+    stats_transformer = StatsTransformer()
     match output:
         case "json":
             return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json"
@@ -58,8 +59,8 @@ def process_output(output: Output, pivots: List[Pivot]) -> Tuple:
         case "csv":
             return CSVTransformer().transform(pivots), "csv"
         case "stats":
-            return json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2), "json"
+            return json.dumps(stats_transformer.transform(pivots), ensure_ascii=False, indent=2), "json"
         case "processed_stats":
-            return StatsTransformer().get_stats(pivots), "zip"
+            return stats_transformer.get_stats(pivots), "zip"
         case "plots":
-            return StatsTransformer().get_plots(pivots), "zip"
+            return stats_transformer.get_plots(pivots), "zip"

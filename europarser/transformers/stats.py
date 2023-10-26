@@ -14,8 +14,8 @@ import zipfile
 import io
 
 import pandas as pd
-import matplotlib
-matplotlib.use('TkAgg')
+# import matplotlib
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
@@ -128,9 +128,9 @@ class StatsTransformer(Transformer):
 
         self.monthly_stats = {
             mois: {
-                "nb_articles": len(self.data["mois"][mois]),
-                "nb_mots_cles": self.index_data["mois_kw"][mois],
-                "nb_journaux": len(self.data["mois"][mois]),
+                "nb_articles": len(self.data["mois"].get(mois, [])),
+                "nb_mots_cles": self.index_data["mois_kw"].get(mois, 0),
+                "nb_journaux": len([k for k, v in self.data["journal_mois"].items() if mois in v]),
                 "nb_auteurs": len([e for e in self.data["auteur"].values() if any(x in self.data["mois"][mois] for x in e)]),
             } for mois in self.data["mois"].keys()
         }
