@@ -26,7 +26,7 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
 
 def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tuple[List[str, bytes], List[OutputType]]:
     pivots: List[Pivot] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
         for future in concurrent.futures.as_completed(futures):
             pivots = [*pivots, *future.result()]
@@ -35,30 +35,31 @@ def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tup
 
     results: List[str | bytes] = []
     results_types: List[OutputType] = []
-    for output in outputs:
-        match output:
-            case "json":
-                results.append(json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False))
-                results_types.append("json")
-            case "iramuteq":
-                results.append(IramuteqTransformer().transform(pivots))
-                results_types.append("txt")
-            case "txm":
-                results.append(TXMTransformer().transform(pivots))
-                results_types.append("xml")
-            case "csv":
-                results.append(CSVTransformer().transform(pivots))
-                results_types.append("csv")
-            case "stats":
-                results.append(json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2))
-                results_types.append("json")
-            case "processed_stats":
-                results.append(StatsTransformer().get_stats(pivots))
-                results_types.append("zip")
-            case "plots":
-                results.append(StatsTransformer().get_plots(pivots))
-                results_types.append("zip")
+    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(process_output, output, pivots) for output in outputs]
+        for future in concurrent.futures.as_completed(futures):
+            res = future.result()
+            results.append(res[0])
+            results_types.append(res[1])
     if not results:
         results.append(json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False))
         results_types.append("json")
     return results, results_types
+
+
+def process_output(output: Output, pivots: List[Pivot]) -> Tuple:
+    match output:
+        case "json":
+            return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json"
+        case "iramuteq":
+            return IramuteqTransformer().transform(pivots), "txt"
+        case "txm":
+            return TXMTransformer().transform(pivots), "xml"
+        case "csv":
+            return CSVTransformer().transform(pivots), "csv"
+        case "stats":
+            return json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2), "json"
+        case "processed_stats":
+            return StatsTransformer().get_stats(pivots), "zip"
+        case "plots":
+            return StatsTransformer().get_plots(pivots), "zip"
