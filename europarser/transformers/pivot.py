@@ -76,9 +76,10 @@ class PivotTransformer(Transformer):
                 doc["epoch"] = None
 
             try:
-                doc["titre"] = article.find("div", attrs={"class": "titreArticle"}).text.strip()
+                doc_titre = article.find("div", attrs={"class": "titreArticle"})
             except:
-                doc["titre"] = article.find("p", attrs={"class": "titreArticleVisu"}).text.strip()
+                doc_titre = article.find("p", attrs={"class": "titreArticleVisu"})
+
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
             except:
@@ -87,10 +88,17 @@ class PivotTransformer(Transformer):
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
-            try:
-                doc["auteur"] = article.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip().lower()
-            except:
+            doc_auteur = doc_titre.find_next_sibling('p')
+
+            if doc_auteur and "class" in doc_auteur.attrs and doc_auteur.attrs['class'] == ['sm-margin-bottomNews']:
+                doc["auteur"] = doc_auteur.text.strip().lower()
+
+            else:
                 doc["auteur"] = "Unknown"
+
+
+
+            doc["titre"] = doc_titre.text.strip()
 
             # on garde uniquement le titre (sans les fioritures)
             journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]

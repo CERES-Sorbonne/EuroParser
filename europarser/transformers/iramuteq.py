@@ -14,7 +14,7 @@ class IramuteqTransformer(Transformer):
         with io.StringIO() as f:
             for pivot in pivot_list:
                 dic = pivot.dict(exclude={'texte'})
-                f.write(f"""**** {' '.join([f"*{k}_{self._format_value(v)}" for k,v in dic.items()])}\n""")
+                f.write(f"""**** {' '.join([f"*{k}_{self._format_value(str(v))}" for k,v in dic.items()])}\n""")
                 f.write(pivot.texte)
                 f.write('\n\n')
             return f.getvalue()
