@@ -2,5 +2,6 @@ beautifulsoup4
 pydantic
 numpy
 pandas
+XlsxWriter
 langid
 matplotlib

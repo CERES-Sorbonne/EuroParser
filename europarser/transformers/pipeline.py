@@ -8,6 +8,7 @@ import json
 from typing import List, Tuple
 
 from europarser.models import FileToTransform, Output, Pivot, OutputType
+from europarser.transformers.gephi import GephiTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.pivot import PivotTransformer
@@ -23,7 +24,7 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
     return pipeline([FileToTransform(file=file, name=name)], output)
 
 
-def pipeline(files: List[FileToTransform], output: Output = "pivot"):  # -> Tuple[List[str, bytes], List[OutputType]]:
+def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tuple[List[str, bytes], List[OutputType]]:
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
@@ -34,27 +35,29 @@ def pipeline(files: List[FileToTransform], output: Output = "pivot"):  # -> Tupl
 
     results: List[str | bytes] = []
     results_types: List[OutputType] = []
-    if "json" in output:
-        results.append(json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False))
-        results_types.append("json")
-    if "iramuteq" in output:
-        results.append(IramuteqTransformer().transform(pivots))
-        results_types.append("txt")
-    if "txm" in output:
-        results.append(TXMTransformer().transform(pivots))
-        results_types.append("xml")
-    if "csv" in output:
-        results.append(CSVTransformer().transform(pivots))
-        results_types.append("csv")
-    if "stats" in output:
-        results.append(json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2))
-        results_types.append("json")
-    if "processed_stats" in output:
-        results.append(StatsTransformer().get_stats(pivots))
-        results_types.append("zip")
-    if "plots" in output:
-        results.append(StatsTransformer().get_plots(pivots))
-        results_types.append("zip")
+    for output in outputs:
+        match output:
+            case "json":
+                results.append(json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False))
+                results_types.append("json")
+            case "iramuteq":
+                results.append(IramuteqTransformer().transform(pivots))
+                results_types.append("txt")
+            case "txm":
+                results.append(TXMTransformer().transform(pivots))
+                results_types.append("xml")
+            case "csv":
+                results.append(CSVTransformer().transform(pivots))
+                results_types.append("csv")
+            case "stats":
+                results.append(json.dumps(StatsTransformer().transform(pivots), ensure_ascii=False, indent=2))
+                results_types.append("json")
+            case "processed_stats":
+                results.append(StatsTransformer().get_stats(pivots))
+                results_types.append("zip")
+            case "plots":
+                results.append(StatsTransformer().get_plots(pivots))
+                results_types.append("zip")
     if not results:
         results.append(json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False))
         results_types.append("json")
