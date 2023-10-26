@@ -88,7 +88,7 @@ class PivotTransformer(Transformer):
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
             try:
-                doc["auteur"] = article.find("div", attrs={"class": "docAuthors"}).text.strip().lower()
+                doc["auteur"] = article.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip().lower()
             except:
                 doc["auteur"] = "Unknown"
 
