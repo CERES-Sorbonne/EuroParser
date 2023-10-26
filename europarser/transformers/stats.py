@@ -8,14 +8,15 @@ from europarser.transformers.transformer import Transformer
 
 import re
 from datetime import datetime, date
+import time
 from typing import List
 import json
 import zipfile
 import io
 
 import pandas as pd
-# import matplotlib
-# matplotlib.use('TkAgg')
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
@@ -59,6 +60,8 @@ class StatsTransformer(Transformer):
 
 
     def transform(self, pivot_list: List[Pivot]) -> dict:
+        self._logger.warning("Starting to compute stats")
+        t1 = time.time()
         df = pd.DataFrame.from_records([p.dict() for p in pivot_list])
 
         df["journal"] = df.journal.map(clean)
@@ -107,9 +110,11 @@ class StatsTransformer(Transformer):
             "mois_kw": index_mois_kw,
             "mot_cle": kw_index,
         }
+        self._logger.warning(f"Computed stats in {time.time() - t1} s")
         return self.data
 
     def get_stats(self, pivot_list: List[Pivot]) -> bytes:
+
         if not self.data:
             self.transform(pivot_list)
 

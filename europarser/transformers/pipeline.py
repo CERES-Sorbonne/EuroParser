@@ -33,10 +33,14 @@ def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tup
         # undouble remaining doubles
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
+    if "stats" in outputs or "processed_stats" in outputs or "plots" in outputs:
+        stats_data = StatsTransformer().transform(pivots)
+    else:
+        stats_data = None
     results: List[str | bytes] = []
     results_types: List[OutputType] = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(process_output, output, pivots) for output in outputs]
+        futures = [executor.submit(process_output, output, pivots, stats_data) for output in outputs]
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
             results.append(res[0])
@@ -47,8 +51,10 @@ def pipeline(files: List[FileToTransform], outputs: Output = "pivot"):  # -> Tup
     return results, results_types
 
 
-def process_output(output: Output, pivots: List[Pivot]) -> Tuple:
+def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tuple:
     stats_transformer = StatsTransformer()
+    stats_transformer.data = stats_data
+
     match output:
         case "json":
             return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json"
@@ -59,7 +65,7 @@ def process_output(output: Output, pivots: List[Pivot]) -> Tuple:
         case "csv":
             return CSVTransformer().transform(pivots), "csv"
         case "stats":
-            return json.dumps(stats_transformer.transform(pivots), ensure_ascii=False, indent=2), "json"
+            return json.dumps(stats_data, ensure_ascii=False, indent=2), "json"
         case "processed_stats":
             return stats_transformer.get_stats(pivots), "zip"
         case "plots":
