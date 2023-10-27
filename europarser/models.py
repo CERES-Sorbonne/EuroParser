@@ -21,8 +21,9 @@ class Error(BaseModel):
 
 class Pivot(BaseModel):
     journal: str
-    journal_clean : str
+    journal_clean: str
     titre: str
+    sous_titre: str
     annee: int
     mois: int
     jour: int

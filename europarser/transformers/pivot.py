@@ -42,30 +42,12 @@ class PivotTransformer(Transformer):
             doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"})
             doc_sub_section = doc_sub_section.find_next_sibling("span").text.strip() if doc_sub_section else ""
 
-            # day_nb, month, year = find_date(doc_header or doc_sub_section)
-            #
-            # if not all([year, month, day_nb]):
-            #     print("No proper date was found")
-            #     continue
-            #
-            # doc["annee"] = year
-            # doc["mois"] = month
-            # doc["jour"] = day_nb
-            #
-            #
-            #
-            # doc["epoch"] = date(int(year), int(month), int(day_nb)).toordinal()
-
-            # doc["date"] = " ".join([year, month, day_nb])
-
             date = find_date(doc_header or doc_sub_section)
             if date:
                 doc["date"] = date.strftime("%Y %m %d")
-
                 doc["annee"] = date.year
                 doc["mois"] = date.month
                 doc["jour"] = date.day
-
                 doc["epoch"] = date.toordinal()
 
             else:
@@ -76,29 +58,40 @@ class PivotTransformer(Transformer):
                 doc["epoch"] = None
 
             try:
-                doc_titre = article.find("div", attrs={"class": "titreArticle"})
-            except:
-                doc_titre = article.find("p", attrs={"class": "titreArticleVisu"})
+                doc_titre_full = article.find("div", attrs={"class": "titreArticle"})
+                assert doc_titre_full is not None
+            except AssertionError:
+                doc_titre_full = article.find("p", attrs={"class": "titreArticleVisu"})
+
+
+            try:
+                doc["titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews titreArticleVisu rdp__articletitle"}).text.strip()
+            except AttributeError:
+                doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
+
+            try:
+                doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
+            except AttributeError:
+                try:
+                    doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
+                except AttributeError:
+                    doc["sous_titre"] = "None"
 
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
-            except:
+            except AttributeError:
                 if article.find("div", attrs={"class": "DocText clearfix"}) is None:
                     continue
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
-            doc_auteur = doc_titre.find_next_sibling('p')
+            doc_auteur = doc_titre_full.find_next_sibling('p')
 
             if doc_auteur and "class" in doc_auteur.attrs and doc_auteur.attrs['class'] == ['sm-margin-bottomNews']:
                 doc["auteur"] = doc_auteur.text.strip().lower()
 
             else:
                 doc["auteur"] = "Unknown"
-
-
-
-            doc["titre"] = doc_titre.text.strip()
 
             # on garde uniquement le titre (sans les fioritures)
             journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
