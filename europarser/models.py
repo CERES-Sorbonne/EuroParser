@@ -23,8 +23,7 @@ class Pivot(BaseModel):
     journal: str
     journal_clean: str
     titre: str
-    sous_titre: str
-    rubrique: str
+    complement: str
     annee: int
     mois: int
     jour: int

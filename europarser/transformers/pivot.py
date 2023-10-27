@@ -90,15 +90,13 @@ class PivotTransformer(Transformer):
             except AttributeError:
                 doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
 
-            try:
-                doc["rubrique"] = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
-            except AttributeError:
-                doc["rubrique"] = "None"
+            doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"})
+            doc_bottomNews = doc_bottomNews.text.strip() if doc_bottomNews else ""
 
-            try:
-                doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
-            except AttributeError:
-                doc["sous_titre"] = "None"
+            doc_subtitle = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"})
+            doc_subtitle = doc_subtitle.text.strip() if doc_subtitle else ""
+
+            doc["complement"] = " | ".join((doc_header, doc_sub_section, doc_bottomNews, doc_subtitle))
 
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
