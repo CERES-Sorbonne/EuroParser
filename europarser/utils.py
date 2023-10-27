@@ -5,7 +5,7 @@ import sys
 
 import re
 from typing import Tuple, Optional
-from datetime import date
+from datetime import date, datetime
 
 date_regex = [
     find_french_date_1 := re.compile(
@@ -19,13 +19,14 @@ dic_months = {"janvier": "01", "février": "02", "mars": "03", "avril": "04", "m
 trad_months = {"January": "janvier", "February": "février", "March": "mars", "April": "avril", "May": "mai",
                "June": "juin", "July": "juillet", "August": "août", "September": "septembre", "October": "octobre",
                "November": "novembre", "December": "décembre"}
+time_regex = re.compile(r'\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s?[ap]\.?m\.?)?(?:\s?[GU][MT][TC]\s[+-]\d{1,2})?')
 
 
 
 def find_date(txt: [str]) -> Optional[date]:
     """
     Utility function to extract a date from aa given string
-    :return: a 3 strings tuple: day number, month, year
+    :return: a date object with the date
     """
     day = month = year = ""
     index = 0
@@ -67,6 +68,97 @@ def find_date(txt: [str]) -> Optional[date]:
         real_month = dic_months[final_month]
         # return day, real_month, year
         return date(int(year), int(real_month), int(day))
+
+
+def find_datetime(txt: [str]) -> Optional[datetime]:
+    """
+    Utility function to extract date and time from a given string
+    :return: a datetime object with the date and time
+    """
+
+    day = month = year = hour = minute = second = ""
+    index = 0
+    final_month = None
+    while index < len(date_regex) and final_month not in dic_months:
+        match = date_regex[index].search(txt)
+        if match:
+            match = match[0]
+
+            if date_regex[index] is find_french_date_1:
+                _, day, month, year = match.split()
+
+            elif date_regex[index] is find_french_date_2:
+                day, month, year = match.split()
+
+            elif date_regex[index] is find_english_date_1:
+                _, month, year = match.split(',')
+                month, day = month.strip().split()
+                month = trad_months[month]
+
+            elif date_regex[index] is find_english_date_2:
+                month_day, year = match.split(',')
+                month, day = month_day.split(' ')
+                month = trad_months[month]
+
+            day, month, year = [x.strip() for x in [day, month, year]]
+            final_month = month
+            index += 1
+        else:
+            index += 1
+
+    if final_month not in dic_months:
+        print("No valid date was found for " + txt)
+        # return "", "", ""
+        return None
+    else:
+        if len(day) == 1 :
+            day="0"+day
+        real_month = dic_months[final_month]
+        # return day, real_month, year
+
+    match = time_regex.search(txt)
+    file = open("test.txt", "a")
+    if match:
+        print(f"Found time {match[0]} in {txt}", file=file)
+        match = match[0]
+        if ":" in match:
+            parts = match.split(":")
+
+            if len(parts) == 2:
+                hour, minute = parts
+                minute = minute.split()[0]
+            elif len(parts) == 3:
+                hour, minute, second = parts
+                second = second.split()[0]
+        else:
+            hour = match.split()[0]
+            minute = "00"
+            second = "00"
+
+        if "p" in match.lower():
+            hour = str(int(hour) + 12)
+        elif "a" in match.lower():
+            hour = str(int(hour) + 12)
+
+        hour, minute, second = [x.strip() for x in [hour, minute, second]]
+
+        if "+" in match:
+            hour = str(int(hour) - int(match.split("+")[1]))
+        elif "-" in match:
+            hour = str(int(hour) + int(match.split("-")[1]))
+        # return day, real_month, year, hour, minute, second
+
+        if not second:
+            second = 0
+
+        file.close()
+        return datetime(int(year), int(real_month), int(day), int(hour), int(minute), int(second))
+    else:
+        print(f"No time found in {txt}", file=file)
+        file.close()
+        return datetime(int(year), int(real_month), int(day))
+
+
 
 
 STOP_WORDS = ["ans","faire","a","abord","absolument","afin","ah","ai","aie","aient","aies","ailleurs","ainsi","ait",

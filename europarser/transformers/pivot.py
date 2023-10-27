@@ -9,7 +9,7 @@ from datetime import date
 
 from europarser.models import FileToTransform, Pivot
 from europarser.transformers.transformer import Transformer
-from europarser.utils import find_date
+from europarser.utils import find_date, find_datetime
 import re
 from europarser.daniel_light import get_KW
 from europarser.lang_detect import detect_lang
@@ -42,20 +42,41 @@ class PivotTransformer(Transformer):
             doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"})
             doc_sub_section = doc_sub_section.find_next_sibling("span").text.strip() if doc_sub_section else ""
 
-            date = find_date(doc_header or doc_sub_section)
-            if date:
-                doc["date"] = date.strftime("%Y %m %d")
-                doc["annee"] = date.year
-                doc["mois"] = date.month
-                doc["jour"] = date.day
-                doc["epoch"] = date.toordinal()
+            # date = find_date(doc_header or doc_sub_section)
+            # if date:
+            #     doc["date"] = date.strftime("%Y %m %d")
+            #     doc["annee"] = date.year
+            #     doc["mois"] = date.month
+            #     doc["jour"] = date.day
+            #     doc["epoch"] = date.toordinal()
+            #
+            # else:
+            #     doc["date"] = None
+            #     doc["annee"] = None
+            #     doc["mois"] = None
+            #     doc["jour"] = None
+            #     doc["epoch"] = None
 
+            datetime = find_datetime(doc_header or doc_sub_section)
+            if datetime:
+                doc["date"] = datetime.strftime("%Y %m %dT%H:%M:%S")
+                doc["annee"] = datetime.year
+                doc["mois"] = datetime.month
+                doc["jour"] = datetime.day
+                doc["heure"] = datetime.hour
+                doc["minute"] = datetime.minute
+                doc["seconde"] = datetime.second
+                doc["epoch"] = datetime.timestamp()
             else:
                 doc["date"] = None
                 doc["annee"] = None
                 doc["mois"] = None
                 doc["jour"] = None
+                doc["heure"] = None
+                doc["minute"] = None
+                doc["seconde"] = None
                 doc["epoch"] = None
+
 
             try:
                 doc_titre_full = article.find("div", attrs={"class": "titreArticle"})
@@ -70,12 +91,14 @@ class PivotTransformer(Transformer):
                 doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
 
             try:
-                doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
+                doc["rubrique"] = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
             except AttributeError:
-                try:
-                    doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
-                except AttributeError:
-                    doc["sous_titre"] = "None"
+                doc["rubrique"] = "None"
+
+            try:
+                doc["sous_titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
+            except AttributeError:
+                doc["sous_titre"] = "None"
 
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
