@@ -49,8 +49,10 @@ def pipeline(files: List[FileToTransform], outputs: List[Output] = ["pivot"]):  
 
 
 def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tuple:
-    stats_transformer = StatsTransformer()
-    stats_transformer.data = stats_data
+    stats_transformer = None
+    if stats_data is not None and output in ["processed_stats", "plots"]:
+        stats_transformer = StatsTransformer()
+        stats_transformer.data = stats_data
 
     match output:
         case "json":
