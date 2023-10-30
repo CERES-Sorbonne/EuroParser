@@ -1,6 +1,6 @@
 import json
 from collections import defaultdict
-
+from time import sleep
 import pandas as pd
 import re
 from datetime import datetime, date
@@ -9,10 +9,12 @@ import zipfile
 import io
 from matplotlib import pyplot as plt
 
+from europarser.transformers.transformer import Transformer
+
 N_TOP = 5
 
 
-class StatsTransformer:
+class StatsTransformer(Transformer):
     @staticmethod
     def clean(s: str) -> str:
         return re.sub(r"\s+", " ", s).strip()
@@ -38,11 +40,32 @@ class StatsTransformer:
         dt = datetime.fromtimestamp(i)
         return dt.year * 100 + dt.month  # --> int(f"{dt.year}{dt.month:02}") equivalent
 
+    def for_display(self, mois_int: int) -> str:
+        return f"{mois_int // 100}-{mois_int % 100:02}"
+        # ## TODO : compare performance with this
+        # mois_str = str(mois_int)
+        # return f"{mois_str[:-2]}-{mois_str[-2:]}"
+
+    @staticmethod
+    def clean_keywords(column: pd.Series) -> pd.Series:
+        return column.str.split(", ").apply(lambda x: [e.strip() for e in x if e])
+
     def __init__(self):
+        super().__init__()
+        self.sorted_months = None
+        self.monthly_index_kw = None
+        self.monthly_stats = None
+        self.journal_stats = None
+        self.index_kw = None
+        self.index_data = None
+        self.quick_stats = None
         self.data = None
+        self.quick_stats = False
 
     def transform(self, pivot_list):
-        self.data = {}  # defaultdict(set)
+        self._logger.warning("Starting to compute stats")
+        t1 = time.time()
+        self.data = {}
 
         df = pd.DataFrame.from_records([p.dict() for p in pivot_list])
 
@@ -53,7 +76,9 @@ class StatsTransformer:
         # mois = df['mois'].unique()
         # auteurs = df['auteur'].unique()
 
-        df['keywords'] = df['keywords'].str.split(", ")
+        # df['keywords'] = df['keywords'].str.split(", ")
+        df['keywords'] = self.clean_keywords(df['keywords'])
+
         keywords = set(k for ks in df['keywords'] for k in ks)
 
         df['Index'] = df.index
@@ -85,37 +110,50 @@ class StatsTransformer:
             for journal, group_df in df.groupby('journal_clean')
         }
 
-        self.data["mois_kw"] = {}
+        self.data["mois_kw"] = {
+            mois_val: {
+                kw: [] for kw in keywords
+            } for mois_val in df['mois'].unique()
+        }
+
         for mois_val, group_df in df.groupby('mois'):
-            month_keywords = defaultdict(list)
+            # month_keywords = defaultdict(list)
             for _, row in group_df.iterrows():
                 for kw in row['keywords']:
-                    month_keywords[kw].append(row['Index'])
-            self.data["mois_kw"][mois_val] = month_keywords
-
+                    if not kw:
+                        continue
+                    # month_keywords[kw].append(row['Index'])
+                    self.data["mois_kw"][mois_val][kw].append(row['Index'])
+            # self.data["mois_kw"][mois_val] = month_keywords
+        self._logger.warning(f"Computed stats in {time.time() - t1} s")
         return self.data
 
     def get_stats(self, pivot_list):
         if not self.data:
             self.transform(pivot_list)
 
-        self.data["mot_cle"] = {k: v for k, v in self.data["mot_cle"].items() if v}
-        self.data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["mois_kw"].items()}
-        self.data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in
-                                     self.data["journal_mois"].items()}
+        self._logger.warning("Starting to compute quick stats")
+        t1 = time.time()
 
-        index_data = {k: {key: len(val) for key, val in v.items()} for k, v in self.data.items()}
-        self.data.update(index_data)
+        # self.data["mot_cle"] = {k: v for k, v in self.data["mot_cle"].items() if v}
+        # self.data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["mois_kw"].items()}
+        # self.data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in
+        #                              self.data["journal_mois"].items()}
 
-        self.data["mois_kw"] = {k: {k2: len(v2) for k2, v2 in v.items()} for k, v in self.data["mois_kw"].items()}
+        # index_data = {k: {key: len(val) for key, val in v.items()} for k, v in self.data.items()}
+        # self.data.update(index_data)
+
+        self.data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items()} for k, v in self.data["mois_kw"].items()}
         self.data["journal_mois"] = {k: {k2: len(v2) for k2, v2 in v.items()} for k, v in
                                      self.data["journal_mois"].items()}
+        self._logger.warning("journal_mois processed")
 
         self.data["quick_stats"] = {
             "nb_auteurs": len(self.data["auteur"]),
             "nb_journaux": len(self.data["journal"]),
             "nb_mots_cles": len(self.data["mot_cle"]),
         }
+        self._logger.warning("quick_stats processed")
 
         self.data["monthly_stats"] = {
             mois: {
@@ -126,6 +164,7 @@ class StatsTransformer:
                     [e for e in self.data["auteur"].values() if any(x in self.data["mois"][mois] for x in e)]),
             } for mois in self.data["mois"].keys()
         }
+        self._logger.warning("monthly_stats processed")
 
         self.data["journal_stats"] = {
             journal: {
@@ -134,23 +173,33 @@ class StatsTransformer:
                 "nb_mois": len(self.data["journal_mois"][journal]),
             } for journal in self.data["journal"].keys()
         }
+        self._logger.warning("journal_stats processed")
 
         self.data["index_kw"] = self.data["mot_cle"]
+        self._logger.warning("index_kw processed")
 
         self.data["monthly_index_kw"] = {
             mois: {kw: len(self.data["mois_kw"][mois][kw]) for kw in self.data["mois_kw"][mois]}
             for mois in self.data["mois_kw"]
         }
+        self._logger.warning("monthly_index_kw processed")
+
+        # self._logger.warning(json.dumps(self.data, indent=4, ensure_ascii=False))
 
         self.data["quick_stats"] = pd.DataFrame(self.data["quick_stats"], index=["Valeur"])
         self.data["monthly_stats"] = pd.DataFrame(self.data["monthly_stats"]).T
         self.data["journal_stats"] = pd.DataFrame(self.data["journal_stats"]).T
+        pass
         self.data["index_kw"] = pd.DataFrame(self.data["index_kw"], index=["Valeur"]).T
         self.data["monthly_index_kw"] = pd.DataFrame(self.data["monthly_index_kw"])
+        self._logger.warning("Dataframes processed")
 
         self.data["monthly_stats"] = self.data["monthly_stats"].sort_index()
         self.data["monthly_index_kw"] = self.data["monthly_index_kw"].reindex(
             sorted(self.data["monthly_index_kw"].columns), axis=1)
+        self._logger.warning("Dataframes sorted")
+
+        self.quick_stats = True
 
         with io.BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
@@ -171,11 +220,19 @@ class StatsTransformer:
                     with temp_zip.open("stats.xlsx", "w") as f:
                         f.write(bytes_io.getvalue())
 
+            self._logger.warning(f"Computed quick stats in {time.time() - t1} s")
+
             return zip_io.getvalue()
 
     def get_plots(self, pivot_list):
-        if not self.data["monthly_index_kw"]:
-            self.get_stats(pivot_list)
+        # if not self.data["monthly_index_kw"]:
+        #     self.get_stats(pivot_list)
+
+        while not self.quick_stats:
+            sleep(10)
+
+        self._logger.warning("Starting to compute plots")
+        t1 = time.time()
 
         self.data["sorted_months"] = sorted(self.data["mois"].keys())
 
@@ -202,6 +259,8 @@ class StatsTransformer:
                     temp_zip.writestr(f'top_{N_TOP}_kw_{rank}.png', self.plot_kw(rank))
 
             zip_io.seek(0)
+
+            self._logger.warning(f"Computed plots in {time.time() - t1} s")
             return zip_io.getvalue()
 
     def plot_kw(self, rank: int = 0):
