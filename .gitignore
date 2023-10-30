@@ -1,3 +1,20 @@
+### Manually defined
+## Directories
+# Pycharm project files
+/.idea/
+# Profiler outputs from the stats tranformer
+/profiler/
+
+## Files
+# Every json tests
+json*.json
+# Testfile for the datetimes
+test.txt
+# Tests on stats
+results_to_tableau.ipynb
+
+
+### Pycharm python's template
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -139,5 +156,3 @@ cython_debug/
 
 errors*
 /.vscode/
-
-.idea/
