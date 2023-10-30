@@ -15,33 +15,33 @@ import zipfile
 import io
 
 import pandas as pd
-import matplotlib
-matplotlib.use('TkAgg')
+# import matplotlib
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
+
+spaces = re.compile(r"\s+")
 
 
 def clean(s: str) -> str:
-    return re.sub(r"\s+", " ", s).strip()
+    return re.sub(spaces, " ", s).strip()
 
 
 def to_date(s: str) -> date:
     return datetime.strptime(s, "%Y %m %d").date()
 
 
+def to_datetime(i: int) -> datetime:
+    return datetime.fromtimestamp(i)
+
+
 def to_monthyear(d: datetime) -> str:
-    return f"{d.month}-{d.year}"
+    return f"{d.year}-{d.month:02}"
 
 
 def make_index(data, key):
     x = sorted([(k, len(v)) for k, v in data[key].items()], key=lambda x: x[1], reverse=True)
     return {k: v for k, v in x if v}
 
-
-def sort_dates(ls:List[str]) -> List[datetime]:
-    return [sort_date(s) for s in ls]
-
-def sort_date(s: str) -> datetime:
-    return datetime.strptime(s, "%m-%Y")
 
 N_TOP = 5
 
@@ -58,17 +58,17 @@ class StatsTransformer(Transformer):
         self.quick_stats = None
         self.data = None
 
-
     def transform(self, pivot_list: List[Pivot]) -> dict:
         self._logger.warning("Starting to compute stats")
         t1 = time.time()
+
         df = pd.DataFrame.from_records([p.dict() for p in pivot_list])
 
         df["journal"] = df.journal.map(clean)
         df["titre"] = df.titre.map(clean)
         df["auteur"] = df.auteur.map(clean)
-        df["date"] = df.date.apply(to_date)
-        df["mois"] = df.date.apply(to_monthyear)
+        df["epoch"] = df.epoch.map(to_datetime)
+        df["mois"] = df.epoch.map(to_monthyear)
 
         df["journal_clean"] = df.journal.str.strip()
 
@@ -77,14 +77,23 @@ class StatsTransformer(Transformer):
         auteurs = df.auteur.unique()
         keywords = {k for ks in df.keywords.str.split(", ") for k in ks if k}
 
-        index_journal = {journal: [e.Index for e in df[df["journal_clean"] == journal].itertuples()] for journal in
-                         journaux}
+        index_journal = {
+            journal: [
+                e.Index for e in df[df["journal_clean"] == journal].itertuples()
+            ] for journal in journaux
+        }
         index_mois = {moi: [e.Index for e in df[df["mois"] == moi].itertuples()] for moi in mois}
         index_auteur = {auteur: [e.Index for e in df[df["auteur"] == auteur].itertuples()] for auteur in auteurs}
 
         index_journal_mois = {
-            journal: {moi: [e.Index for e in df[(df["journal_clean"] == journal) & (df["mois"] == moi)].itertuples()]
-                      for moi in mois} for journal in journaux}
+            journal: {
+                moi: [
+                    e.Index for e in df[
+                        (df["journal_clean"] == journal) & (df["mois"] == moi)
+                        ].itertuples()
+                ] for moi in mois
+            } for journal in journaux
+        }
 
         kw_index = {kw: [] for kw in keywords}
         for row in df.itertuples():
@@ -96,8 +105,13 @@ class StatsTransformer(Transformer):
         kw_index = {kw: ls for kw, ls in kw_index.items() if ls}
 
         index_mois_kw = {
-            moi: {kw: [e.Index for e in df[(df["mois"] == moi) & df.index.isin(kw_index[kw])].itertuples()] for kw in
-                  keywords} for moi in mois}
+            moi: {
+                kw: [
+                    e.Index for e in df[
+                        (df["mois"] == moi) & df.index.isin(kw_index[kw])].itertuples()
+                ] for kw in keywords
+            } for moi in mois
+        }
 
         # index_mois_kw = {moi: {kw: e for kw, e in index_mois_kw[moi].items() if e} for moi in mois}
         # index_journal_mois = {journal: {moi: e for moi, e in index_journal_mois[journal].items() if e} for journal in journaux}
@@ -119,7 +133,8 @@ class StatsTransformer(Transformer):
             self.transform(pivot_list)
 
         self.data["mois_kw"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["mois_kw"].items()}
-        self.data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in self.data["journal_mois"].items()}
+        self.data["journal_mois"] = {k: {k2: v2 for k2, v2 in v.items() if v2} for k, v in
+                                     self.data["journal_mois"].items()}
 
         self.index_data = {
             k: make_index(self.data, k) for k in self.data.keys()
@@ -136,7 +151,8 @@ class StatsTransformer(Transformer):
                 "nb_articles": len(self.data["mois"].get(mois, [])),
                 "nb_mots_cles": self.index_data["mois_kw"].get(mois, 0),
                 "nb_journaux": len([k for k, v in self.data["journal_mois"].items() if mois in v]),
-                "nb_auteurs": len([e for e in self.data["auteur"].values() if any(x in self.data["mois"][mois] for x in e)]),
+                "nb_auteurs": len(
+                    [e for e in self.data["auteur"].values() if any(x in self.data["mois"][mois] for x in e)]),
             } for mois in self.data["mois"].keys()
         }
 
@@ -160,8 +176,8 @@ class StatsTransformer(Transformer):
         self.index_kw = pd.DataFrame(self.index_kw, index=["Valeur"]).T
         self.monthly_index_kw = pd.DataFrame(self.monthly_index_kw)
 
-        self.monthly_stats = self.monthly_stats.sort_index(key=sort_dates)
-        self.monthly_index_kw = self.monthly_index_kw.reindex(sorted(self.monthly_index_kw.columns, key=sort_date), axis=1)
+        self.monthly_stats = self.monthly_stats.sort_index()
+        self.monthly_index_kw = self.monthly_index_kw.reindex(sorted(self.monthly_index_kw.columns), axis=1)
 
         with io.BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
@@ -187,7 +203,7 @@ class StatsTransformer(Transformer):
         if not self.monthly_index_kw:
             self.get_stats(pivot_list)
 
-        self.sorted_months = sorted(self.data["mois"].keys(), key=lambda x: datetime.strptime(x, "%m-%Y"))
+        self.sorted_months = sorted(self.data["mois"].keys())
 
         with io.BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
@@ -233,4 +249,33 @@ class StatsTransformer(Transformer):
         temp_bytes_io.seek(0)
         plt.close()
         return temp_bytes_io.getvalue()
+
+
+if __name__ == '__main__':
+    import cProfile
+    import pstats
+    import io
+
+    from europarser.models import Pivot
+
+    with open("pivots_large.json", "r") as f:
+        dict_ = json.load(f)
+        dict_ = list(dict_.values())
+        pivot_list = [Pivot(**d) for d in dict_]
+
+    transformer = StatsTransformer()
+
+    pr = cProfile.Profile()
+    pr.enable()
+
+    transformer.transform(pivot_list)
+
+    pr.disable()
+    s = io.StringIO()
+    sortby = 'cumulative'
+    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+    ps.print_stats()
+
+    print(s.getvalue())
+
 
