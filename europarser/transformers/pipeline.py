@@ -37,9 +37,10 @@ def pipeline(files: List[FileToTransform], outputs: List[Output] = ["pivot"]):  
         stats_data = StatsTransformer().transform(pivots)
     else:
         stats_data = None
+
     results: List[dict[str, OutputType | Any] | bytes] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(process_output, output, pivots, stats_data) for output in outputs]
+        futures = [executor.submit(process_output, output, pivots, stats_data.copy()) for output in outputs]
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
             results.append({'type': res[1], 'data': res[0], 'output': res[2]})
