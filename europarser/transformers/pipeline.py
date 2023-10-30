@@ -10,7 +10,7 @@ from typing import List, Tuple, Any
 from europarser.models import FileToTransform, Output, Pivot, OutputType
 from europarser.transformers.gephi import GephiTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
-from europarser.transformers.csv import CSVTransformer
+from europarser.transformers.csv_transformer import CSVTransformer
 from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
 from europarser.transformers.stats import StatsTransformer
