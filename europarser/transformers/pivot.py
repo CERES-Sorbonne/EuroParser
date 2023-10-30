@@ -88,7 +88,13 @@ class PivotTransformer(Transformer):
             try:
                 doc["titre"] = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews titreArticleVisu rdp__articletitle"}).text.strip()
             except AttributeError:
-                doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
+                try:
+                    doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
+                except AttributeError:
+                    try:
+                        doc["titre"] = doc_titre_full.text.strip()
+                    except AttributeError:
+                        raise
 
             doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"})
             doc_bottomNews = doc_bottomNews.text.strip() if doc_bottomNews else ""
