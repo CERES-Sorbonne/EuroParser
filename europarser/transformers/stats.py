@@ -189,8 +189,8 @@ class StatsTransformer(Transformer):
         self.data["quick_stats"] = pd.DataFrame(self.data["quick_stats"], index=["Valeur"])
         self.data["monthly_stats"] = pd.DataFrame(self.data["monthly_stats"]).T
         self.data["journal_stats"] = pd.DataFrame(self.data["journal_stats"]).T
-        pass
-        self.data["index_kw"] = pd.DataFrame(self.data["index_kw"], index=["Valeur"]).T
+        # self.data["index_kw"] = pd.DataFrame(self.data["index_kw"], index=["Valeur"]).T
+        self.data["index_kw"] = pd.DataFrame.from_dict(self.data["index_kw"], orient='index', dtype=str)
         self.data["monthly_index_kw"] = pd.DataFrame(self.data["monthly_index_kw"])
         self._logger.warning("Dataframes processed")
 
