@@ -38,7 +38,11 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
     if "stats" in outputs or "processed_stats" in outputs or "plots" in outputs:
         st = StatsTransformer()
         st.transform(pivots)
-        stats_data = st.data
+        stats_data = {
+            key: value
+            for key, value in st.__dict__.items()
+            if not key.startswith("_")
+        }
     else:
         stats_data = None
 
@@ -57,7 +61,8 @@ def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tup
     stats_transformer = None
     if stats_data is not None and output in ["processed_stats", "plots"]:
         stats_transformer = StatsTransformer()
-        stats_transformer.data = stats_data
+        for key, value in stats_data.items():
+            setattr(stats_transformer, key, value)
 
     match output:
         case "json":
@@ -69,7 +74,7 @@ def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tup
         case "csv":
             return CSVTransformer().transform(pivots), "csv", output
         case "stats":
-            return json.dumps(stats_data, ensure_ascii=False, indent=2), "json", output
+            return json.dumps(stats_data['res'], ensure_ascii=False, indent=2), "json", output
         case "processed_stats":
             return stats_transformer.get_stats(pivots), "zip", output
         case "plots":
