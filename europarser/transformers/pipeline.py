@@ -24,7 +24,9 @@ def process(file: str, output: Output = "pivot", name: str = "file"):
     return pipeline([FileToTransform(file=file, name=name)], output)
 
 
-def pipeline(files: List[FileToTransform], outputs: List[Output] = ["pivot"]):  # -> Tuple[List[str, bytes], List[OutputType]]:
+def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, bytes], List[OutputType]]:
+    if outputs is None:
+        outputs = ["pivot"]
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
@@ -34,7 +36,9 @@ def pipeline(files: List[FileToTransform], outputs: List[Output] = ["pivot"]):  
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
     if "stats" in outputs or "processed_stats" in outputs or "plots" in outputs:
-        stats_data = StatsTransformer().transform(pivots)
+        st = StatsTransformer()
+        st.transform(pivots)
+        stats_data = st.data
     else:
         stats_data = None
 
