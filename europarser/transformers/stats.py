@@ -17,10 +17,13 @@ from europarser.transformers.transformer import Transformer
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 pio.templates.default = "none"
 
-
 class StatsTransformer(Transformer):
     mois = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre",
             "décembre")
+    COOL_COLORS = {"bluered", "plasma", "plotly3", "rainbow", "portland", "spectral", "inferno", "sunsetdark", "matter",
+                   "turbo", "rdbu"}
+    COOL_COLORS |= {e + "_r" for e in COOL_COLORS}
+    MAIN_COLOR = "bluered_r"
 
     @staticmethod
     def clean(s: str) -> str:
@@ -208,16 +211,17 @@ class StatsTransformer(Transformer):
         )
         self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
         fig = px.bar(
-            x=tobar.select("journal").to_series(),
-            y=tobar.select("index_list").to_series(),
-            labels={"x": "Journal", "y": "Nombre d'articles"},
+            tobar,
+            x="journal",
+            y="index_list",
+            color="index_list",
+            labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
             title="Nombre d'articles par journal",
-            range_color="blues"
-        )
-        fig.update_layout(
-
+            color_continuous_scale=self.MAIN_COLOR,
         )
         self.zip_file.writestr("journal.html", fig.to_html())
+
+
 
     def _get_plots_mois(self):
         tobar = (
@@ -226,15 +230,16 @@ class StatsTransformer(Transformer):
             .sort("mois")
         )
         fig = px.bar(
-            x=tobar.select("mois").to_series(),
-            y=tobar.select("index_list").to_series(),
-            labels={"x": "Mois", "y": "Nombre d'articles"},
+            tobar,
+            x="mois",
+            y="index_list",
+            color="index_list",
+            labels={"x": "Mois", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
             title="Nombre d'articles par mois",
-            range_color="blues",
+            color_continuous_scale=self.MAIN_COLOR,
         )
         fig.update_layout(
             xaxis_tickformat="%B %Y",
-
         )
         self.zip_file.writestr("mois.html", fig.to_html())
 
@@ -248,14 +253,13 @@ class StatsTransformer(Transformer):
         )
         self.auteur_order = tobar.select(pl.col("auteur")).to_series().to_list()
         fig = px.bar(
-            x=tobar.select("auteur").to_series(),
-            y=tobar.select("index_list").to_series(),
-            labels={"x": "Auteur", "y": "Nombre d'articles"},
+            tobar,
+            x="auteur",
+            y="index_list",
+            color="index_list",
+            labels={"x": "Auteur", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
             title="Nombre d'articles par auteur",
-            range_color="blues"
-        )
-        fig.update_layout(
-
+            color_continuous_scale=self.MAIN_COLOR,
         )
         self.zip_file.writestr("auteur.html", fig.to_html())
 
@@ -268,14 +272,13 @@ class StatsTransformer(Transformer):
         )
         self.mot_cle_order = tobar.select(pl.col("mot_cle")).to_series().to_list()
         fig = px.bar(
-            x=tobar.select("mot_cle").to_series(),
-            y=tobar.select("index_list").to_series(),
-            labels={"x": "Mot clé", "y": "Nombre d'articles"},
+            tobar,
+            x="mot_cle",
+            y="index_list",
+            color="index_list",
+            labels={"x": "Mot clé", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
             title="Nombre d'articles par mot clé",
-            range_color="blues"
-        )
-        fig.update_layout(
-
+            color_continuous_scale=self.MAIN_COLOR,
         )
         self.zip_file.writestr("mot_cle.html", fig.to_html())
 
@@ -383,7 +386,28 @@ class StatsTransformer(Transformer):
     def get_stats(self, pivot_list: List[Pivot]):
         raise NotImplementedError
 
+    def _test_COOLORS(self):
+        tobar = (
+            self.data["journal"]
+            .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
+            .sort("index_list", descending=True)
+        )
+        self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
 
+        for color in self.COOL_COLORS:
+            fig = px.bar(
+                tobar,
+                x="journal",
+                y="index_list",
+                labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+                title="Nombre d'articles par journal",
+                color_continuous_scale=color,
+                color="index_list",
+            )
+            fig.update_layout(
+
+            )
+            self.zip_file.writestr(f"!_journal_{color}.html", fig.to_html())
 if __name__ == '__main__':
     import cProfile
     import pstats
