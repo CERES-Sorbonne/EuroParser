@@ -44,7 +44,7 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
             if not key.startswith("_")
         }
     else:
-        stats_data = None
+        stats_data = {}
 
     results: List[dict[str, OutputType | Any] | bytes] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
@@ -59,7 +59,7 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
 
 def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tuple:
     stats_transformer = None
-    if stats_data is not None and output in ["processed_stats", "plots"]:
+    if (stats_data is not None or stats_data == {}) and output in ["processed_stats", "plots"]:
         stats_transformer = StatsTransformer()
         for key, value in stats_data.items():
             setattr(stats_transformer, key, value)
