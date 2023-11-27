@@ -1,44 +1,105 @@
-import hashlib
-import sys
-
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
 import concurrent.futures
+import hashlib
 import json
+from builtins import function
+from multiprocessing import Lock, Pool
 from pathlib import Path
-from typing import List, Tuple, Any
+from typing import List, Tuple, Any, Set
+
+from tqdm.auto import tqdm
 
 from europarser.models import FileToTransform, Output, Pivot, OutputType
-from europarser.transformers.gephi import GephiTransformer
-from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.csv_transformer import CSVTransformer
+from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.pivot import PivotTransformer
-from europarser.transformers.txm import TXMTransformer
 from europarser.transformers.stats import StatsTransformer
+from europarser.transformers.txm import TXMTransformer
 
 global savedir
 savedir = Path(__file__)
-while savedir.name != "EuropressParser":
-    # print(savedir.name)
+while savedir.name != "EurpressParser":
     savedir = savedir.parent
-    if not savedir:
-        raise FileNotFoundError("Could not find `EuropressParser` directory which should be the root of the project")
 
 savedir = savedir / "parsed_data"
 savedir.mkdir(exist_ok=True)
 
-def process(file: str, output: Output = "pivot", name: str = "file"):
-    """
-    utility function to process only one file at a time
-    For multiple files, it's better to use the pipeline
-    """
-    return pipeline([FileToTransform(file=file, name=name)], output)
+
+def make_json(pivots: List[Pivot], num: int = 0) -> Tuple[str, int]:
+    json_ver = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
+    hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
+    with (savedir / f"{hash_json}.json").open("w", encoding="utf-8") as f:
+        f.write(json_ver)
+    return json_ver, num
 
 
-def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, bytes], List[OutputType]]:
+def make_iramuteq(pivots: List[Pivot], num: int) -> Tuple[str, int]:
+    return IramuteqTransformer.transform(pivots), num
+
+
+def make_txm(pivots: List[Pivot], num: int) -> Tuple[str, int]:
+    return TXMTransformer.transform(pivots), num
+
+
+def make_csv(pivots: List[Pivot], num: int) -> Tuple[str, int]:
+    return CSVTransformer.transform(pivots), num
+
+
+def make_gephi(pivots: List[Pivot], num: int) -> Tuple[str, int]:
+    raise NotImplementedError
+
+
+def make_stats(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[str, int]:
+    Lock.acquire()
+    res = st.transform(pivots)['res']
+    Lock.release()
+    return json.dumps(res, ensure_ascii=False, indent=2), num
+
+
+def make_processed_stats(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[str, int]:
+    Lock.acquire()
+    res = st.get_stats()
+    Lock.release()
+    return json.dumps(res, ensure_ascii=False, indent=2), num
+
+
+def make_plots(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[bytes, int]:
+    return st.get_plots(), num
+
+
+def pipeline_split(
+        files: List[FileToTransform],
+        outputs: List[Output] = None
+) -> Tuple[List[str, bytes], List[OutputType], List[Output]]:
+
+
+    outp_to_func: dict[Output, function] = {
+        "json": make_json,
+        "iramuteq": make_iramuteq,
+        "txm": make_txm,
+        "csv": make_csv,
+        "gephi": make_gephi,
+    }
+
+    stats_outp: Set[str] = {"stats", "processed_stats", "plots"}
+
+    outp_to_type: dict[Output, OutputType] = {
+        "json": "json",
+        "iramuteq": "txt",
+        "txm": "xml",
+        "csv": "csv",
+        "gephi": "csv",
+        "stats": "json",
+        "processed_stats": "json",
+        "plots": "zip",
+    }
+
+    do_stats: bool = False
+
+    num: int = 0
+
     if outputs is None:
         outputs = ["pivot"]
+
     pivots: List[Pivot] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(PivotTransformer().transform, f) for f in files]
@@ -47,57 +108,59 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
         # undouble remaining doubles
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
-    json_ver = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
-    hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
-    with (savedir / f"{hash_json}.json").open("w", encoding="utf-8") as f:
-        f.write(json_ver)
+    json_ver, _ = make_json(pivots)
 
-    if "stats" in outputs or "processed_stats" in outputs or "plots" in outputs:
+    # Functions ang their arguments to process
+    to_process: List[Tuple[function, Tuple[Any]]] = []
+    for num, output in enumerate(outputs):
+        if output in stats_outp:
+            do_stats = True
+            continue
+
+        if output not in outp_to_func:
+            raise ValueError(f"Output {output} not supported.")
+
+        to_process.append((outp_to_func[output], (pivots, num)))
+
+    if do_stats:
         st = StatsTransformer()
-        st.transform(pivots)
-        stats_data = {
-            key: value
-            for key, value in st.__dict__.items()
-            if not key.startswith("_")
-        }
+        lock = Lock()
+        # to_process.append((make_stats, (pivots, num, st, lock)))
+
+        for num, output in enumerate(outputs):
+            if output not in stats_outp:
+                continue
+
+            elif output == "processed_stats":
+                to_process.append((make_processed_stats, (pivots, num, st, lock)))
+            elif output == "plots":
+                to_process.append((make_plots, (pivots, num, st, lock)))
+
     else:
-        stats_data = {}
+        st = None
+        lock = None
 
-    results: List[dict[str, OutputType | Any] | bytes] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(process_output, output, pivots, stats_data.copy(), json_ver) for output in outputs]
-        for future in concurrent.futures.as_completed(futures):
-            res = future.result()
-            results.append({'type': res[1], 'data': res[0], 'output': res[2]})
+    results: List[str | bytes, int] = []
+    with Pool() as pool:
+        pbar = tqdm(total=len(to_process))
+        if do_stats:
+            pool.apply_async(make_stats, (pivots, num, st, lock), callback=lambda x: results.append(x))
+            pbar.update(1)
+        for func, args in to_process:
+            pool.apply_async(func, args, callback=lambda x: results.append(x))
+            pbar.update(1)
+
+        pool.close()
+        pool.join()
+
+    results = [x[0] for x in sorted(results, key=lambda x: x[1])]
+
     if not results:
-        results.append({'data': json.dumps([pivot.dict() for pivot in pivots], ensure_ascii=False), 'output': 'json'})
-    return results
+        return [json_ver], ["json"], [Output.pivot]
+
+    return results, [outp_to_type[output] for output in outputs], outputs
 
 
-def process_output(
-        output: Output,
-        pivots: List[Pivot],
-        stats_data: dict,
-        json_data: dict = None,
-) -> Tuple:
-    stats_transformer = None
-    if (stats_data is not None or stats_data == {}) and output in ["processed_stats", "plots"]:
-        stats_transformer = StatsTransformer()
-        for key, value in stats_data.items():
-            setattr(stats_transformer, key, value)
 
-    match output:
-        case "json":
-            return json_data, "json", output
-        case "iramuteq":
-            return IramuteqTransformer().transform(pivots), "txt", output
-        case "txm":
-            return TXMTransformer().transform(pivots), "xml", output
-        case "csv":
-            return CSVTransformer().transform(pivots), "csv", output
-        case "stats":
-            return json.dumps(stats_data['res'], ensure_ascii=False, indent=2), "json", output
-        case "processed_stats":
-            return stats_transformer.get_stats(pivots), "zip", output
-        case "plots":
-            return stats_transformer.get_plots(pivots), "zip", output
+
+
