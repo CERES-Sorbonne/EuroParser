@@ -73,9 +73,7 @@ def pipeline(
         "csv": make_csv,
         "gephi": make_gephi,
     }
-
     stats_outp: Set[str] = {"stats", "processed_stats", "plots"}
-
     outp_to_type: dict[Output, OutputType] = {
         "json": "json",
         "iramuteq": "txt",
@@ -86,10 +84,13 @@ def pipeline(
         "processed_stats": "json",
         "plots": "zip",
     }
-
     do_stats: bool = False
 
-    # num: int = -1
+    st: StatsTransformer
+    num: int
+    futures: List[concurrent.futures.Future]
+    res: Tuple[str, int]
+    result: Tuple[dict[str, OutputType | str | bytes], ...]
 
     # Functions ang their arguments to process
     to_process: List[Tuple[Any, Tuple[Any]]] = []
@@ -105,13 +106,10 @@ def pipeline(
         # undouble remaining doubles
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
-    # json_ver, _ = make_json(pivots)
-
     for num, output in enumerate(outputs):
         if output in stats_outp:
             do_stats = True
             continue
-
         if output not in outp_to_func:
             raise ValueError(f"Output {output} not supported.")
 
@@ -131,11 +129,7 @@ def pipeline(
             elif output == "plots":
                 to_process.append((make_plots, (num, st)))
 
-    else:
-        st = None
-
-    results: List[str | bytes, int] = []
-
+    results = []
     with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(func, *args) for func, args in to_process]
         for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
@@ -150,8 +144,7 @@ def pipeline(
     results = [result[0] for result in results]
 
     if not results:
-        return ["json"], [make_json(pivots)[0]], ["json"]
-
+        return ({"data": make_json(pivots)[0], "type": "json", "output": "json"},)
 
     result = tuple(
         {
@@ -162,6 +155,7 @@ def pipeline(
         for res, output in zip(results, outputs)
     )
 
+    # Ensures that the json output is computed, even if it's not in the outputs
     try:
         return result
     finally:
