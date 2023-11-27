@@ -1,3 +1,4 @@
+import hashlib
 import sys
 
 # if sys.version_info < (3, 9):
@@ -5,6 +6,7 @@ import sys
 
 import concurrent.futures
 import json
+from pathlib import Path
 from typing import List, Tuple, Any
 
 from europarser.models import FileToTransform, Output, Pivot, OutputType
@@ -15,6 +17,16 @@ from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
 from europarser.transformers.stats import StatsTransformer
 
+global savedir
+savedir = Path(__file__)
+while savedir.name != "EuropressParser":
+    # print(savedir.name)
+    savedir = savedir.parent
+    if not savedir:
+        raise FileNotFoundError("Could not find `EuropressParser` directory which should be the root of the project")
+
+savedir = savedir / "parsed_data"
+savedir.mkdir(exist_ok=True)
 
 def process(file: str, output: Output = "pivot", name: str = "file"):
     """
@@ -35,6 +47,11 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
         # undouble remaining doubles
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
+    json_ver = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
+    hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
+    with (savedir / f"{hash_json}.json").open("w", encoding="utf-8") as f:
+        f.write(json_ver)
+
     if "stats" in outputs or "processed_stats" in outputs or "plots" in outputs:
         st = StatsTransformer()
         st.transform(pivots)
@@ -48,7 +65,7 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
 
     results: List[dict[str, OutputType | Any] | bytes] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(process_output, output, pivots, stats_data.copy()) for output in outputs]
+        futures = [executor.submit(process_output, output, pivots, stats_data.copy(), json_ver) for output in outputs]
         for future in concurrent.futures.as_completed(futures):
             res = future.result()
             results.append({'type': res[1], 'data': res[0], 'output': res[2]})
@@ -57,7 +74,12 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
     return results
 
 
-def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tuple:
+def process_output(
+        output: Output,
+        pivots: List[Pivot],
+        stats_data: dict,
+        json_data: dict = None,
+) -> Tuple:
     stats_transformer = None
     if (stats_data is not None or stats_data == {}) and output in ["processed_stats", "plots"]:
         stats_transformer = StatsTransformer()
@@ -66,7 +88,7 @@ def process_output(output: Output, pivots: List[Pivot], stats_data: dict) -> Tup
 
     match output:
         case "json":
-            return json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False), "json", output
+            return json_data, "json", output
         case "iramuteq":
             return IramuteqTransformer().transform(pivots), "txt", output
         case "txm":
