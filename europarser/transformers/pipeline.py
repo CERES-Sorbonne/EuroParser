@@ -1,7 +1,6 @@
 import concurrent.futures
 import hashlib
 import json
-from builtins import function
 from multiprocessing import Lock, Pool
 from pathlib import Path
 from typing import List, Tuple, Any, Set
@@ -17,8 +16,11 @@ from europarser.transformers.txm import TXMTransformer
 
 global savedir
 savedir = Path(__file__)
-while savedir.name != "EurpressParser":
+while savedir.name != "EuropressParser":
+    # print(savedir.name)
     savedir = savedir.parent
+    if not savedir:
+        raise FileNotFoundError("Could not find `EuropressParser` directory which should be the root of the project")
 
 savedir = savedir / "parsed_data"
 savedir.mkdir(exist_ok=True)
@@ -33,46 +35,38 @@ def make_json(pivots: List[Pivot], num: int = 0) -> Tuple[str, int]:
 
 
 def make_iramuteq(pivots: List[Pivot], num: int) -> Tuple[str, int]:
-    return IramuteqTransformer.transform(pivots), num
+    return IramuteqTransformer().transform(pivots), num
 
 
 def make_txm(pivots: List[Pivot], num: int) -> Tuple[str, int]:
-    return TXMTransformer.transform(pivots), num
+    return TXMTransformer().transform(pivots), num
 
 
 def make_csv(pivots: List[Pivot], num: int) -> Tuple[str, int]:
-    return CSVTransformer.transform(pivots), num
+    return CSVTransformer().transform(pivots), num
 
 
 def make_gephi(pivots: List[Pivot], num: int) -> Tuple[str, int]:
     raise NotImplementedError
 
 
-def make_stats(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[str, int]:
-    Lock.acquire()
-    res = st.transform(pivots)['res']
-    Lock.release()
-    return json.dumps(res, ensure_ascii=False, indent=2), num
+def make_stats(num: int, st: StatsTransformer) -> Tuple[str, int]:
+    return json.dumps(st.res, ensure_ascii=False, indent=2), num
 
 
-def make_processed_stats(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[str, int]:
-    Lock.acquire()
-    res = st.get_stats()
-    Lock.release()
-    return json.dumps(res, ensure_ascii=False, indent=2), num
+def make_processed_stats(num: int, st: StatsTransformer) -> Tuple[str, int]:
+    return json.dumps(st.get_stats(), ensure_ascii=False, indent=2), num
 
 
-def make_plots(pivots: List[Pivot], num: int, st: StatsTransformer, lock: Lock) -> Tuple[bytes, int]:
+def make_plots(num: int, st: StatsTransformer) -> Tuple[bytes, int]:
     return st.get_plots(), num
 
 
-def pipeline_split(
+def pipeline(
         files: List[FileToTransform],
         outputs: List[Output] = None
-) -> Tuple[List[str, bytes], List[OutputType], List[Output]]:
-
-
-    outp_to_func: dict[Output, function] = {
+) -> Tuple[dict[str, OutputType | str | bytes], ...]:
+    outp_to_func: dict[Output, Any] = {
         "json": make_json,
         "iramuteq": make_iramuteq,
         "txm": make_txm,
@@ -95,7 +89,10 @@ def pipeline_split(
 
     do_stats: bool = False
 
-    num: int = 0
+    # num: int = -1
+
+    # Functions ang their arguments to process
+    to_process: List[Tuple[Any, Tuple[Any]]] = []
 
     if outputs is None:
         outputs = ["pivot"]
@@ -108,10 +105,8 @@ def pipeline_split(
         # undouble remaining doubles
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
-    json_ver, _ = make_json(pivots)
+    # json_ver, _ = make_json(pivots)
 
-    # Functions ang their arguments to process
-    to_process: List[Tuple[function, Tuple[Any]]] = []
     for num, output in enumerate(outputs):
         if output in stats_outp:
             do_stats = True
@@ -124,43 +119,59 @@ def pipeline_split(
 
     if do_stats:
         st = StatsTransformer()
-        lock = Lock()
-        # to_process.append((make_stats, (pivots, num, st, lock)))
-
+        st.transform(pivots)
         for num, output in enumerate(outputs):
             if output not in stats_outp:
                 continue
 
+            if output == "stats":
+                to_process.append((make_stats, (num, st)))
             elif output == "processed_stats":
-                to_process.append((make_processed_stats, (pivots, num, st, lock)))
+                to_process.append((make_processed_stats, (num, st)))
             elif output == "plots":
-                to_process.append((make_plots, (pivots, num, st, lock)))
+                to_process.append((make_plots, (num, st)))
 
     else:
         st = None
-        lock = None
 
     results: List[str | bytes, int] = []
-    with Pool() as pool:
-        pbar = tqdm(total=len(to_process))
-        if do_stats:
-            pool.apply_async(make_stats, (pivots, num, st, lock), callback=lambda x: results.append(x))
-            pbar.update(1)
-        for func, args in to_process:
-            pool.apply_async(func, args, callback=lambda x: results.append(x))
-            pbar.update(1)
 
-        pool.close()
-        pool.join()
+    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(func, *args) for func, args in to_process]
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
+            res = future.result()
+            results.append(res)
 
-    results = [x[0] for x in sorted(results, key=lambda x: x[1])]
+    results = sorted(results, key=lambda x: x[1])
+
+    if any(r[1] == -1 for r in results):
+        raise ValueError
+
+    results = [result[0] for result in results]
 
     if not results:
-        return [json_ver], ["json"], [Output.pivot]
-
-    return results, [outp_to_type[output] for output in outputs], outputs
+        return ["json"], [make_json(pivots)[0]], ["json"]
 
 
+    result = tuple(
+        {
+            "data": res,
+            "type": outp_to_type[output],
+            "output": output
+        }
+        for res, output in zip(results, outputs)
+    )
+
+    try:
+        return result
+    finally:
+        if not any(output == "json" for output in outputs):
+            json_ver, _ = make_json(pivots)
 
 
-
+def process(file: str, output: Output = "pivot", name: str = "file"):
+    """
+    utility function to process only one file at a time
+    For multiple files, it's better to use the pipeline
+    """
+    return pipeline([FileToTransform(file=file, name=name)], output)
