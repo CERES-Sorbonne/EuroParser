@@ -1,3 +1,5 @@
+cython
+
 beautifulsoup4~=4.12.2
 pydantic~=1.10.11
 numpy
@@ -8,3 +10,7 @@ matplotlib~=3.7.2
 python-dateutil~=2.8.2
 polars~=0.19.12
 plotly
+tqdm
+faust-cchardet
+lxml
+py3langid

@@ -27,6 +27,8 @@ class PivotTransformer(Transformer):
 
     def transform(self, file_to_transform: FileToTransform) -> List[Pivot]:
         self._logger.debug("Processing file " + file_to_transform.name)
+        soup = BeautifulSoup(file_to_transform.file, 'lxml')
+
         self.corpus = []
 
         articles = soup.find_all("article")
