@@ -65,7 +65,7 @@ class StatsTransformer(Transformer):
         self.pivot_list = None
 
     def transform(self, pivot_list: List[Pivot]) -> dict[str, dict[str, list[int]]]:
-        self._logger.warning("Starting to compute stats")
+        self._logger.debug("Starting to compute stats")
         t1 = time.time()
 
         self.pivot_list = pivot_list
@@ -172,7 +172,7 @@ class StatsTransformer(Transformer):
             for key, val in self.data.items() if len(val.columns) == 3
         })
 
-        self._logger.warning(f"Time to compute stats: {time.time() - t1:.2f}s")
+        self._logger.debug(f"Time to compute stats: {time.time() - t1:.2f}s")
         self.stats_processed = True
 
         return self.res
@@ -183,14 +183,14 @@ class StatsTransformer(Transformer):
                 raise ValueError("You must provide a pivot_list to get_plots if you haven't already computed the stats")
             self.transform(pivot_list)
 
-        self._logger.warning("Starting to compute plots")
+        self._logger.debug("Starting to compute plots")
         t1 = time.time()
 
         with io.BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode="w", compression=zipfile.ZIP_DEFLATED) as zip_file:
                 self._get_plots(zip_file)
 
-            self._logger.warning(f"Time to compute plots: {time.time() - t1:.2f}s")
+            self._logger.debug(f"Time to compute plots: {time.time() - t1:.2f}s")
             return zip_io.getvalue()
 
     def _get_plots(self, zip_file):

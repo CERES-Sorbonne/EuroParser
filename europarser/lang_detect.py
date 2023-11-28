@@ -1,5 +1,5 @@
-import langid
+import py3langid
 
 
-def detect_lang(text):
-    return langid.classify(text)[0]
+def detect_lang(text: str) -> str:
+    return py3langid.classify(text)[0]

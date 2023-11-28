@@ -26,9 +26,7 @@ class PivotTransformer(Transformer):
         self.bad_articles = None
 
     def transform(self, file_to_transform: FileToTransform) -> List[Pivot]:
-        self._logger.warning("Processing file " + file_to_transform.name)
-        soup = BeautifulSoup(file_to_transform.file, 'html.parser')
-
+        self._logger.debug("Processing file " + file_to_transform.name)
         self.corpus = []
 
         articles = soup.find_all("article")
@@ -40,7 +38,7 @@ class PivotTransformer(Transformer):
                 try:
                     doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
                 except Exception as e:
-                    self._logger.warning("pas un article de presse")
+                    self._logger.debug("pas un article de presse")
                     self._add_error(e, article)
                     raise BadArticle("journal")
 
