@@ -6,6 +6,9 @@ import sys
 from typing import List
 from bs4 import BeautifulSoup
 from datetime import date
+import cchardet
+
+from tqdm.auto import tqdm
 
 from europarser.models import FileToTransform, Pivot
 from europarser.transformers.transformer import Transformer
@@ -30,7 +33,6 @@ class PivotTransformer(Transformer):
         soup = BeautifulSoup(file_to_transform.file, 'lxml')
 
         self.corpus = []
-
         articles = soup.find_all("article")
         self.bad_articles = []
         ids = set()
@@ -146,14 +148,24 @@ class PivotTransformer(Transformer):
         print(self.bad_articles)
 
 if __name__ == "__main__":
+    import cProfile
+    import pstats
+
     from pathlib import Path
+
+    pr = cProfile.Profile()
+    pr.enable()
 
     p = PivotTransformer()
 
-    for file in Path("/home/marceau/euromega").glob("*.HTML"):
-        with open(file, "r") as f:
+    for file in tqdm(list(Path("/home/marceau/Nextcloud/eurocollectes").glob("**/*.HTML"))):
+        with file.open(mode="r", encoding="utf-8") as f:
             p.transform(FileToTransform(file=f.read(), name=file.name))
 
     p.get_bad_articles()
+
+    pr.disable()
+    ps = pstats.Stats(pr).sort_stats('cumulative')
+    ps.print_stats()
 
 
