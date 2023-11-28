@@ -2,13 +2,16 @@
 
 export EUROPARSER_SERVER=https://ceres.huma-num.fr/europarser
 export EUROPARSER_PORT=8001
+export FOLDER=/home/marceau/GH/EuropressParser
 
-git pull origin master
+cd $FOLDER || exit
 
-source venv/bin/activate
-pip3 install -U pip
-pip3 install -r requirements.txt --quiet
-pip3 install -r requirements-api.txt --quiet
+git pull origin master --quiet || exit
+
+source venv/bin/activate || exit
+pip3 install -U pip --quiet || exit
+pip3 install -r requirements.txt --quiet || exit
+pip3 install -r requirements-api.txt --quiet || exit
 
 IS_RUNNING=$(ps -aux | grep gunicorn | grep europarser_api)
 if [ -z "$IS_RUNNING" ]
