@@ -30,7 +30,7 @@ class MarkdownTransformer(Transformer):
 
         markdown_content = f"---\n{yaml.dump(frontmatter)}---\n\n{pivot.texte}"
 
-        return clean_string(pivot.titre) + ".md", markdown_content
+        return clean_string(pivot.titre)[:100].strip("_") + ".md", markdown_content
 
     def transform(self, pivots: List[Pivot]) -> TransformerOutput:
         in_memory_zip = io.BytesIO()
@@ -40,7 +40,7 @@ class MarkdownTransformer(Transformer):
                 zipf.writestr(filename, content)
 
         in_memory_zip.seek(0)
-        self.output.data = in_memory_zip
+        self.output.data = in_memory_zip.getvalue()
         return self.output
 
 
