@@ -1,3 +1,4 @@
+import hashlib
 import io
 import re
 import zipfile
@@ -16,6 +17,7 @@ class MarkdownTransformer(Transformer):
         self.output_type = "zip"
         self.output = TransformerOutput(data=None, output=self.output_type,
                                         filename=f'{self.name}_output.{self.output_type}')
+        self.seen_names = set()
 
     def generate_markdown(self, pivot: Pivot):
         # Générer le contenu du fichier markdown
@@ -30,7 +32,18 @@ class MarkdownTransformer(Transformer):
 
         markdown_content = f"---\n{yaml.dump(frontmatter)}---\n\n{pivot.texte}"
 
-        return clean_string(pivot.titre)[:100].strip("_") + ".md", markdown_content
+        # Nom du fichier markdown
+        # Si le titre est trop long, on le tronque à 100 caractères
+        # Si le titre est vide (une fois nettoyé), on utilise le hash du texte
+        base_nom = frontmatter["titre"][:100].strip("_") or hashlib.md5(pivot.texte.encode()).hexdigest()
+
+        nom = f"{frontmatter["journal_clean"]}/{base_nom}.md"
+        if nom in self.seen_names:
+            # Si le nom existe déjà, on ajoute la date à la fin (sans l'heure)
+            nom = f"{nom[:-3]}_{clean_string(pivot.date).split("t")[0]}.md"
+        self.seen_names.add(nom)
+
+        return nom, markdown_content
 
     def transform(self, pivots: List[Pivot]) -> TransformerOutput:
         in_memory_zip = io.BytesIO()
