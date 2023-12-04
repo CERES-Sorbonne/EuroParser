@@ -42,11 +42,11 @@ def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list
 
     to_process = []
     for output in outputs:
-        if output not in ['processed_stats']:
+        if output != "processed_stats":
             func = transformer_factory[output]
             args = [pivots]
             to_process.append((func, args))
-        # TODO: add stats process
+        # TODO: add processed_stats to the pipeline and reuse the stats transformer to avoid double processing
 
     results: list[TransformerOutput] = []
 
@@ -57,3 +57,7 @@ def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list
             results.append(res)
 
     return results
+
+
+def process(*args, **kwargs) -> list[TransformerOutput]:
+    return pipeline(*args, **kwargs)
