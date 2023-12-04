@@ -86,16 +86,6 @@
       justify-content: center; ">
         <form method="post" enctype="multipart/form-data" action="/upload" id="myForm">
           <div class="dropzone mb-3" id="myDropzone"></div>
-{#          <select class="form-select form-select-lg mb-3 mySelect myBlock" aria-label=".form-select-lg example" id="output"#}
-{#            name="output">#}
-{#            <option selected>Choisissez le format de sortie</option>#}
-{#            <option value="iramuteq">IRAMUTEQ</option>#}
-{#            <option value="txm">TXM (XML)</option>#}
-{#            <option value="json">JSON</option>#}
-{#            <option value="csv">CSV</option>#}
-{#            <option value="stats">Statistiques</option>#}
-{#          </select>#}
-
             <div class="myDivInput">
                 <input type="checkbox" id="iramuteq" name="output" value="iramuteq" class="myInput"> <label for="iramuteq">IRAMUTEQ</label>
             </div>
@@ -107,6 +97,9 @@
             </div>
             <div class="myDivInput">
                 <input type="checkbox" id="csv" name="output" value="csv" class="myInput"> <label for="csv">CSV</label>
+            </div>
+            <div class="myDivInput">
+                <input type="checkbox" id="markdown" name="output" value="markdown" class="myInput"> <label for="markdown">Markdown</label>
             </div>
 
             <h3 style="font-weight: 100">Statistiques</h3>
@@ -170,27 +163,20 @@
 
         //send all the form data along with the files:
         this.on("sendingmultiple", function (data, xhr, formData) {
-            let checked  = false   ;
-
             if (document.getElementById('iramuteq').checked) {
                 formData.append("output","iramuteq");
-                checked = true;
             }
             if (document.getElementById('txm').checked) {
                 formData.append("output","txm");
-                checked = true;
             }
             if (document.getElementById('json').checked) {
                 formData.append("output","json");
-                checked = true;
             }
             if (document.getElementById('csv').checked) {
                 formData.append("output","csv");
-                checked = true;
             }
             if (document.getElementById('stats').checked) {
                 formData.append("output","stats");
-                checked = true;
             }
             {#if (document.getElementById('processed_stats').checked) {#}
             {#    formData.append("output","processed_stats");#}
@@ -198,7 +184,9 @@
             {# }#}
             if (document.getElementById('plots').checked) {
                 formData.append("output","plots");
-                checked = true;
+            }
+            if (document.getElementById('markdown').checked) {
+                formData.append("output","markdown");
             }
 
 

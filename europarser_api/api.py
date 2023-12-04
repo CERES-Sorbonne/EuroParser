@@ -3,6 +3,7 @@ import io
 import os
 import zipfile
 from enum import Enum
+from pathlib import Path
 from typing import List  # , Optional
 
 from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File  # , Query
@@ -10,8 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from europarser.models import FileToTransform  # , Output
-from europarser.transformers.pipeline import pipeline
+from europarser.models import FileToTransform, TransformerOutput  # , Output
+from europarser import pipeline
 from europarser_api.utils import get_mimetype
 
 root_dir = os.path.dirname(__file__)
@@ -31,6 +32,7 @@ class Outputs(str, Enum):
     stats = "stats"
     processed_stats = "processed_stats"
     plots = "plots"
+    markdown = "markdown"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -48,39 +50,41 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
     # process result
-    results = pipeline(to_process, output)
+    results: list[TransformerOutput] = pipeline(to_process, output)
 
+    # if only one output was required let's return a single file
     if len(results) == 1:
         result = results[0]
-        output = output[0]
 
-        if not isinstance(result['data'], bytes):
-            result['data'] = io.StringIO(result['data'])
+        if isinstance(result.data, io.StringIO) or isinstance(result.data, io.BytesIO):
+            pass
+        elif not isinstance(result.data, bytes):
+            result.data = io.StringIO(result.data)
         else:
-            result['data'] = io.BytesIO(result['data'])
-
+            result.data = io.BytesIO(result.data)
 
         return StreamingResponse(
-            result['data'],
-            media_type=get_mimetype(result['output']),
-            headers={'Content-Disposition': f"attachment; filename={output.value}.{result['type']}"}
+            result.data,
+            media_type=get_mimetype(result.output),
+            headers={'Content-Disposition': f"attachment; filename={result.filename}"}
         )
 
+    # else let's create a zip with all files
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
         for result in results:
-            out = result['output']
-            res = result['data']
-            type_ = result['type']
-            print(f"{out = } {type_ = }")
-            if type_ == "zip":
-                temp_zip.mkdir(out.value)
-                with zipfile.ZipFile(io.BytesIO(res), mode='r') as z:
+            print(result.filename)
+            if result.output == "zip":
+                name = Path(result.filename).stem  # get filename without extension (remove .zip basically)
+                print(name)
+                # careful this does not work on python < 3.11 !
+                temp_zip.mkdir(name)
+                with zipfile.ZipFile(io.BytesIO(result.data), mode='r') as z:
                     for f in z.namelist():
-                        temp_zip.writestr(f"{out.value}/{f}", z.read(f))
+                        temp_zip.writestr(f"{name}/{f}", z.read(f))
                 continue
 
-            temp_zip.writestr(f"{out.value}.{type_}", res)
+            temp_zip.writestr(f"{result.filename}", result.data)
 
     zip_io.seek(0)
     return StreamingResponse(

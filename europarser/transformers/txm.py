@@ -4,15 +4,18 @@ import xml.dom.minidom as dom
 from xml.sax.saxutils import escape
 from typing import List
 
-from europarser.models import Pivot
+from europarser.models import Pivot, TransformerOutput
 from europarser.transformers.transformer import Transformer
 
 
 class TXMTransformer(Transformer):
     def __init__(self):
         super(TXMTransformer, self).__init__()
+        self.output_type = "xml"
+        self.output = TransformerOutput(data=None, output=self.output_type,
+                                        filename=f'{self.name}_output.{self.output_type}')
 
-    def transform(self, pivot_list: List[Pivot]) -> str:
+    def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
         with io.StringIO() as f:
             f.write("<corpus>")
 
@@ -34,4 +37,5 @@ class TXMTransformer(Transformer):
                 f.write(parsed)
                 f.write("</article>")
             f.write("</corpus>")
-            return dom.parseString(f.getvalue()).toprettyxml()
+            self.output.data = dom.parseString(f.getvalue()).toprettyxml()
+            return self.output

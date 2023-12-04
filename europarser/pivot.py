@@ -1,16 +1,13 @@
-import sys
+import hashlib
+import json
+import os
+from pathlib import Path
 
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
-from typing import List
 from bs4 import BeautifulSoup
-from datetime import date
-import cchardet
 
 from tqdm.auto import tqdm
 
-from europarser.models import FileToTransform, Pivot
+from europarser.models import FileToTransform, Pivot, TransformerOutput
 from europarser.transformers.transformer import Transformer
 from europarser.utils import find_date, find_datetime
 import re
@@ -28,7 +25,7 @@ class PivotTransformer(Transformer):
         self.corpus = None
         self.bad_articles = None
 
-    def transform(self, file_to_transform: FileToTransform) -> List[Pivot]:
+    def transform(self, file_to_transform: FileToTransform) -> list[Pivot]:
         self._logger.debug("Processing file " + file_to_transform.name)
         soup = BeautifulSoup(file_to_transform.file, 'lxml')
 
@@ -124,7 +121,7 @@ class PivotTransformer(Transformer):
 
                 # on garde uniquement le titre (sans les fioritures)
                 journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
-                doc["journal_clean"] = journal_clean
+                doc["journal_clean"] = journal_clean.strip()
 
                 doc["keywords"] = ", ".join([x.lower() for x in get_KW(doc["titre"], doc["texte"])])
 
@@ -141,11 +138,27 @@ class PivotTransformer(Transformer):
                 self._add_error(e, article)
                 self.bad_articles.append(article)
 
+        persist_json(self.corpus)
+
         return self.corpus
 
 
     def get_bad_articles(self):
         print(self.bad_articles)
+
+
+def persist_json(pivots: list[Pivot]):
+    """
+    utility function to persist the result of the pivot transformation
+    """
+    output_path = os.getenv("EUROPARSER_OUTPUT", None)
+    if not output_path:
+        return
+    json_ver = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
+    hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
+    with (Path(output_path) / f"{hash_json}.json").open("w", encoding="utf-8") as f:
+        f.write(json_ver)
+
 
 if __name__ == "__main__":
     import cProfile
