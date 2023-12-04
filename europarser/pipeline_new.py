@@ -12,6 +12,7 @@ from europarser.transformers.json import JSONTransformer
 from europarser.transformers.markdown import MarkdownTransformer
 from europarser.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
+from europarser.transformers.stats import StatsTransformer
 
 transformer_factory = {
     "json": JSONTransformer().transform,
@@ -19,9 +20,9 @@ transformer_factory = {
     "iramuteq": IramuteqTransformer().transform,
     "gephi": None,
     "csv": CSVTransformer().transform,
-    "stats": None,
+    "stats": StatsTransformer().transform,
     "processed_stats": None,
-    "plots": None,
+    "plots": StatsTransformer().get_plots,
     "markdown": MarkdownTransformer().transform
 }
 
@@ -41,7 +42,7 @@ def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list
 
     to_process = []
     for output in outputs:
-        if output not in ['stats', 'processed_stats', 'plots']:
+        if output not in ['processed_stats']:
             func = transformer_factory[output]
             args = [pivots]
             to_process.append((func, args))

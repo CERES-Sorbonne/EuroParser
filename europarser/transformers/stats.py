@@ -11,11 +11,12 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import polars as pl
 
-from europarser.models import Pivot
+from europarser.models import Pivot, TransformerOutput
 from europarser.transformers.transformer import Transformer
 
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 pio.templates.default = "none"
+
 
 class StatsTransformer(Transformer):
     mois = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre",
@@ -63,6 +64,21 @@ class StatsTransformer(Transformer):
         self.res = None
         self.stats_processed = False
         self.pivot_list = None
+
+        self.output_type = {
+            "stats": "json",
+            "processed_stats": "json",
+            "plots": "zip",
+        }
+
+        self.output = {
+            k: TransformerOutput(
+                data=None,
+                output=self.output_type[k],
+                filename=f'{k}_output.{self.output_type[k]}'
+            )
+            for k in self.output_type
+        }
 
     def transform(self, pivot_list: List[Pivot]) -> dict[str, dict[str, list[int]]]:
         self._logger.debug("Starting to compute stats")
@@ -175,7 +191,8 @@ class StatsTransformer(Transformer):
         self._logger.debug(f"Time to compute stats: {time.time() - t1:.2f}s")
         self.stats_processed = True
 
-        return self.res
+        self.output["stats"].data = json.dumps(self.res)
+        return self.output["stats"]
 
     def get_plots(self, pivot_list: List[Pivot] = None):
         if not self.stats_processed:
@@ -191,7 +208,8 @@ class StatsTransformer(Transformer):
                 self._get_plots(zip_file)
 
             self._logger.debug(f"Time to compute plots: {time.time() - t1:.2f}s")
-            return zip_io.getvalue()
+            self.output["plots"].data = zip_io.getvalue()
+            return self.output["plots"]
 
     def _get_plots(self, zip_file):
         self.zip_file = zip_file
@@ -222,8 +240,6 @@ class StatsTransformer(Transformer):
             color_continuous_scale=self.MAIN_COLOR,
         )
         self.zip_file.writestr("journal.html", fig.to_html())
-
-
 
     def _get_plots_mois(self):
         tobar = (
@@ -410,7 +426,8 @@ class StatsTransformer(Transformer):
 
             )
             self.zip_file.writestr(f"!_journal_{color}.html", fig.to_html())
-            
+
+
 if __name__ == '__main__':
     import cProfile
     import pstats
