@@ -9,10 +9,10 @@ import json
 from pathlib import Path
 from typing import List, Tuple, Any
 
-from europarser.models import FileToTransform, Output, Pivot, OutputType
+from europarser.models import FileToTransform, Output, Pivot, OutputFormat
 from europarser.transformers.gephi import GephiTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
-from europarser.transformers.csv_transformer import CSVTransformer
+from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.pivot import PivotTransformer
 from europarser.transformers.txm import TXMTransformer
 from europarser.transformers.stats import StatsTransformer
@@ -63,7 +63,7 @@ def pipeline(files: List[FileToTransform], outputs=None):  # -> Tuple[List[str, 
     else:
         stats_data = {}
 
-    results: List[dict[str, OutputType | Any] | bytes] = []
+    results: List[dict[str, OutputFormat | Any] | bytes] = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_output, output, pivots, stats_data.copy(), json_ver) for output in outputs]
         for future in concurrent.futures.as_completed(futures):

@@ -410,6 +410,7 @@ class StatsTransformer(Transformer):
 
             )
             self.zip_file.writestr(f"!_journal_{color}.html", fig.to_html())
+            
 if __name__ == '__main__':
     import cProfile
     import pstats

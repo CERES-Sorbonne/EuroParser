@@ -1,12 +1,17 @@
+import hashlib
+import json
 import sys
 
 # if sys.version_info < (3, 9):
 #     from __future__ import annotations
 
 import re
+from pathlib import Path
 from typing import Tuple, Optional
 from datetime import date, datetime
 from dateutil import tz as tzutil
+
+from europarser.models import Pivot
 
 date_regex = [
     find_french_date_1 := re.compile(
@@ -267,3 +272,4 @@ STOP_WORDS = [
     "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to",
     "was", "will", "with"
 ]
+

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import concurrent.futures
 import hashlib
 import json
@@ -7,23 +9,14 @@ from typing import List, Tuple, Any, Set
 
 from tqdm.auto import tqdm
 
-from europarser.models import FileToTransform, Output, Pivot, OutputType
-from europarser.transformers.csv_transformer import CSVTransformer
+from europarser.models import FileToTransform, Output, Pivot, OutputFormat
+from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
-from europarser.transformers.pivot import PivotTransformer
+from europarser.pivot import PivotTransformer
 from europarser.transformers.stats import StatsTransformer
 from europarser.transformers.txm import TXMTransformer
 
-global savedir
-savedir = Path(__file__)
-while savedir.name != "EuropressParser":
-    # print(savedir.name)
-    savedir = savedir.parent
-    if not savedir:
-        raise FileNotFoundError("Could not find `EuropressParser` directory which should be the root of the project")
 
-savedir = savedir / "parsed_data"
-savedir.mkdir(exist_ok=True)
 
 
 def make_json(pivots: List[Pivot], num: int = 0) -> Tuple[str, int]:
@@ -62,19 +55,19 @@ def make_plots(num: int, st: StatsTransformer) -> Tuple[bytes, int]:
     return st.get_plots(), num
 
 
-def pipeline(
-        files: List[FileToTransform],
-        outputs: List[Output] = None
-) -> Tuple[dict[str, OutputType | str | bytes], ...]:
+def pipeline(files: List[FileToTransform], outputs: List[Output] = None) -> Tuple[dict[str, OutputFormat | str | bytes], ...]:
+    """
+    main function that transforms the files into pivots and then in differents required ouptputs
+    """
     outp_to_func: dict[Output, Any] = {
         "json": make_json,
         "iramuteq": make_iramuteq,
         "txm": make_txm,
         "csv": make_csv,
-        "gephi": make_gephi,
+        "gephi": make_gephi
     }
     stats_outp: Set[str] = {"stats", "processed_stats", "plots"}
-    outp_to_type: dict[Output, OutputType] = {
+    outp_to_type: dict[Output, OutputFormat] = {
         "json": "json",
         "iramuteq": "txt",
         "txm": "xml",
@@ -90,7 +83,7 @@ def pipeline(
     num: int
     futures: List[concurrent.futures.Future]
     res: Tuple[str, int]
-    result: Tuple[dict[str, OutputType | str | bytes], ...]
+    result: Tuple[dict[str, OutputFormat | str | bytes], ...]
 
     # Functions ang their arguments to process
     to_process: List[Tuple[Any, Tuple[Any]]] = []

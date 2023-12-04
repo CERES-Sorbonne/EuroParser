@@ -1,9 +1,12 @@
+from __future__ import annotations
+
+import io
 import sys
 
 # if sys.version_info < (3, 9):
 #     from __future__ import annotations
 
-from typing import Literal
+from typing import Literal, Any
 
 from pydantic import BaseModel
 
@@ -41,5 +44,13 @@ class Pivot(BaseModel):
         return hash((self.journal, self.date, self.titre))
 
 
-OutputType = Literal["csv", "json", "txt", "xml", "zip"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "cluster_tool", "csv", "stats", "processed_stats", "plots"]
+class TransformerOutput(BaseModel):
+    data: str | bytes | None
+    output: OutputFormat
+    filename: str
+
+
+OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
+
+TransformerOutput.update_forward_refs()
