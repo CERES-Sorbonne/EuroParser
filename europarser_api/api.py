@@ -3,6 +3,7 @@ import io
 import os
 import zipfile
 from enum import Enum
+from pathlib import Path
 from typing import List  # , Optional
 
 from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File  # , Query
@@ -74,11 +75,13 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
         for result in results:
             print(result.filename)
             if result.output == "zip":
+                name = Path(result.filename).stem  # get filename without extension (remove .zip basically)
+                print(name)
                 # careful this does not work on python < 3.11 !
-                temp_zip.mkdir(result.output)
+                temp_zip.mkdir(name)
                 with zipfile.ZipFile(io.BytesIO(result.data), mode='r') as z:
                     for f in z.namelist():
-                        temp_zip.writestr(f"{result.output}/{f}", z.read(f))
+                        temp_zip.writestr(f"{name}/{f}", z.read(f))
                 continue
 
             temp_zip.writestr(f"{result.filename}", result.data)
