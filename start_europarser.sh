@@ -7,7 +7,7 @@ then
     echo "EUROPARSER_OUTPUT is set to '$EUROPARSER_OUTPUT'"
 else
     echo "EUROPARSER_OUTPUT is not set, if you continue, no output will be saved"
-    read -p "Continue? [y/N] " -n 1 -r < /dev/tty
+    read -p "Continue? [ y / $(tput setaf 1)N$(tput sgr0) ] " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
