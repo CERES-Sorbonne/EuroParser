@@ -25,11 +25,13 @@ class PivotTransformer(Transformer):
         self.corpus = None
         self.bad_articles = None
 
-        self.output_path = Path(os.getenv("EUROPARSER_OUTPUT", None))
+        self.output_path = os.getenv("EUROPARSER_OUTPUT", None)
 
         if self.output_path is None:
             self._logger.warning("EUROPARSER_OUTPUT not set, disabling output")
             return
+
+        self.output_path = Path(self.output_path)
 
         if not self.output_path.is_dir():
             self._logger.warning(f"Output path {self.output_path} is not a directory, disabling output")
