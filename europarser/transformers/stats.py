@@ -194,11 +194,14 @@ class StatsTransformer(Transformer):
         self.output["stats"].data = json.dumps(self.res)
         return self.output["stats"]
 
-    def get_plots(self, pivot_list: List[Pivot] = None):
+    def get_stats(self, *args, **kwargs):
         if not self.stats_processed:
-            if pivot_list is None:
-                raise ValueError("You must provide a pivot_list to get_plots if you haven't already computed the stats")
-            self.transform(pivot_list)
+            raise ValueError("You must compute the stats before getting them")
+        return self.output["stats"]
+
+    def get_plots(self, *args, **kwargs):
+        if not self.stats_processed:
+            raise ValueError("You must provide a pivot_list to get_plots if you haven't already computed the stats")
 
         self._logger.debug("Starting to compute plots")
         t1 = time.time()
@@ -401,7 +404,11 @@ class StatsTransformer(Transformer):
 
         self.zip_file.writestr("mois_auteur.html", fig.to_html())
 
-    def get_stats(self, pivot_list: List[Pivot] = None):
+    def get_processed_stats(self, *args, **kwargs):
+        # TODO: add processed_stats
+        if not self.stats_processed:
+            raise ValueError("You must compute the stats before getting them")
+
         raise NotImplementedError
 
     def _test_COOLORS(self):
