@@ -37,10 +37,10 @@ class MarkdownTransformer(Transformer):
         # Si le titre est vide (une fois nettoyé), on utilise le hash du texte
         base_nom = frontmatter["titre"][:100].strip("_") or hashlib.md5(pivot.texte.encode()).hexdigest()
 
-        nom = f"{frontmatter["journal_clean"]}/{base_nom}.md"
+        nom = f"{frontmatter['journal_clean']}/{base_nom}.md"
         if nom in self.seen_names:
             # Si le nom existe déjà, on ajoute la date à la fin (sans l'heure)
-            nom = f"{nom[:-3]}_{clean_string(pivot.date).split("t")[0]}.md"
+            nom = f"{nom[:-3]}_{clean_string(pivot.date).split('t')[0]}.md"
         self.seen_names.add(nom)
 
         return nom, markdown_content
