@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source .env_europarser > /dev/null 2>&1
+
 if [ "$EUROPARSER_OUTPUT" ]
 then
     echo "EUROPARSER_OUTPUT is set to '$EUROPARSER_OUTPUT'"
