@@ -20,11 +20,13 @@ transformer_factory = {
     "iramuteq": IramuteqTransformer().transform,
     "gephi": None,
     "csv": CSVTransformer().transform,
-    "stats": StatsTransformer().transform,
-    "processed_stats": None,
-    "plots": StatsTransformer().get_plots,
+    "stats": "get_stats",
+    "processed_stats": "get_processed_stats",  # TODO: add processed_stats
+    "plots": "get_plots",
     "markdown": MarkdownTransformer().transform
 }
+
+stats_outputs = {"stats", "processed_stats", "plots"}
 
 
 def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list[TransformerOutput]:
@@ -41,12 +43,20 @@ def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list
         pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
     to_process = []
+    st = None
+    if stats_outputs.intersection(outputs):
+        st = StatsTransformer()
+        st.transform(pivots)
+
     for output in outputs:
-        if output != "processed_stats":
+        if output in stats_outputs:
+            func = getattr(st, transformer_factory[output])
+            to_process.append((func, []))
+
+        else:
             func = transformer_factory[output]
             args = [pivots]
             to_process.append((func, args))
-        # TODO: add processed_stats to the pipeline and reuse the stats transformer to avoid double processing
 
     results: list[TransformerOutput] = []
 
