@@ -25,6 +25,18 @@ class PivotTransformer(Transformer):
         self.corpus = None
         self.bad_articles = None
 
+        self.output_path = Path(os.getenv("EUROPARSER_OUTPUT", None))
+
+        if self.output_path is None:
+            self._logger.warning("EUROPARSER_OUTPUT not set, disabling output")
+            return
+
+        if not self.output_path.is_dir():
+            self._logger.warning(f"Output path {self.output_path} is not a directory, disabling output")
+            self.output_path = None
+        if self.output_path:
+            self.output_path.mkdir(parents=True, exist_ok=True)
+
     def transform(self, file_to_transform: FileToTransform) -> list[Pivot]:
         self._logger.debug("Processing file " + file_to_transform.name)
         soup = BeautifulSoup(file_to_transform.file, 'lxml')
@@ -138,26 +150,26 @@ class PivotTransformer(Transformer):
                 self._add_error(e, article)
                 self.bad_articles.append(article)
 
-        persist_json(self.corpus)
+        self.persist_json()
 
         return self.corpus
-
 
     def get_bad_articles(self):
         print(self.bad_articles)
 
+    def persist_json(self):
+        """
+        utility function to persist the result of the pivot transformation
+        """
+        if not self.output_path:
+            return
 
-def persist_json(pivots: list[Pivot]):
-    """
-    utility function to persist the result of the pivot transformation
-    """
-    output_path = os.getenv("EUROPARSER_OUTPUT", None)
-    if not output_path:
-        return
-    json_ver = json.dumps({i: article.dict() for i, article in enumerate(pivots)}, ensure_ascii=False)
-    hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
-    with (Path(output_path) / f"{hash_json}.json").open("w", encoding="utf-8") as f:
-        f.write(json_ver)
+        json_ver = json.dumps({i: article.dict() for i, article in enumerate(self.corpus)}, ensure_ascii=False)
+        # hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
+        # with (self.output_path / f"{hash_json}.json").open("w", encoding="utf-8") as f:
+        output_file = self.output_path / f"{hashlib.sha256(json_ver.encode()).hexdigest()}.json"
+        with output_file.open("w", encoding="utf-8") as f:
+            f.write(json_ver)
 
 
 if __name__ == "__main__":
@@ -180,5 +192,3 @@ if __name__ == "__main__":
     pr.disable()
     ps = pstats.Stats(pr).sort_stats('cumulative')
     ps.print_stats()
-
-
