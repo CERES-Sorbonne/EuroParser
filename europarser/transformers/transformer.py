@@ -16,8 +16,26 @@ import unicodedata
 
 from europarser.models import Error, Pivot, OutputFormat, TransformerOutput
 
+# Transformer initialization, allows all transformers to access the output path end prevents to set it multiple times
+
+output_path = os.getenv("EUROPARSER_OUTPUT", None)
+
+if output_path is None:
+    logging.warning("EUROPARSER_OUTPUT not set, disabling output")
+else:
+    output_path = Path(output_path)
+
+    if not output_path.is_dir():
+        logging.warning(f"Output path {output_path} is not a directory, disabling output")
+        output_path = None
+
+if output_path:
+    output_path.mkdir(parents=True, exist_ok=True)
+
 
 class Transformer(ABC):
+    output_path = output_path
+
     def __init__(self):
         self.name: str = type(self).__name__.split('Transformer')[0].lower()
         self.errors: List[Error] = []

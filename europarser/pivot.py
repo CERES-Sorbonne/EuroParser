@@ -25,19 +25,19 @@ class PivotTransformer(Transformer):
         self.corpus = None
         self.bad_articles = None
 
-        self.output_path = os.getenv("EUROPARSER_OUTPUT", None)
-
-        if self.output_path is None:
-            self._logger.warning("EUROPARSER_OUTPUT not set, disabling output")
-            return
-
-        self.output_path = Path(self.output_path)
-
-        if not self.output_path.is_dir():
-            self._logger.warning(f"Output path {self.output_path} is not a directory, disabling output")
-            self.output_path = None
-        if self.output_path:
-            self.output_path.mkdir(parents=True, exist_ok=True)
+        # self.output_path = os.getenv("EUROPARSER_OUTPUT", None)
+        #
+        # if self.output_path is None:
+        #     self._logger.warning("EUROPARSER_OUTPUT not set, disabling output")
+        #     return
+        #
+        # self.output_path = Path(self.output_path)
+        #
+        # if not self.output_path.is_dir():
+        #     self._logger.warning(f"Output path {self.output_path} is not a directory, disabling output")
+        #     self.output_path = None
+        # if self.output_path:
+        #     self.output_path.mkdir(parents=True, exist_ok=True)
 
     def transform(self, file_to_transform: FileToTransform) -> list[Pivot]:
         self._logger.debug("Processing file " + file_to_transform.name)
