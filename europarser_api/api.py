@@ -74,7 +74,7 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
 
     # else let's create a zip with all files
     zip_io = io.BytesIO()
-    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
+    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_BZIP2) as temp_zip:
         for result in results:
             logger.info(f"Adding {result.filename} to zip")
             if result.output == "zip":
