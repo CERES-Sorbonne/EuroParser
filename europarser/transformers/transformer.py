@@ -40,6 +40,7 @@ class Transformer(ABC):
         self.name: str = type(self).__name__.split('Transformer')[0].lower()
         self.errors: List[Error] = []
         self._logger = logging.getLogger(self.name)
+        self._logger.setLevel(logging.WARNING)
         self.output_type = "json"
 
     def transform(self, pivot: List[Pivot]) -> TransformerOutput:
@@ -73,6 +74,7 @@ class Transformer(ABC):
         value = strip_accents(value)
         value = re.sub(r"""[-\[\]'":().=?!,;<>«»—^*\\/|]""", ' ', value)
         return ''.join([w.capitalize() for w in value.split(' ')])
+
 
 def strip_accents(s):
     return ''.join(c for c in unicodedata.normalize('NFKD', s) if unicodedata.category(c) != 'Mn')

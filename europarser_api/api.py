@@ -1,5 +1,5 @@
 import io
-# import logging
+import logging
 import os
 import zipfile
 from enum import Enum
@@ -21,6 +21,9 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory=os.path.join(root_dir, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(root_dir, "templates"))
+
+logger = logging.getLogger("europarser_api.api")
+logger.setLevel(logging.DEBUG)
 
 
 class Outputs(str, Enum):
@@ -73,12 +76,10 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
     zip_io = io.BytesIO()
     with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
         for result in results:
-            print(result.filename)
+            logger.info(f"Adding {result.filename} to zip")
             if result.output == "zip":
                 name = Path(result.filename).stem  # get filename without extension (remove .zip basically)
-                print(name)
-                # careful this does not work on python < 3.11 !
-                temp_zip.mkdir(name)
+                logger.info(f"Zip file detected, extracting {name}")
                 with zipfile.ZipFile(io.BytesIO(result.data), mode='r') as z:
                     for f in z.namelist():
                         temp_zip.writestr(f"{name}/{f}", z.read(f))

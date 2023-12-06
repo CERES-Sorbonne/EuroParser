@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -149,8 +150,9 @@ class PivotTransformer(Transformer):
                     ids.add(id_)
 
             except BadArticle as e:
-                self._add_error(e, article)
-                self.bad_articles.append(article)
+                if self._logger.isEnabledFor(logging.DEBUG):
+                    self._add_error(e, article)
+                    self.bad_articles.append(article)
 
         self.persist_json()
 
