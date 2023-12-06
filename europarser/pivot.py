@@ -50,12 +50,28 @@ class PivotTransformer(Transformer):
         ids = set()
         for article in articles:
             try:
-                doc = {}
+                doc = {
+                    "journal": None,
+                    "date": None,
+                    "annee": None,
+                    "mois": None,
+                    "jour": None,
+                    "heure": None,
+                    "minute": None,
+                    "seconde": None,
+                    "epoch": None,
+                    "titre": None,
+                    "complement": None,
+                    "texte": None,
+                    "auteur": "Unknown",
+                    "journal_clean": None,
+                    "keywords": None,
+                    "langue": None
+                }
                 try:
                     doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
-                except Exception as e:
+                except AttributeError:
                     self._logger.debug("pas un article de presse")
-                    self._add_error(e, article)
                     raise BadArticle("journal")
 
                 doc_header = article.find("span", attrs={"class": "DocHeader"})
@@ -70,23 +86,16 @@ class PivotTransformer(Transformer):
                     raise BadArticle("datetime")
 
                 if datetime:
-                    doc["date"] = datetime.strftime("%Y %m %dT%H:%M:%S")
-                    doc["annee"] = datetime.year
-                    doc["mois"] = datetime.month
-                    doc["jour"] = datetime.day
-                    doc["heure"] = datetime.hour
-                    doc["minute"] = datetime.minute
-                    doc["seconde"] = datetime.second
-                    doc["epoch"] = datetime.timestamp()
-                else:
-                    doc["date"] = None
-                    doc["annee"] = None
-                    doc["mois"] = None
-                    doc["jour"] = None
-                    doc["heure"] = None
-                    doc["minute"] = None
-                    doc["seconde"] = None
-                    doc["epoch"] = None
+                    doc.update({
+                        "date": datetime.strftime("%Y %m %dT%H:%M:%S"),
+                        "annee": datetime.year,
+                        "mois": datetime.month,
+                        "jour": datetime.day,
+                        "heure": datetime.hour,
+                        "minute": datetime.minute,
+                        "seconde": datetime.second,
+                        "epoch": datetime.timestamp()
+                    })
 
                 try:
                     doc_titre_full = article.find("div", attrs={"class": "titreArticle"})
@@ -130,9 +139,6 @@ class PivotTransformer(Transformer):
 
                 if doc_auteur and "class" in doc_auteur.attrs and doc_auteur.attrs['class'] == ['sm-margin-bottomNews']:
                     doc["auteur"] = doc_auteur.text.strip().lower()
-
-                else:
-                    doc["auteur"] = "Unknown"
 
                 # on garde uniquement le titre (sans les fioritures)
                 journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
