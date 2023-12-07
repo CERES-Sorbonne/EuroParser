@@ -40,8 +40,9 @@ class PivotTransformer(Transformer):
             with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
-                self.persist_json()
-                self.apply_parameters()
+
+            self.persist_json()
+            self.apply_parameters()
 
             return sorted(self.corpus, key=lambda x: x.epoch)
 
@@ -63,7 +64,7 @@ class PivotTransformer(Transformer):
                 "auteur": "Unknown",
                 "journal_clean": None,
                 "keywords": None,
-                "langue": None
+                "langue": "UNK",
             }
             try:
                 doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
@@ -72,11 +73,15 @@ class PivotTransformer(Transformer):
                 self._add_error(e, article)
                 raise BadArticle("journal")
 
-            doc_header = article.find("span", attrs={"class": "DocHeader"})
-            doc_header = doc_header.text.strip() if doc_header else ""
+            try:
+                doc_header = article.find("span", attrs={"class": "DocHeader"}).text.strip()
+            except AttributeError:
+                doc_header = ""
 
-            doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"})
-            doc_sub_section = doc_sub_section.find_next_sibling("span").text.strip() if doc_sub_section else ""
+            try:
+                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text.strip()
+            except AttributeError:
+                doc_sub_section = ""
 
             try:
                 datetime = find_datetime(doc_header or doc_sub_section)
@@ -117,11 +122,19 @@ class PivotTransformer(Transformer):
                     except AttributeError:
                         raise BadArticle("titre")
 
-            doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"})
-            doc_bottomNews = doc_bottomNews.text.strip() if doc_bottomNews else ""
+            try:
+                doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
+                if not doc_bottomNews:
+                    raise AttributeError
+            except AttributeError:
+                doc_bottomNews = ""
 
-            doc_subtitle = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"})
-            doc_subtitle = doc_subtitle.text.strip() if doc_subtitle else ""
+            try:
+                doc_subtitle = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
+                if not doc_subtitle:
+                    raise AttributeError
+            except AttributeError:
+                doc_subtitle = ""
 
             doc["complement"] = " | ".join((doc_header, doc_sub_section, doc_bottomNews, doc_subtitle))
 
@@ -129,7 +142,7 @@ class PivotTransformer(Transformer):
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
             except AttributeError:
                 if article.find("div", attrs={"class": "DocText clearfix"}) is None:
-                    return
+                    raise BadArticle("texte")
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
@@ -151,7 +164,8 @@ class PivotTransformer(Transformer):
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
             langue = detect_lang(doc["texte"])
-            doc["langue"] = langue if langue else "UNK"
+            if langue:
+                doc["langue"] = langue
 
             if id_ not in self.ids:
                 self.corpus.append(Pivot(**doc))
