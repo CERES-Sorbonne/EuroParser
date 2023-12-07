@@ -5,7 +5,7 @@ from typing import Tuple
 
 from tqdm import tqdm
 
-from europarser.models import Output, FileToTransform, OutputFormat, Pivot, TransformerOutput
+from europarser.models import Output, FileToTransform, OutputFormat, Pivot, TransformerOutput, Params
 from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.json import JSONTransformer
@@ -29,18 +29,15 @@ transformer_factory = {
 stats_outputs = {"stats", "processed_stats", "plots"}
 
 
-def pipeline(files: list[FileToTransform], outputs: list[Output] = None) -> list[TransformerOutput]:
+def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params) -> list[TransformerOutput]:
     """
     main function that transforms the files into pivots and then in differents required ouptputs
     """
 
-    pivots: list[Pivot] = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(PivotTransformer().transform, f) for f in files]
-        for future in concurrent.futures.as_completed(futures):
-            pivots = [*pivots, *future.result()]
-        # undouble remaining doubles
-        pivots = sorted(set(pivots), key=lambda x: x.epoch)
+    transformer = PivotTransformer(params)
+    pivots = transformer.transform(files_to_transform=files)
+    # undouble remaining doubles
+    pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
     to_process = []
     st = None

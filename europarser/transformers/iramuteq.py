@@ -17,7 +17,7 @@ class IramuteqTransformer(Transformer):
     def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
         with io.StringIO() as f:
             for pivot in pivot_list:
-                dic = pivot.dict(exclude=self.banned_keys)
+                dic = pivot.model_dump(exclude=self.banned_keys)
                 f.write(f"""**** {' '.join([f"*{k}_{self._format_value(str(v))}" for k, v in dic.items()])}\n""")
                 f.write(pivot.texte)
                 f.write('\n\n')

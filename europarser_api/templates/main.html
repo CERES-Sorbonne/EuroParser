@@ -113,7 +113,11 @@
             <div class="myDivInput">
                 <input type="checkbox" id="plots" name="output" value="plots" class="myInput"> <label for="plots">Graphiques</label>
             </div>
+             <h3 style="font-weight: 100">Paramètres</h3>
 
+            <div class="myDivInput">
+                <input type="checkbox" id="filter_keywords" name="params" value="filter_keywords" class="myInput"> <label for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul article</label>
+            </div>
 {#            <input class=" myInput" type="checkbox" id="langToggle"\>#}
           <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
         </form>
@@ -139,13 +143,19 @@
       download.download = fileName;
     }
 
+    function createUrl(files, dataBlock){
+        let url = "{{host + '/upload?'}}" + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
+        console.log(url)
+        return(url)
+    }
     Dropzone.options.myDropzone = {
       paramName: 'files',
-      url: "{{host + '/upload'}}",
+      url: createUrl,
       autoProcessQueue: false,
       uploadMultiple: true,
       parallelUploads: 100,
       maxFiles: 100,
+      acceptedFiles: '.html',
       // addRemoveLinks: true,
       // headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 
@@ -188,7 +198,6 @@
             if (document.getElementById('markdown').checked) {
                 formData.append("output","markdown");
             }
-
 
           for (let el of data) {
             let blob = new Blob([el], { type: el.type });

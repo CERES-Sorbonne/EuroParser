@@ -85,7 +85,7 @@ class StatsTransformer(Transformer):
         t1 = time.time()
 
         self.pivot_list = pivot_list
-        self.df = pl.from_records([p.dict() for p in self.pivot_list])
+        self.df = pl.from_records([p.model_dump() for p in self.pivot_list])
 
         self.df = self.df.with_columns(
             pl.col('journal_clean').str.strip_chars().alias('journal_clean'),

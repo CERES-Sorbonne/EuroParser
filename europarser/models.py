@@ -8,7 +8,7 @@ import sys
 
 from typing import Literal, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_serializer
 
 
 class FileToTransform(BaseModel):
@@ -37,11 +37,18 @@ class Pivot(BaseModel):
     epoch: int
     auteur: str
     texte: str
-    keywords: str
+    keywords: list
     langue: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
+
+    @field_serializer('keywords')
+    def serialize_keywords(self, kw: list):
+        return ', '.join(kw).strip()
+
+OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
 
 
 class TransformerOutput(BaseModel):
@@ -50,7 +57,7 @@ class TransformerOutput(BaseModel):
     filename: str
 
 
-OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
-
-TransformerOutput.update_forward_refs()
+class Params:
+    def __init__(self, filter_keywords: bool = False, filter_lang: bool = False):
+        self.filter_keywords: bool = filter_keywords
+        self.filter_lang: bool = filter_lang

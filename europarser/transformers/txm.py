@@ -30,7 +30,7 @@ class TXMTransformer(Transformer):
                 mois="{pivot.mois}"\
                 jour="{pivot.jour}"\
                 journal_clean="{escape(pivot.journal_clean)}"\
-                keywords="{escape(pivot.keywords)}"\
+                keywords="{escape(', '.join(pivot.keywords))}"\
                 langue="{escape(pivot.langue)}\
                 ">"""
                 f.write(line)

@@ -27,7 +27,7 @@ class MarkdownTransformer(Transformer):
             "titre": clean_string(pivot.titre),
             "date": pivot.date,
             "langue": clean_string(pivot.langue),
-            "tags": [clean_string(tag) for tag in pivot.keywords.split(",")],
+            "tags": [clean_string(tag) for tag in pivot.keywords],
         }
 
         markdown_content = f"---\n{yaml.dump(frontmatter)}---\n\n{pivot.texte}"

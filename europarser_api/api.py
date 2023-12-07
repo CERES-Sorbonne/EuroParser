@@ -4,14 +4,14 @@ import os
 import zipfile
 from enum import Enum
 from pathlib import Path
-from typing import List  # , Optional
+from typing import List, Annotated  # , Optional
 
-from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File  # , Query
+from fastapi import FastAPI, UploadFile, Request, Form, HTTPException, File, Depends  # , Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from europarser.models import FileToTransform, TransformerOutput  # , Output
+from europarser.models import FileToTransform, TransformerOutput, Params  # , Output
 from europarser import pipeline
 from europarser_api.utils import get_mimetype
 
@@ -44,7 +44,9 @@ async def read_root(request: Request):
 
 
 @app.post("/upload")
-async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs] = Form(...)):
+async def handle_files(files: Annotated[list[UploadFile], File(...)],
+                       output: Annotated[list[Outputs], Form(...)],
+                       params: Annotated[Params, Depends()]):
     if len(files) == 1 and files[0].filename == "":
         raise HTTPException(status_code=400, detail="No File Provided")
     # parse all files
@@ -52,8 +54,9 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
         to_process = [FileToTransform(name=f.filename, file=f.file.read().decode('utf-8')) for f in files]
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
+
     # process result
-    results: list[TransformerOutput] = pipeline(to_process, output)
+    results: list[TransformerOutput] = pipeline(to_process, output, params)
 
     # if only one output was required let's return a single file
     if len(results) == 1:
@@ -74,7 +77,7 @@ async def handle_files(files: List[UploadFile] = File(...), output: List[Outputs
 
     # else let's create a zip with all files
     zip_io = io.BytesIO()
-    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_BZIP2) as temp_zip:
+    with zipfile.ZipFile(zip_io, mode='w', compression=zipfile.ZIP_DEFLATED) as temp_zip:
         for result in results:
             logger.info(f"Adding {result.filename} to zip")
             if result.output == "zip":
