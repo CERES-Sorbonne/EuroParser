@@ -43,7 +43,7 @@ class PivotTransformer(Transformer):
                 self.persist_json()
                 self.apply_parameters()
 
-            return self.corpus
+            return sorted(self.corpus, key=lambda x: x.epoch)
 
     def transform_article(self, article):
         try:

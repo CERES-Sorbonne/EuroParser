@@ -36,8 +36,6 @@ def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params
 
     transformer = PivotTransformer(params)
     pivots = transformer.transform(files_to_transform=files)
-    # undouble remaining doubles
-    pivots = sorted(set(pivots), key=lambda x: x.epoch)
 
     to_process = []
     st = None
