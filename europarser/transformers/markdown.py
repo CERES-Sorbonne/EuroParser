@@ -20,7 +20,7 @@ class MarkdownTransformer(Transformer):
                                         filename=f'{self.name}_output.{self.output_type}')
         self.seen_names = set()
         self.stats = None
-        self.stats_output = "#Statistiques"
+        self.stats_output = ""
 
     def generate_markdown(self, pivot: Pivot):
         # Générer le contenu du fichier markdown
@@ -42,7 +42,7 @@ class MarkdownTransformer(Transformer):
         # Si le titre est vide (une fois nettoyé), on utilise le hash du texte
         base_nom = frontmatter["titre"][:100].strip("_") or hashlib.md5(pivot.texte.encode()).hexdigest()
 
-        nom = f"{frontmatter['journal_clean']}/{base_nom}.md"
+        nom = f"{frontmatter['journal']}/{base_nom}.md"
         if nom in self.seen_names:
             # Si le nom existe déjà, on ajoute la date à la fin (sans l'heure)
             nom = f"{nom[:-3]}_{clean_string(pivot.date).split('t')[0]}.md"
@@ -57,7 +57,7 @@ class MarkdownTransformer(Transformer):
             for pivot in pivots:
                 filename, content = self.generate_markdown(pivot)
                 zipf.writestr(filename, content)
-            zipf.writestr("charts.md", self.make_waffle())
+            zipf.writestr("Statistiques.md", self.make_waffle())
 
         in_memory_zip.seek(0)
         self.output.data = in_memory_zip.getvalue()
@@ -69,13 +69,13 @@ class MarkdownTransformer(Transformer):
         # Parcourez la liste d'éléments pivots
         for pivot in pivots:
             # Incrémentez le compteur pour le journal actuel
-            articles_par_cle[pivot.journal] += 1
+            articles_par_cle[pivot.journal_clean] += 1
 
         # Convertissez le defaultdict en un dictionnaire Python standard pour la sortie
         self.stats = dict(articles_par_cle)
 
     def make_waffle(self):
-        output = "## Articles par journal \n" \
+        output = "## Articles par journal \n\n" \
                  "```chartsview\n"
         chart = {
             "type": "Treemap",
@@ -91,7 +91,9 @@ class MarkdownTransformer(Transformer):
             }
         }
         for journal, value in self.stats.items():
-            chart['data']['children'].append({'name': journal, 'value': value, 'journal_chart': 'journal_' + journal})
+            # do this to avoid searching in the Statistics.md file
+            search_value = 'journal_' + clean_string(journal) + '" -file:(Statistiques) "'
+            chart['data']['children'].append({'name': journal, 'value': value, 'journal_chart': search_value})
 
         output += yaml.dump(chart)
         output += "```"
