@@ -85,7 +85,7 @@ class StatsTransformer(Transformer):
         t1 = time.time()
 
         self.pivot_list = pivot_list
-        self.df = pl.from_records([p.dict() for p in self.pivot_list])
+        self.df = pl.from_records([p.model_dump() for p in self.pivot_list])
 
         self.df = self.df.with_columns(
             pl.col('journal_clean').str.strip_chars().alias('journal_clean'),
@@ -288,7 +288,7 @@ class StatsTransformer(Transformer):
         tobar = (
             self.data["mot_cle"]
             .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
-            .filter(pl.col("index_list") > 4)
+            # .filter(pl.col("index_list") > 4)
             .sort("index_list", descending=True)
         )
         self.mot_cle_order = tobar.select(pl.col("mot_cle")).to_series().to_list()

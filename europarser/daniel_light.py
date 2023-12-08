@@ -8,7 +8,7 @@ from europarser.utils import STOP_WORDS
 
 
 def filter_KW(liste):
-    out = []
+    out = set()
     liste = set(liste).difference(STOP_WORDS)
     for x in liste:
         numbers = re.findall("[0-9]", x)
@@ -21,7 +21,7 @@ def filter_KW(liste):
         elif len(numbers) > 0:
             if len(numbers[0]) == len(x):
                 continue
-        out.append(x)
+        out.add(x.lower().replace(',', '').strip())
     return out
 
 
