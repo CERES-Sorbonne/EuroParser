@@ -288,7 +288,7 @@ class StatsTransformer(Transformer):
         tobar = (
             self.data["mot_cle"]
             .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
-            .filter(pl.col("index_list") > 4)
+            # .filter(pl.col("index_list") > 4)
             .sort("index_list", descending=True)
         )
         self.mot_cle_order = tobar.select(pl.col("mot_cle")).to_series().to_list()

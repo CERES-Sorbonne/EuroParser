@@ -2,6 +2,7 @@ import hashlib
 import io
 import re
 import zipfile
+from collections import defaultdict
 
 from typing import List
 
@@ -18,16 +19,20 @@ class MarkdownTransformer(Transformer):
         self.output = TransformerOutput(data=None, output=self.output_type,
                                         filename=f'{self.name}_output.{self.output_type}')
         self.seen_names = set()
+        self.stats = None
+        self.stats_output = "#Statistiques"
 
     def generate_markdown(self, pivot: Pivot):
         # Générer le contenu du fichier markdown
         frontmatter = {
-            "journal_clean": clean_string(pivot.journal_clean),
+            "journal": clean_string(pivot.journal_clean),
             "auteur": clean_string(pivot.auteur),
             "titre": clean_string(pivot.titre),
             "date": pivot.date,
             "langue": clean_string(pivot.langue),
             "tags": [clean_string(tag) for tag in pivot.keywords],
+            "journal_charts": "journal_" + clean_string(pivot.journal_clean),
+            "auteur_charts": "auteur_" + clean_string(pivot.journal_clean)
         }
 
         markdown_content = f"---\n{yaml.dump(frontmatter)}---\n\n{pivot.texte}"
@@ -46,16 +51,51 @@ class MarkdownTransformer(Transformer):
         return nom, markdown_content
 
     def transform(self, pivots: List[Pivot]) -> TransformerOutput:
+        self.compute_stats(pivots)
         in_memory_zip = io.BytesIO()
         with zipfile.ZipFile(in_memory_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
             for pivot in pivots:
                 filename, content = self.generate_markdown(pivot)
                 zipf.writestr(filename, content)
+            zipf.writestr("charts.md", self.make_waffle())
 
         in_memory_zip.seek(0)
         self.output.data = in_memory_zip.getvalue()
         return self.output
 
+    def compute_stats(self, pivots, key="journal"):
+        articles_par_cle = defaultdict(int)
+
+        # Parcourez la liste d'éléments pivots
+        for pivot in pivots:
+            # Incrémentez le compteur pour le journal actuel
+            articles_par_cle[pivot.journal] += 1
+
+        # Convertissez le defaultdict en un dictionnaire Python standard pour la sortie
+        self.stats = dict(articles_par_cle)
+
+    def make_waffle(self):
+        output = "## Articles par journal \n" \
+                 "```chartsview\n"
+        chart = {
+            "type": "Treemap",
+            "data": {
+                "name": "root",
+                "children": [],
+            },
+            "options": {
+                "colorField": "name",
+                "enableSearchInteraction": {
+                    "field": "journal_chart"
+                }
+            }
+        }
+        for journal, value in self.stats.items():
+            chart['data']['children'].append({'name': journal, 'value': value, 'journal_chart': 'journal_' + journal})
+
+        output += yaml.dump(chart)
+        output += "```"
+        return output
 
 def clean_string(s):
     # Fonction pour nettoyer les chaînes de caractères
