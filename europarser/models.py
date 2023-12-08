@@ -6,7 +6,7 @@ import sys
 # if sys.version_info < (3, 9):
 #     from __future__ import annotations
 
-from typing import Literal, Any
+from typing import Literal, Any, Set
 
 from pydantic import BaseModel, field_serializer
 
@@ -37,15 +37,15 @@ class Pivot(BaseModel):
     epoch: int
     auteur: str
     texte: str
-    keywords: list
+    keywords: Set[str]
     langue: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))
 
     @field_serializer('keywords')
-    def serialize_keywords(self, kw: list):
-        return ', '.join(kw).strip()
+    def serialize_keywords(self, kw: Set[str]):
+        return ', '.join(kw)
 
 OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
 Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
