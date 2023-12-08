@@ -22,7 +22,7 @@ def filter_KW(liste):
             if len(numbers[0]) == len(x):
                 continue
         out.add(x.lower().replace(',', '').strip())
-    return list(out)
+    return out
 
 
 def tokenize(chaine):

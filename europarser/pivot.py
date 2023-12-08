@@ -70,7 +70,6 @@ class PivotTransformer(Transformer):
                 doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
             except Exception as e:
                 self._logger.debug("pas un article de presse")
-                self._add_error(e, article)
                 raise BadArticle("journal")
 
             try:
@@ -155,11 +154,11 @@ class PivotTransformer(Transformer):
             journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
             doc["journal_clean"] = journal_clean.strip()
 
-            keywords = []
-            for kw in get_KW(doc["titre"], doc["texte"]):
+            doc["keywords"] = get_KW(doc["titre"], doc["texte"])
+
+            # TODO : use collections.Counter
+            for kw in doc["keywords"]:
                 self.all_keywords[kw] = self.all_keywords.get(kw, 0) + 1
-                keywords.append(kw)
-            doc["keywords"] = keywords
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
