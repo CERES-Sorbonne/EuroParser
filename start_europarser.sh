@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -a
 source .env_europarser > /dev/null 2>&1
 
 if [ "$EUROPARSER_OUTPUT" ]
@@ -22,6 +23,7 @@ fi
 export EUROPARSER_SERVER=https://ceres.huma-num.fr/europarser
 export EUROPARSER_PORT=8001
 export FOLDER=/home/marceau/GH/EuropressParser
+set +a
 
 cd $FOLDER || exit
 
