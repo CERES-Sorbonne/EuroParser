@@ -26,6 +26,7 @@ class TXMTransformer(Transformer):
                 <article\
                 titre="{re.sub('"', "'", escape(pivot.titre))}"\
                 date="{escape(pivot.date)}" journal="{escape(pivot.journal)}"\
+                auteur="{escape(pivot.auteur).replace(";", ",")}"\
                 annee="{pivot.annee}"\
                 mois="{pivot.mois}"\
                 jour="{pivot.jour}"\
