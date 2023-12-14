@@ -2,9 +2,9 @@ import json
 import re
 import time
 import zipfile
-import io
 from datetime import datetime, date
 from typing import List
+import io  # for multiprocessing
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -16,7 +16,7 @@ from europarser.transformers.transformer import Transformer
 
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 pio.templates.default = "none"
-
+SUPPORT = 2
 
 class StatsTransformer(Transformer):
     mois = ("janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre",
@@ -62,7 +62,11 @@ class StatsTransformer(Transformer):
         self.df = None
         self.data = None
         self.res = None
-        self.stats_processed = False
+
+        self.stats_done = False
+        self.processed_stats_done = False
+        self.plots_done = False
+
         self.pivot_list = None
 
         self.output_type = {
@@ -80,7 +84,7 @@ class StatsTransformer(Transformer):
             for k in self.output_type
         }
 
-    def transform(self, pivot_list: List[Pivot]) -> dict[str, dict[str, list[int]]]:
+    def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
         self._logger.debug("Starting to compute stats")
         t1 = time.time()
 
@@ -189,19 +193,114 @@ class StatsTransformer(Transformer):
         })
 
         self._logger.debug(f"Time to compute stats: {time.time() - t1:.2f}s")
-        self.stats_processed = True
+        self.stats_done = True
+
+        self._transform_processed()
 
         self.output["stats"].data = json.dumps(self.res)
         return self.output["stats"]
 
+
+    def _transform_processed(self, *args, **kwargs):
+        if not self.stats_done:
+            raise ValueError("You must compute the stats before generating the processed ones")
+
+        self.processed_stats = {
+            "journal":
+                (
+                    self.data["journal"]
+                    .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("index_list", descending=True)
+                ),
+            "mois":
+                (
+                    self.data["mois"]
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("mois")
+                ),
+            "auteur":
+                (
+                    self.data["auteur"]
+                    .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("index_list", descending=True)
+                    .filter(pl.col("index_list") > 1)
+                    .filter(pl.col("auteur") != "Unknown")
+                ),
+            "mot_cle":
+                (
+                    self.data["mot_cle"]
+                    .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
+                    # .filter(pl.col("index_list") > 4)
+                    .sort("index_list", descending=True)
+                ),
+        }
+
+        self.journal_order = self.processed_stats["journal"].select(pl.col("journal")).to_series().to_list()
+        self.auteur_order = self.processed_stats["auteur"].select(pl.col("auteur")).to_series().to_list()
+        self.mot_cle_order = self.processed_stats["mot_cle"].select(pl.col("mot_cle")).to_series().to_list()
+
+        self.processed_stats.update({
+            "mois_journal": {
+                journal: (
+                    self.data["mois_journal"]
+                    .filter(pl.col("journal") == journal)
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("mois")
+                ) for journal in self.journal_order
+            },
+            "mois_kw": {
+                kw: (
+                    self.data["mois_kw"]
+                    .filter(pl.col("mot_cle") == kw)
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("mois")
+                ) for kw in self.mot_cle_order
+            },
+            "mois_auteur": {
+                auteur: (
+                    self.data["mois_auteur"]
+                    .filter(pl.col("auteur") == auteur)
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .sort("mois")
+                ) for auteur in self.auteur_order
+            },
+        })
+
+        self.processed_stats_done = True
+
     def get_stats(self, *args, **kwargs):
-        if not self.stats_processed:
+        if not self.stats_done:
             raise ValueError("You must compute the stats before getting them")
         return self.output["stats"]
 
+    def get_processed_stats(self, *args, **kwargs):
+        if not self.stats_done or not self.processed_stats_done:
+            raise ValueError("You must compute the stats before getting the processed ones")
+
+        self.output["processed_stats"].data = json.dumps({
+            "journal": self.processed_stats["journal"].to_dict(as_series=False),
+            "mois": self.processed_stats["mois"].to_dict(as_series=False),
+            "auteur": self.processed_stats["auteur"].to_dict(as_series=False),
+            "mois_journal": {
+                journal: df.to_dict(as_series=False) for journal, df in self.processed_stats["mois_journal"].items()
+            },
+            "mois_kw": {
+                kw: df.to_dict(as_series=False) for kw, df in self.processed_stats["mois_kw"].items()
+            },
+            "mois_auteur": {
+                auteur: df.to_dict(as_series=False) for auteur, df in self.processed_stats["mois_auteur"].items()
+            },
+        })
+
+        return self.output["processed_stats"]
+
     def get_plots(self, *args, **kwargs):
-        if not self.stats_processed:
-            raise ValueError("You must provide a pivot_list to get_plots if you haven't already computed the stats")
+        if not self.stats_done or not self.processed_stats_done:
+            raise ValueError("You must compute the stats before generating the plots")
+
+        if self.plots_done:
+            return self.output["plots"]
+
 
         self._logger.debug("Starting to compute plots")
         t1 = time.time()
@@ -212,6 +311,8 @@ class StatsTransformer(Transformer):
 
             self._logger.debug(f"Time to compute plots: {time.time() - t1:.2f}s")
             self.output["plots"].data = zip_io.getvalue()
+
+            self.plots_done = True
             return self.output["plots"]
 
     def _get_plots(self, zip_file):
@@ -227,14 +328,8 @@ class StatsTransformer(Transformer):
         self._get_plots_mois_auteur()
 
     def _get_plots_journal(self):
-        tobar = (
-            self.data["journal"]
-            .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
-            .sort("index_list", descending=True)
-        )
-        self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
         fig = px.bar(
-            tobar,
+            self.processed_stats["journal"],
             x="journal",
             y="index_list",
             color="index_list",
@@ -242,16 +337,16 @@ class StatsTransformer(Transformer):
             title="Nombre d'articles par journal",
             color_continuous_scale=self.MAIN_COLOR,
         )
+
+        fig.update_layout(
+            xaxis_tickformat="%B %Y",
+        )
+
         self.zip_file.writestr("journal.html", fig.to_html())
 
     def _get_plots_mois(self):
-        tobar = (
-            self.data["mois"]
-            .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
-            .sort("mois")
-        )
         fig = px.bar(
-            tobar,
+            self.processed_stats["mois"],
             x="mois",
             y="index_list",
             color="index_list",
@@ -265,16 +360,8 @@ class StatsTransformer(Transformer):
         self.zip_file.writestr("mois.html", fig.to_html())
 
     def _get_plots_auteur(self):
-        tobar = (
-            self.data["auteur"]
-            .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)))
-            .sort("index_list", descending=True)
-            .filter(pl.col("index_list") > 1)
-            .filter(pl.col("auteur") != "Unknown")
-        )
-        self.auteur_order = tobar.select(pl.col("auteur")).to_series().to_list()
         fig = px.bar(
-            tobar,
+            self.processed_stats["auteur"],
             x="auteur",
             y="index_list",
             color="index_list",
@@ -285,15 +372,8 @@ class StatsTransformer(Transformer):
         self.zip_file.writestr("auteur.html", fig.to_html())
 
     def _get_plots_mot_cle(self):
-        tobar = (
-            self.data["mot_cle"]
-            .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
-            # .filter(pl.col("index_list") > 4)
-            .sort("index_list", descending=True)
-        )
-        self.mot_cle_order = tobar.select(pl.col("mot_cle")).to_series().to_list()
         fig = px.bar(
-            tobar,
+            self.processed_stats["mot_cle"],
             x="mot_cle",
             y="index_list",
             color="index_list",
@@ -307,14 +387,9 @@ class StatsTransformer(Transformer):
         fig = px.line()
 
         for journal in self.journal_order:
-            df = (
-                self.data["mois_journal"]
-                .filter(pl.col("journal") == journal)
-                .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
-                .sort("mois")
-            )
+            df = self.processed_stats["mois_journal"][journal]
 
-            if len(df) < 2:
+            if len(df) < SUPPORT:
                 continue
 
             fig.add_trace(
@@ -340,14 +415,9 @@ class StatsTransformer(Transformer):
         fig = px.line()
 
         for kw in self.mot_cle_order:
-            df = (
-                self.data["mois_kw"]
-                .filter(pl.col("mot_cle") == kw)
-                .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
-                .sort("mois")
-            )
+            df = self.processed_stats["mois_kw"][kw]
 
-            if len(df) < 2:
+            if len(df) < SUPPORT:
                 continue
 
             fig.add_trace(
@@ -374,14 +444,9 @@ class StatsTransformer(Transformer):
         fig = px.line()
 
         for auteur in self.auteur_order:
-            df = (
-                self.data["mois_auteur"]
-                .filter(pl.col("auteur") == auteur)
-                .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
-                .sort("mois")
-            )
+            df = self.processed_stats["mois_auteur"][auteur]
 
-            if len(df) < 2:
+            if len(df) < SUPPORT:
                 continue
 
             fig.add_trace(
@@ -404,35 +469,207 @@ class StatsTransformer(Transformer):
 
         self.zip_file.writestr("mois_auteur.html", fig.to_html())
 
-    def get_processed_stats(self, *args, **kwargs):
-        # TODO: add processed_stats
-        if not self.stats_processed:
-            raise ValueError("You must compute the stats before getting them")
-
-        raise NotImplementedError
-
-    def _test_COOLORS(self):
-        tobar = (
-            self.data["journal"]
-            .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
-            .sort("index_list", descending=True)
-        )
-        self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
-
-        for color in self.COOL_COLORS:
-            fig = px.bar(
-                tobar,
-                x="journal",
-                y="index_list",
-                labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
-                title="Nombre d'articles par journal",
-                color_continuous_scale=color,
-                color="index_list",
-            )
-            fig.update_layout(
-
-            )
-            self.zip_file.writestr(f"!_journal_{color}.html", fig.to_html())
+    # def _get_plots_journal(self):
+    #     tobar = (
+    #         self.data["journal"]
+    #         .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
+    #         .sort("index_list", descending=True)
+    #     )
+    #     self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
+    #     fig = px.bar(
+    #         tobar,
+    #         x="journal",
+    #         y="index_list",
+    #         color="index_list",
+    #         labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+    #         title="Nombre d'articles par journal",
+    #         color_continuous_scale=self.MAIN_COLOR,
+    #     )
+    #     self.zip_file.writestr("journal.html", fig.to_html())
+    #
+    # def _get_plots_mois(self):
+    #     tobar = (
+    #         self.data["mois"]
+    #         .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+    #         .sort("mois")
+    #     )
+    #     fig = px.bar(
+    #         tobar,
+    #         x="mois",
+    #         y="index_list",
+    #         color="index_list",
+    #         labels={"x": "Mois", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+    #         title="Nombre d'articles par mois",
+    #         color_continuous_scale=self.MAIN_COLOR,
+    #     )
+    #     fig.update_layout(
+    #         xaxis_tickformat="%B %Y",
+    #     )
+    #     self.zip_file.writestr("mois.html", fig.to_html())
+    #
+    # def _get_plots_auteur(self):
+    #     tobar = (
+    #         self.data["auteur"]
+    #         .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)))
+    #         .sort("index_list", descending=True)
+    #         .filter(pl.col("index_list") > 1)
+    #         .filter(pl.col("auteur") != "Unknown")
+    #     )
+    #     self.auteur_order = tobar.select(pl.col("auteur")).to_series().to_list()
+    #     fig = px.bar(
+    #         tobar,
+    #         x="auteur",
+    #         y="index_list",
+    #         color="index_list",
+    #         labels={"x": "Auteur", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+    #         title="Nombre d'articles par auteur",
+    #         color_continuous_scale=self.MAIN_COLOR,
+    #     )
+    #     self.zip_file.writestr("auteur.html", fig.to_html())
+    #
+    # def _get_plots_mot_cle(self):
+    #     tobar = (
+    #         self.data["mot_cle"]
+    #         .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
+    #         # .filter(pl.col("index_list") > 4)
+    #         .sort("index_list", descending=True)
+    #     )
+    #     self.mot_cle_order = tobar.select(pl.col("mot_cle")).to_series().to_list()
+    #     fig = px.bar(
+    #         tobar,
+    #         x="mot_cle",
+    #         y="index_list",
+    #         color="index_list",
+    #         labels={"x": "Mot clé", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+    #         title="Nombre d'articles par mot clé",
+    #         color_continuous_scale=self.MAIN_COLOR,
+    #     )
+    #     self.zip_file.writestr("mot_cle.html", fig.to_html())
+    #
+    # def _get_plots_mois_journal(self):
+    #     fig = px.line()
+    #
+    #     for journal in self.journal_order:
+    #         df = (
+    #             self.data["mois_journal"]
+    #             .filter(pl.col("journal") == journal)
+    #             .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+    #             .sort("mois")
+    #         )
+    #
+    #         if len(df) < 2:
+    #             continue
+    #
+    #         fig.add_trace(
+    #             go.Scatter(
+    #                 x=df.select("mois").to_series(),
+    #                 y=df.select("index_list").to_series(),
+    #                 name=journal,
+    #                 connectgaps=True,
+    #             )
+    #         )
+    #
+    #     fig.update_layout(
+    #         xaxis_tickformat="%B %Y",
+    #         title="Nombre d'articles par mois et par journal",
+    #         xaxis_title="Mois",
+    #         yaxis_title="Nombre d'articles",
+    #
+    #     )
+    #
+    #     self.zip_file.writestr("mois_journal.html", fig.to_html())
+    #
+    # def _get_plots_mois_kw(self):
+    #     fig = px.line()
+    #
+    #     for kw in self.mot_cle_order:
+    #         df = (
+    #             self.data["mois_kw"]
+    #             .filter(pl.col("mot_cle") == kw)
+    #             .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+    #             .sort("mois")
+    #         )
+    #
+    #         if len(df) < 2:
+    #             continue
+    #
+    #         fig.add_trace(
+    #             go.Scatter(
+    #                 x=df.select("mois").to_series(),
+    #                 y=df.select("index_list").to_series(),
+    #                 name=kw,
+    #                 connectgaps=True,
+    #
+    #             )
+    #         )
+    #
+    #     fig.update_layout(
+    #         xaxis_tickformat="%B %Y",
+    #         title="Nombre d'articles par mois et par mot clé",
+    #         xaxis_title="Mois",
+    #         yaxis_title="Nombre d'articles",
+    #
+    #     )
+    #
+    #     self.zip_file.writestr("mois_kw.html", fig.to_html())
+    #
+    # def _get_plots_mois_auteur(self):
+    #     fig = px.line()
+    #
+    #     for auteur in self.auteur_order:
+    #         df = (
+    #             self.data["mois_auteur"]
+    #             .filter(pl.col("auteur") == auteur)
+    #             .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+    #             .sort("mois")
+    #         )
+    #
+    #         if len(df) < 2:
+    #             continue
+    #
+    #         fig.add_trace(
+    #             go.Scatter(
+    #                 x=df.select("mois").to_series(),
+    #                 y=df.select("index_list").to_series(),
+    #                 name=auteur,
+    #                 connectgaps=True,
+    #
+    #             )
+    #         )
+    #
+    #     fig.update_layout(
+    #         xaxis_tickformat="%B %Y",
+    #         title="Nombre d'articles par mois et par auteur",
+    #         xaxis_title="Mois",
+    #         yaxis_title="Nombre d'articles",
+    #
+    #     )
+    #
+    #     self.zip_file.writestr("mois_auteur.html", fig.to_html())
+    #
+    #
+    # def _test_COOLORS(self):
+    #     tobar = (
+    #         self.data["journal"]
+    #         .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
+    #         .sort("index_list", descending=True)
+    #     )
+    #     self.journal_order = tobar.select(pl.col("journal")).to_series().to_list()
+    #
+    #     for color in self.COOL_COLORS:
+    #         fig = px.bar(
+    #             tobar,
+    #             x="journal",
+    #             y="index_list",
+    #             labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+    #             title="Nombre d'articles par journal",
+    #             color_continuous_scale=color,
+    #             color="index_list",
+    #         )
+    #         fig.update_layout(
+    #
+    #         )
+    #         self.zip_file.writestr(f"!_journal_{color}.html", fig.to_html())
 
 
 if __name__ == '__main__':
