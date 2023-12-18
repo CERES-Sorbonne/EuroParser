@@ -107,9 +107,9 @@
             <div class="myDivInput">
                 <input type="checkbox" id="stats" name="output" value="stats" class="myInput"> <label for="stats">Statistiques</label>
             </div>
-{#            <div class="myDivInput">#}
-{#                <input type="checkbox" id="processed_stats" name="output" value="processed_stats" class="myInput"> <label for="processed_stats">Statistiques traitées</label>#}
-{#            </div>#}
+            <div class="myDivInput">
+                <input type="checkbox" id="processed_stats" name="output" value="processed_stats" class="myInput"> <label for="processed_stats">Statistiques traitées</label>
+            </div>
             <div class="myDivInput">
                 <input type="checkbox" id="plots" name="output" value="plots" class="myInput"> <label for="plots">Graphiques</label>
             </div>
@@ -188,10 +188,10 @@
             if (document.getElementById('stats').checked) {
                 formData.append("output","stats");
             }
-            {#if (document.getElementById('processed_stats').checked) {#}
-            {#    formData.append("output","processed_stats");#}
-            {#    checked = true;#}
-            {# }#}
+            if (document.getElementById('processed_stats').checked) {
+                formData.append("output","processed_stats");
+                checked = true;
+             }
             if (document.getElementById('plots').checked) {
                 formData.append("output","plots");
             }
