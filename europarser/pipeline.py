@@ -21,12 +21,12 @@ transformer_factory = {
     "gephi": None,
     "csv": CSVTransformer().transform,
     "stats": "get_stats",
-    "processed_stats": "get_processed_stats",  # TODO: add processed_stats
+    "processed_stats": "get_processed_stats",
     "plots": "get_plots",
     "markdown": MarkdownTransformer().transform
 }
 
-stats_outputs = {"stats", "processed_stats", "plots"}
+stats_outputs = {"stats", "processed_stats", "plots", "markdown"}
 
 
 def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params) -> list[TransformerOutput]:
