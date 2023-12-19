@@ -34,6 +34,26 @@ def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params
     main function that transforms the files into pivots and then in differents required ouptputs
     """
 
+    if not isinstance(files, list):
+        files = [files]
+
+    for file in files:
+        if not isinstance(file, FileToTransform):
+            raise ValueError(f"Unknown file type: {file}")
+
+    if not isinstance(outputs, list):
+        outputs = [outputs]
+
+    for output in outputs:
+        if output not in transformer_factory:
+            raise ValueError(f"Unknown output type: {output}")
+
+        # if not isinstance(outputs, (Output, str, OutputFormat)):
+        #     raise ValueError(f"Unknown output type: {output}")
+
+    if not isinstance(params, Params):
+        raise ValueError(f"Unknown params type: {params}")
+
     transformer = PivotTransformer(params)
     pivots = transformer.transform(files_to_transform=files)
 
