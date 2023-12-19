@@ -44,7 +44,7 @@ def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params
         st.transform(pivots)
 
     for output in outputs:
-        if output in stats_outputs:
+        if output in stats_outputs and output != "markdown":
             func = getattr(st, transformer_factory[output])
             to_process.append((func, []))
 
@@ -55,7 +55,7 @@ def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params
 
     results: list[TransformerOutput] = []
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ProcessPoolExecutor() as executor:
         futures = [executor.submit(func, *args) for func, args in to_process]
         for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures)):
             res = future.result()
