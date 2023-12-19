@@ -4,6 +4,7 @@ import time
 import zipfile
 from datetime import datetime, date
 from typing import List
+from io import StringIO
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -471,9 +472,6 @@ class StatsTransformer(Transformer):
 if __name__ == '__main__':
     import cProfile
     import pstats
-    import io
-
-    # mode = "small"
 
     for mode in ["small", "medium", "large"]:
         with open(f"../../profiler/data/pivots{f'_{mode}' if mode else ''}.json", "r", encoding="utf-8") as f:
@@ -490,7 +488,7 @@ if __name__ == '__main__':
         zip_file = transformer.get_plots()
 
         pr.disable()
-        s = io.StringIO()
+        s = StringIO()
         sortby = 'cumulative'
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         # ps.print_stats()
