@@ -41,10 +41,13 @@ class PivotTransformer(Transformer):
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 
-            self.persist_json()
-            self.apply_parameters()
 
-            return sorted(self.corpus, key=lambda x: x.epoch)
+        print("Nombre d'articles : ", len(self.corpus))
+
+        self.persist_json()
+        self.apply_parameters()
+
+        return sorted(self.corpus, key=lambda x: x.epoch)
 
     def transform_article(self, article):
         try:
