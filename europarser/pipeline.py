@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import concurrent.futures
-from typing import Tuple
 
 from tqdm import tqdm
 
-from europarser.models import Output, FileToTransform, OutputFormat, Pivot, TransformerOutput, Params
+from europarser.models import Output, FileToTransform, TransformerOutput, Params
 from europarser.transformers.csv import CSVTransformer
 from europarser.transformers.iramuteq import IramuteqTransformer
 from europarser.transformers.json import JSONTransformer
@@ -82,7 +81,3 @@ def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params
             results.append(res)
 
     return results
-
-
-def process(*args, **kwargs) -> list[TransformerOutput]:
-    return pipeline(*args, **kwargs)
