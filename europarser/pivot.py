@@ -1,19 +1,17 @@
 import hashlib
 import json
 import logging
-import os
 import concurrent.futures
-
-from pathlib import Path
+import re
+from collections import Counter
+from typing import Optional, Any
 
 from bs4 import BeautifulSoup
-
 from tqdm.auto import tqdm
 
-from europarser.models import FileToTransform, Pivot, TransformerOutput, Params
+from europarser.models import FileToTransform, Pivot, Params
 from europarser.transformers.transformer import Transformer
-from europarser.utils import find_date, find_datetime
-import re
+from europarser.utils import find_datetime
 from europarser.daniel_light import get_KW
 from europarser.lang_detect import detect_lang
 
@@ -28,8 +26,7 @@ class PivotTransformer(Transformer):
         self.corpus = []
         self.bad_articles = []
         self.ids = set()
-        self.all_keywords = {}
-        self.params = params
+        self.all_keywords = Counter()
 
     def transform(self, files_to_transform: list[FileToTransform]) -> list[Pivot]:
         for file in files_to_transform:
@@ -159,9 +156,7 @@ class PivotTransformer(Transformer):
 
             doc["keywords"] = get_KW(doc["titre"], doc["texte"])
 
-            # TODO : use collections.Counter
-            for kw in doc["keywords"]:
-                self.all_keywords[kw] = self.all_keywords.get(kw, 0) + 1
+            self.all_keywords.update(doc["keywords"])
 
             id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
