@@ -61,6 +61,11 @@ class Params:
             minimal_support_authors: Optional[int] = None,
             minimal_support_dates: Optional[int] = None,
     ):
+        assert all((isinstance(x, int) and x > 0) or x is None
+                   for x in [minimal_support, minimal_support_kw, minimal_support_journals, minimal_support_authors,
+                             minimal_support_dates])
+        assert all(isinstance(x, bool) for x in [filter_keywords, filter_lang])
+
         self.filter_keywords: bool = filter_keywords
         self.filter_lang: bool = filter_lang
         self.minimal_support: int = minimal_support
