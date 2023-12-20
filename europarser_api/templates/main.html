@@ -119,21 +119,21 @@
                 <input type="checkbox" id="filter_keywords" name="params" value="false" class="myInput"> <label for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul article</label>
             </div>
             <div class="myDivInput">
-                <input type="number" id="minimal_support" name="params" value="0" min="0" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support">Support minimal par défaut pour chaque catégorie</label>
+                <input type="number" id="minimal_support" name="params" value="1" min="1" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support">Support minimal par défaut pour chaque catégorie</label>
             </div>
 
             <h4 style="font-weight: 80">Supports minimaux par catégorie</h4>
             <div class="myDivInput">
-                <input type="number" id="minimal_support_kw" name="params" value="0" min="0" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_kw">Support minimal pour les mots clés</label>
+                <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_kw">Support minimal pour les mots clés</label>
             </div>
             <div class="myDivInput">
-                <input type="number" id="minimal_support_journals" name="params" value="0" min="0" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_journals">Support minimal pour les journaux</label>
+                <input type="number" id="minimal_support_journals" name="params" value="1" min="1" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_journals">Support minimal pour les journaux</label>
             </div>
             <div class="myDivInput">
-                <input type="number" id="minimal_support_authors" name="params" value="0" min="0" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_authors">Support minimal pour les auteurs</label>
+                <input type="number" id="minimal_support_authors" name="params" value="1" min="1" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_authors">Support minimal pour les auteurs</label>
             </div>
             <div class="myDivInput">
-                <input type="number" id="minimal_support_dates" name="params" value="0" min="0" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_dates">Support minimal pour les mois</label>
+                <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="myInput" placeholder="Support minimal pour les mots clés"> <label for="minimal_support_dates">Support minimal pour les mois</label>
             </div>
 
 
@@ -166,11 +166,11 @@
     function createUrl(files, dataBlock){
         let url = "{{host + '/upload?'}}"
             + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
-            + "&minimal_support=" + (document.getElementById('minimal_support').value || 0)
-            + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 0)
-            + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 0)
-            + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 0)
-            + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 0)
+            + "&minimal_support=" + (document.getElementById('minimal_support').value || 1)
+            + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 1)
+            + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 1)
+            + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 1)
+            + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 1)
 
         console.log(url)
         return(url)
