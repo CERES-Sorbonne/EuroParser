@@ -1,15 +1,9 @@
-import sys
-
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
 import json
 import logging
 import os
 from pathlib import Path
-
-from abc import ABC
-from typing import List
+from abc import ABC, abstractmethod
+from typing import List, Optional, Any
 import re
 
 import unicodedata
@@ -44,11 +38,12 @@ class Transformer(ABC):
         # self.output_type = "json" # TODO any use of setting the output type ? Should maybe be a None ?
         self.params = params or Params(**kwargs)  # If no kwargs are passed, params will be initialized with default values
 
+    @abstractmethod
     def transform(self, pivot: List[Pivot]) -> TransformerOutput:
         """
         Returns the transformed data, the output_type, and the output_filename
         """
-        pass
+        raise NotImplementedError()
 
     def _add_error(self, error, article):
         self.errors.append(Error(message=str(error), article=article.text, transformer=self.name))

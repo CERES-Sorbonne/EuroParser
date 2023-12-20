@@ -38,8 +38,7 @@ class PivotTransformer(Transformer):
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 
-
-        print("Nombre d'articles : ", len(self.corpus))
+        self._logger.info(f"Nombre d'articles : {len(self.corpus)}")
 
         self.persist_json()
         self.apply_parameters()

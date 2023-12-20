@@ -39,12 +39,13 @@ class Pivot(BaseModel):
     def serialize_keywords(self, kw: Set[str]):
         return ', '.join(kw)
 
+
 OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
 Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
 
 
 class TransformerOutput(BaseModel):
-    data: str | bytes | None
+    data: Union[str, bytes, None]
     output: OutputFormat
     filename: str
 
