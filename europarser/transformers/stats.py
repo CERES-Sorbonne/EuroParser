@@ -43,16 +43,19 @@ class StatsTransformer(Transformer):
     def int_to_datetime(i: int) -> datetime:
         return datetime.fromtimestamp(i)
 
-    def int_to_monthyear(self, i: int) -> str:
+    @staticmethod
+    def int_to_monthyear(i: int) -> str:
         # return self.to_monthyear(self.int_to_datetime(i))
         dt = datetime.fromtimestamp(i)
         return f"{dt.year}-{dt.month:02}"
 
-    def int_to_monthyear_intversion(self, i: int) -> int:
+    @staticmethod
+    def int_to_monthyear_intversion( i: int) -> int:
         dt = datetime.fromtimestamp(i)
         return dt.year * 100 + dt.month  # --> int(f"{dt.year}{dt.month:02}") equivalent
 
-    def for_display(self, mois_int: int) -> str:
+    @staticmethod
+    def for_display(mois_int: int) -> str:
         return f"{mois_int // 100}-{mois_int % 100:02}"
         # ## TODO : compare performance with this
         # mois_str = str(mois_int)
