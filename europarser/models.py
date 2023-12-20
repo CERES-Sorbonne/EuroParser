@@ -1,12 +1,4 @@
-from __future__ import annotations
-
-import io
-import sys
-
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
-from typing import Literal, Any, Set
+from typing import Literal, Set, Union, Optional
 
 from pydantic import BaseModel, field_serializer
 
@@ -58,6 +50,20 @@ class TransformerOutput(BaseModel):
 
 
 class Params:
-    def __init__(self, filter_keywords: bool = False, filter_lang: bool = False):
+    def __init__(
+            self,
+            filter_keywords: bool = False,
+            filter_lang: bool = False,
+            minimal_support: int = 1,
+            minimal_support_kw: Optional[int] = None,
+            minimal_support_journals: Optional[int] = None,
+            minimal_support_authors: Optional[int] = None,
+            minimal_support_dates: Optional[int] = None,
+    ):
         self.filter_keywords: bool = filter_keywords
         self.filter_lang: bool = filter_lang
+        self.minimal_support: int = minimal_support
+        self.minimal_support_kw: int = minimal_support_kw or minimal_support
+        self.minimal_support_journals: int = minimal_support_journals or minimal_support
+        self.minimal_support_authors: int = minimal_support_authors or minimal_support
+        self.minimal_support_dates: int = minimal_support_dates or minimal_support

@@ -3,15 +3,15 @@ import re
 import time
 import zipfile
 from datetime import datetime, date
-from typing import List
-from io import StringIO
+from typing import List, Optional, Any
+from io import StringIO, BytesIO
 
 import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 import polars as pl
 
-from europarser.models import Pivot, TransformerOutput
+from europarser.models import Pivot, TransformerOutput, Params
 from europarser.transformers.transformer import Transformer
 
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
@@ -58,8 +58,8 @@ class StatsTransformer(Transformer):
         # mois_str = str(mois_int)
         # return f"{mois_str[:-2]}-{mois_str[-2:]}"
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
+        super().__init__(params, **kwargs)
         self.df = None
         self.data = None
         self.res = None

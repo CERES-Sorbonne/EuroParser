@@ -21,8 +21,8 @@ class BadArticle(Exception):
 
 
 class PivotTransformer(Transformer):
-    def __init__(self, params: Params = Params()):
-        super().__init__()
+    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
+        super().__init__(params, **kwargs)
         self.corpus = []
         self.bad_articles = []
         self.ids = set()

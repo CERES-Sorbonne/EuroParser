@@ -14,7 +14,7 @@ import re
 
 import unicodedata
 
-from europarser.models import Error, Pivot, OutputFormat, TransformerOutput
+from europarser.models import Error, Pivot, TransformerOutput, Params
 
 # Transformer initialization, allows all transformers to access the output path end prevents to set it multiple times
 
@@ -36,12 +36,13 @@ if output_path:
 class Transformer(ABC):
     output_path = output_path
 
-    def __init__(self):
+    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
         self.name: str = type(self).__name__.split('Transformer')[0].lower()
         self.errors: List[Error] = []
         self._logger = logging.getLogger(self.name)
         self._logger.setLevel(logging.WARNING)
-        self.output_type = "json"
+        # self.output_type = "json" # TODO any use of setting the output type ? Should maybe be a None ?
+        self.params = params or Params(**kwargs)  # If no kwargs are passed, params will be initialized with default values
 
     def transform(self, pivot: List[Pivot]) -> TransformerOutput:
         """
