@@ -213,12 +213,14 @@ class StatsTransformer(Transformer):
                 (
                     self.data["journal"]
                     .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .filter(pl.col("index_list") >= self.params.minimal_support_journals)
                     .sort("index_list", descending=True)
                 ),
             "mois":
                 (
                     self.data["mois"]
                     .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .filter(pl.col("index_list") >= self.params.minimal_support_dates)
                     .sort("mois")
                 ),
             "auteur":
@@ -226,14 +228,14 @@ class StatsTransformer(Transformer):
                     self.data["auteur"]
                     .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)))
                     .sort("index_list", descending=True)
-                    .filter(pl.col("index_list") > 1)
+                    .filter(pl.col("index_list") >= self.params.minimal_support_authors)
                     .filter(pl.col("auteur") != "Unknown")
                 ),
             "mot_cle":
                 (
                     self.data["mot_cle"]
                     .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
-                    # .filter(pl.col("index_list") > 4)
+                    .filter(pl.col("index_list") >= self.params.minimal_support_kw)
                     .sort("index_list", descending=True)
                 ),
         }
@@ -307,7 +309,7 @@ class StatsTransformer(Transformer):
         self._logger.debug("Starting to compute plots")
         t1 = time.time()
 
-        with io.BytesIO() as zip_io:
+        with BytesIO() as zip_io:
             with zipfile.ZipFile(zip_io, mode="w", compression=zipfile.ZIP_DEFLATED) as zip_file:
                 self._get_plots(zip_file)
 
