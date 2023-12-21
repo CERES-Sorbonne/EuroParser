@@ -16,7 +16,6 @@ from europarser.transformers.transformer import Transformer
 
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 pio.templates.default = "none"
-SUPPORT = 0
 
 
 class StatsTransformer(Transformer):
@@ -393,7 +392,7 @@ class StatsTransformer(Transformer):
         for journal in self.journal_order:
             df = self.processed_stats["mois_journal"][journal]
 
-            if len(df) < SUPPORT:
+            if len(df) < self.params.minimal_support:
                 continue
 
             fig.add_trace(
@@ -421,7 +420,7 @@ class StatsTransformer(Transformer):
         for kw in self.mot_cle_order:
             df = self.processed_stats["mois_kw"][kw]
 
-            if len(df) < SUPPORT:
+            if len(df) < self.params.minimal_support:
                 continue
 
             fig.add_trace(
@@ -450,7 +449,7 @@ class StatsTransformer(Transformer):
         for auteur in self.auteur_order:
             df = self.processed_stats["mois_auteur"][auteur]
 
-            if len(df) < SUPPORT:
+            if len(df) < self.params.minimal_support:
                 continue
 
             fig.add_trace(
