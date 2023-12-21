@@ -409,7 +409,6 @@ class StatsTransformer(Transformer):
             title="Nombre d'articles par mois et par journal",
             xaxis_title="Mois",
             yaxis_title="Nombre d'articles",
-
         )
 
         self.zip_file.writestr("mois_journal.html", fig.to_html())
@@ -429,7 +428,6 @@ class StatsTransformer(Transformer):
                     y=df.select("count").to_series(),
                     name=kw,
                     connectgaps=True,
-
                 )
             )
 
@@ -438,7 +436,7 @@ class StatsTransformer(Transformer):
             title="Nombre d'articles par mois et par mot clé",
             xaxis_title="Mois",
             yaxis_title="Nombre d'articles",
-
+            margin=dict(l=20),
         )
 
         self.zip_file.writestr("mois_kw.html", fig.to_html())
@@ -458,7 +456,6 @@ class StatsTransformer(Transformer):
                     y=df.select("count").to_series(),
                     name=auteur,
                     connectgaps=True,
-
                 )
             )
 
@@ -467,7 +464,6 @@ class StatsTransformer(Transformer):
             title="Nombre d'articles par mois et par auteur",
             xaxis_title="Mois",
             yaxis_title="Nombre d'articles",
-
         )
 
         self.zip_file.writestr("mois_auteur.html", fig.to_html())
