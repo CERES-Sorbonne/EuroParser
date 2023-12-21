@@ -23,7 +23,7 @@ class TXMTransformer(Transformer):
                 # print(pivot)
                 parsed = escape(pivot.texte.strip())
                 line = f"""\
-                <article\
+                <text\
                 titre="{re.sub('"', "'", escape(pivot.titre))}"\
                 date="{escape(pivot.date)}" journal="{escape(pivot.journal)}"\
                 auteur="{escape(pivot.auteur).replace(";", ",")}"\
@@ -36,7 +36,7 @@ class TXMTransformer(Transformer):
                 ">"""
                 f.write(line)
                 f.write(parsed)
-                f.write("</article>")
+                f.write("</text>")
             f.write("</corpus>")
             self.output.data = dom.parseString(f.getvalue()).toprettyxml()
             return self.output
