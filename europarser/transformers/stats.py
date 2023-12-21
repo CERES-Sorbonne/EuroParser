@@ -283,17 +283,17 @@ class StatsTransformer(Transformer):
             raise ValueError("You must compute the stats before getting the processed ones")
 
         self.output["processed_stats"].data = json.dumps({
-            "journal": self.processed_stats["journal"].to_dict(as_series=False),
-            "mois": self.processed_stats["mois"].to_dict(as_series=False),
-            "auteur": self.processed_stats["auteur"].to_dict(as_series=False),
+            "journal": {k: v for k, v in zip(*self.processed_stats["journal"].to_dict(as_series=False).values())},
+            "mois": {k: v for k, v in zip(*self.processed_stats["mois"].to_dict(as_series=False).values())},
+            "auteur": {k: v for k, v in zip(*self.processed_stats["auteur"].to_dict(as_series=False).values())},
             "mois_journal": {
-                journal: df.to_dict(as_series=False) for journal, df in self.processed_stats["mois_journal"].items()
+                journal: {k: v for k, v in zip(*df.to_dict(as_series=False).values())} for journal, df in self.processed_stats["mois_journal"].items()
             },
             "mois_kw": {
-                kw: df.to_dict(as_series=False) for kw, df in self.processed_stats["mois_kw"].items()
+                kw: {k: v for k, v in zip(*df.to_dict(as_series=False).values())} for kw, df in self.processed_stats["mois_kw"].items()
             },
             "mois_auteur": {
-                auteur: df.to_dict(as_series=False) for auteur, df in self.processed_stats["mois_auteur"].items()
+                auteur: {k: v for k, v in zip(*df.to_dict(as_series=False).values())} for auteur, df in self.processed_stats["mois_auteur"].items()
             },
         })
 
