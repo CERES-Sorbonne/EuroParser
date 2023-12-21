@@ -34,7 +34,7 @@ class PivotTransformer(Transformer):
             soup = BeautifulSoup(file.file, 'lxml')
             articles = soup.find_all("article")
 
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 

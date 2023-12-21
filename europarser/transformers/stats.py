@@ -16,7 +16,7 @@ from europarser.transformers.transformer import Transformer
 
 # locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
 pio.templates.default = "none"
-SUPPORT = 2
+SUPPORT = 0
 
 
 class StatsTransformer(Transformer):
