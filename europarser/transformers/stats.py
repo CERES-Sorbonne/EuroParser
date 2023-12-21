@@ -212,31 +212,31 @@ class StatsTransformer(Transformer):
             "journal":
                 (
                     self.data["journal"]
-                    .select("journal", pl.col("index_list").map_elements(lambda x: len(x)))
-                    .filter(pl.col("index_list") >= self.params.minimal_support_journals)
-                    .sort("index_list", descending=True)
+                    .select("journal", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .filter(pl.col("count") >= self.params.minimal_support_journals)
+                    .sort("count", descending=True)
                 ),
             "mois":
                 (
                     self.data["mois"]
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
-                    .filter(pl.col("index_list") >= self.params.minimal_support_dates)
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .filter(pl.col("count") >= self.params.minimal_support_dates)
                     .sort("mois")
                 ),
             "auteur":
                 (
                     self.data["auteur"]
-                    .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)))
-                    .sort("index_list", descending=True)
-                    .filter(pl.col("index_list") >= self.params.minimal_support_authors)
+                    .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .sort("count", descending=True)
+                    .filter(pl.col("count") >= self.params.minimal_support_authors)
                     .filter(pl.col("auteur") != "Unknown")
                 ),
             "mot_cle":
                 (
                     self.data["mot_cle"]
-                    .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)))
-                    .filter(pl.col("index_list") >= self.params.minimal_support_kw)
-                    .sort("index_list", descending=True)
+                    .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .filter(pl.col("count") >= self.params.minimal_support_kw)
+                    .sort("count", descending=True)
                 ),
         }
 
@@ -249,7 +249,7 @@ class StatsTransformer(Transformer):
                 journal: (
                     self.data["mois_journal"]
                     .filter(pl.col("journal") == journal)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
                     .sort("mois")
                 ) for journal in self.journal_order
             },
@@ -257,7 +257,7 @@ class StatsTransformer(Transformer):
                 kw: (
                     self.data["mois_kw"]
                     .filter(pl.col("mot_cle") == kw)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
                     .sort("mois")
                 ) for kw in self.mot_cle_order
             },
@@ -265,7 +265,7 @@ class StatsTransformer(Transformer):
                 auteur: (
                     self.data["mois_auteur"]
                     .filter(pl.col("auteur") == auteur)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
                     .sort("mois")
                 ) for auteur in self.auteur_order
             },
@@ -335,9 +335,9 @@ class StatsTransformer(Transformer):
         fig = px.bar(
             self.processed_stats["journal"],
             x="journal",
-            y="index_list",
-            color="index_list",
-            labels={"x": "Journal", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+            y="count",
+            color="count",
+            labels={"x": "Journal", "y": "Nombre d'articles", "count": "Nombre d'articles"},
             title="Nombre d'articles par journal",
             color_continuous_scale=self.MAIN_COLOR,
         )
@@ -352,9 +352,9 @@ class StatsTransformer(Transformer):
         fig = px.bar(
             self.processed_stats["mois"],
             x="mois",
-            y="index_list",
-            color="index_list",
-            labels={"x": "Mois", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+            y="count",
+            color="count",
+            labels={"x": "Mois", "y": "Nombre d'articles", "count": "Nombre d'articles"},
             title="Nombre d'articles par mois",
             color_continuous_scale=self.MAIN_COLOR,
         )
@@ -367,9 +367,9 @@ class StatsTransformer(Transformer):
         fig = px.bar(
             self.processed_stats["auteur"],
             x="auteur",
-            y="index_list",
-            color="index_list",
-            labels={"x": "Auteur", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+            y="count",
+            color="count",
+            labels={"x": "Auteur", "y": "Nombre d'articles", "count": "Nombre d'articles"},
             title="Nombre d'articles par auteur",
             color_continuous_scale=self.MAIN_COLOR,
         )
@@ -379,9 +379,9 @@ class StatsTransformer(Transformer):
         fig = px.bar(
             self.processed_stats["mot_cle"],
             x="mot_cle",
-            y="index_list",
-            color="index_list",
-            labels={"x": "Mot clé", "y": "Nombre d'articles", "index_list": "Nombre d'articles"},
+            y="count",
+            color="count",
+            labels={"x": "Mot clé", "y": "Nombre d'articles", "count": "Nombre d'articles"},
             title="Nombre d'articles par mot clé",
             color_continuous_scale=self.MAIN_COLOR,
         )
@@ -399,7 +399,7 @@ class StatsTransformer(Transformer):
             fig.add_trace(
                 go.Scatter(
                     x=df.select("mois").to_series(),
-                    y=df.select("index_list").to_series(),
+                    y=df.select("count").to_series(),
                     name=journal,
                     connectgaps=True,
                 )
@@ -427,7 +427,7 @@ class StatsTransformer(Transformer):
             fig.add_trace(
                 go.Scatter(
                     x=df.select("mois").to_series(),
-                    y=df.select("index_list").to_series(),
+                    y=df.select("count").to_series(),
                     name=kw,
                     connectgaps=True,
 
@@ -456,7 +456,7 @@ class StatsTransformer(Transformer):
             fig.add_trace(
                 go.Scatter(
                     x=df.select("mois").to_series(),
-                    y=df.select("index_list").to_series(),
+                    y=df.select("count").to_series(),
                     name=auteur,
                     connectgaps=True,
 
