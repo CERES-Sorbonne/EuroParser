@@ -21,6 +21,8 @@ class BadArticle(Exception):
 
 
 class PivotTransformer(Transformer):
+    journal_split = re.compile(r"\(| -|,? no. | \d|  | ;|\.fr")
+    double_spaces_and_beyond = re.compile(r"(\s{2,})")
     def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
         super().__init__(params, **kwargs)
         self.corpus = []
@@ -28,13 +30,16 @@ class PivotTransformer(Transformer):
         self.ids = set()
         self.all_keywords = Counter()
 
+    def subspaces(self, s):
+        return self.double_spaces_and_beyond.sub(r"\1", s).strip()
+
     def transform(self, files_to_transform: list[FileToTransform]) -> list[Pivot]:
         for file in files_to_transform:
             self._logger.debug("Processing file " + file.name)
             soup = BeautifulSoup(file.file, 'lxml')
             articles = soup.find_all("article")
 
-            with concurrent.futures.ThreadPoolExecutor() as executor:
+            with concurrent.futures.ThreadPoolExecutor(1) as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 
@@ -66,18 +71,18 @@ class PivotTransformer(Transformer):
                 "langue": "UNK",
             }
             try:
-                doc["journal"] = article.find("span", attrs={"class": "DocPublicationName"}).text.strip()
+                doc["journal"] = self.subspaces(article.find("span", attrs={"class": "DocPublicationName"}).text)
             except Exception as e:
                 self._logger.debug("pas un article de presse")
                 raise BadArticle("journal")
 
             try:
-                doc_header = article.find("span", attrs={"class": "DocHeader"}).text.strip()
+                doc_header = article.find("span", attrs={"class": "DocHeader"}).text
             except AttributeError:
                 doc_header = ""
 
             try:
-                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text.strip()
+                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span")
             except AttributeError:
                 doc_sub_section = ""
 
@@ -110,31 +115,35 @@ class PivotTransformer(Transformer):
 
             try:
                 doc["titre"] = doc_titre_full.find("p", attrs={
-                    "class": "sm-margin-TopNews titreArticleVisu rdp__articletitle"}).text.strip()
+                    "class": "sm-margin-TopNews titreArticleVisu rdp__articletitle"}).text
             except AttributeError:
                 try:
-                    doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text.strip()
+                    doc["titre"] = doc_titre_full.find("div", attrs={"class": "titreArticleVisu"}).text
                 except AttributeError:
                     try:
-                        doc["titre"] = doc_titre_full.text.strip()
+                        doc["titre"] = doc_titre_full.text
                     except AttributeError:
                         raise BadArticle("titre")
 
+            doc["titre"] = self.subspaces(doc["titre"])
+
             try:
-                doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text.strip()
+                doc_bottomNews = doc_titre_full.find("p", attrs={"class": "sm-margin-bottomNews"}).text
                 if not doc_bottomNews:
                     raise AttributeError
             except AttributeError:
                 doc_bottomNews = ""
 
             try:
-                doc_subtitle = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text.strip()
+                doc_subtitle = doc_titre_full.find("p", attrs={"class": "sm-margin-TopNews rdp__subtitle"}).text
                 if not doc_subtitle:
                     raise AttributeError
             except AttributeError:
                 doc_subtitle = ""
 
-            doc["complement"] = " | ".join((doc_header, doc_sub_section, doc_bottomNews, doc_subtitle))
+            doc["complement"] = self.subspaces(
+                " | ".join((doc_header, doc_sub_section, doc_bottomNews, doc_subtitle))
+            )
 
             try:
                 doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
@@ -144,14 +153,16 @@ class PivotTransformer(Transformer):
                 else:
                     doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
 
+            doc["texte"] = self.subspaces(doc["texte"])
+
             doc_auteur = doc_titre_full.find_next_sibling('p')
 
             if doc_auteur and "class" in doc_auteur.attrs and doc_auteur.attrs['class'] == ['sm-margin-bottomNews']:
-                doc["auteur"] = doc_auteur.text.strip().lower()
+                doc["auteur"] = self.subspaces(doc_auteur.text.strip().lower())
 
             # on garde uniquement le titre (sans les fioritures)
-            journal_clean = re.split(r"\(| -|,? no. | \d|  | ;|\.fr", doc["journal"])[0]
-            doc["journal_clean"] = journal_clean.strip()
+            journal_clean = self.journal_split.split(doc["journal"])[0]
+            doc["journal_clean"] = self.subspaces(journal_clean)
 
             doc["keywords"] = get_KW(doc["titre"], doc["texte"])
 
