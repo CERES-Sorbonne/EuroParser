@@ -1,7 +1,7 @@
 import io
 import re
 import xml.dom.minidom as dom
-from xml.sax.saxutils import escape
+from xml.sax.saxutils import quoteattr, escape
 from typing import List
 
 from europarser.models import Pivot, TransformerOutput
@@ -20,23 +20,24 @@ class TXMTransformer(Transformer):
             f.write("<corpus>")
 
             for pivot in pivot_list:
-                # print(pivot)
-                parsed = escape(pivot.texte.strip())
-                line = f"""\
-                <text\
-                titre="{re.sub('"', "'", escape(pivot.titre))}"\
-                date="{escape(pivot.date)}" journal="{escape(pivot.journal)}"\
-                auteur="{escape(pivot.auteur).replace(";", ",")}"\
-                annee="{pivot.annee}"\
-                mois="{pivot.mois}"\
-                jour="{pivot.jour}"\
-                journal_clean="{escape(pivot.journal_clean)}"\
-                keywords="{escape(', '.join(pivot.keywords))}"\
-                langue="{escape(pivot.langue)}\
-                ">"""
-                f.write(line)
-                f.write(parsed)
-                f.write("</text>")
+                pivot_dict = {
+                    "titre": pivot.titre,
+                    "date": pivot.date,
+                    "journal": pivot.journal,
+                    "auteur": pivot.auteur,
+                    "annee": pivot.annee,
+                    "mois": pivot.mois,
+                    "jour": pivot.jour,
+                    "journal_clean": pivot.journal_clean,
+                    "keywords": ', '.join(pivot.keywords),
+                    "langue": pivot.langue
+                }
+                f.write("<text ")
+                for key, value in pivot_dict.items():
+                    if value:
+                        f.write(f"{key}={quoteattr(str(value))} ")
+                f.write(f"> {escape(pivot.texte.strip()) if pivot.texte else ''} </text>\n")
+
             f.write("</corpus>")
             self.output.data = dom.parseString(f.getvalue()).toprettyxml()
             return self.output
