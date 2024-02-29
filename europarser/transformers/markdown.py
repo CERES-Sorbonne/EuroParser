@@ -32,7 +32,8 @@ class MarkdownTransformer(Transformer):
             "langue": clean_string(pivot.langue),
             "tags": [clean_string(tag) for tag in pivot.keywords],
             "journal_charts": "journal_" + clean_string(pivot.journal_clean),
-            "auteur_charts": "auteur_" + clean_string(pivot.journal_clean)
+            "auteur_charts": "auteur_" + clean_string(pivot.journal_clean),
+            "url": pivot.url,
         }
 
         markdown_content = f"---\n{yaml.dump(frontmatter)}---\n\n{pivot.texte}"

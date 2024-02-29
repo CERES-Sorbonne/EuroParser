@@ -30,7 +30,8 @@ class TXMTransformer(Transformer):
                     "jour": pivot.jour,
                     "journal_clean": pivot.journal_clean,
                     "keywords": ', '.join(pivot.keywords),
-                    "langue": pivot.langue
+                    "langue": pivot.langue,
+                    "url": pivot.url,
                 }
                 f.write("<text ")
                 for key, value in pivot_dict.items():
