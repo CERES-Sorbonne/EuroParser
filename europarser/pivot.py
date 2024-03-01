@@ -148,7 +148,8 @@ class PivotTransformer(Transformer):
 
             try:
                 doc_text = article.find("div", attrs={"class": "docOcurrContainer"})
-            except AttributeError:
+                assert doc_text is not None and doc_text.text.strip()
+            except AssertionError:
                 if article.find("div", attrs={"class": "DocText clearfix"}) is None:
                     raise BadArticle("texte")
                 else:
