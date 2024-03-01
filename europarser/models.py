@@ -31,6 +31,7 @@ class Pivot(BaseModel):
     texte: str
     keywords: Set[str]
     langue: str
+    url: str
 
     def __hash__(self):
         return hash((self.journal, self.date, self.titre))

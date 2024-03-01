@@ -69,6 +69,7 @@ class PivotTransformer(Transformer):
                 "journal_clean": None,
                 "keywords": None,
                 "langue": "UNK",
+                "url": None,
             }
             try:
                 doc["journal"] = self.subspaces(article.find("span", attrs={"class": "DocPublicationName"}).text)
@@ -146,14 +147,22 @@ class PivotTransformer(Transformer):
             )
 
             try:
-                doc["texte"] = article.find("div", attrs={"class": "docOcurrContainer"}).text.strip()
-            except AttributeError:
+                doc_text = article.find("div", attrs={"class": "docOcurrContainer"})
+                assert doc_text is not None and doc_text.text.strip()
+            except AssertionError:
                 if article.find("div", attrs={"class": "DocText clearfix"}) is None:
                     raise BadArticle("texte")
                 else:
-                    doc["texte"] = article.find("div", attrs={"class": "DocText clearfix"}).text.strip()
+                    doc_text = article.find("div", attrs={"class": "DocText clearfix"})
 
-            doc["texte"] = self.subspaces(doc["texte"])
+            doc["url"] = ""
+            for u in doc_text.select("a"):
+                if "Cet article est paru dans" in u.get_text():
+                    doc["url"] = u.get("href")
+                    break
+
+
+            doc["texte"] = self.subspaces(doc_text.text.strip())
 
             doc_auteur = doc_titre_full.find_next_sibling('p')
 
