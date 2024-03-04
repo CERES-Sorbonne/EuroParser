@@ -39,10 +39,10 @@ IS_RUNNING=$(ps -aux | grep uvicorn | grep europarser_api)
 if [ -z "$IS_RUNNING" ]
 then
     echo "europarser service currently not running, starting gunicorn..."
-    screen -S EuropressParser -dm bash -c "source /home/marceau/GH/EuropressParser/venv/bin/activate; python -m uvicorn europarser_api.api:app --port $EUROPARSER_PORT --root-path /europarser --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+    screen -S EuropressParser -dm bash -c "source /home/marceau/GH/EuropressParser/venv/bin/activate; python -m uvicorn europarser_api.api:app --port $EUROPARSER_PORT --root-path /europarser --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf -chdir=/home/marceau/GH/EuropressParser"
 else
     echo "europarser already running, restarting..."
     screen -S EuropressParser -X quit
-    screen -S EuropressParser -dm bash -c "source /home/marceau/GH/EuropressParser/venv/bin/activate; python -m uvicorn europarser_api.api:app --port $EUROPARSER_PORT --root-path /europarser --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+    screen -S EuropressParser -dm bash -c "source /home/marceau/GH/EuropressParser/venv/bin/activate; python -m uvicorn europarser_api.api:app --port $EUROPARSER_PORT --root-path /europarser --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf -chdir=/home/marceau/GH/EuropressParser"
 fi
 cd -
