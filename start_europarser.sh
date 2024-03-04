@@ -29,7 +29,10 @@ cd $FOLDER || exit
 
 git pull origin master --quiet || exit
 
-python3.11 -m venv venv
+if [ ! -d "venv" ]
+then
+    python3.11 -m venv venv
+fi
 source $FOLDER/venv/bin/activate || exit
 pip3 install -U pip --quiet || exit
 pip3 install -r $FOLDER/requirements.txt --quiet || exit
