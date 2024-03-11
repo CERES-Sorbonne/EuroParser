@@ -34,15 +34,17 @@ pip3 install -U pip --quiet || exit
 pip3 install -r $FOLDER/requirements.txt --quiet || exit
 pip3 install -r $FOLDER/requirements-api.txt --quiet || exit
 
+COMMAND="source $FOLDER/venv/bin/activate; python -m uvicorn europarser_api.api:app --host 0.0.0.0 --port $EUROPARSER_PORT --root-path $ROOT_PATH --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+
 IS_RUNNING=$(ps -aux | grep uvicorn | grep europarser_api)
 if [ -z "$IS_RUNNING" ]
 then
     echo "europarser service currently not running, starting gunicorn..."
-    screen -S EuropressParser -dm bash -c "source $FOLDER/venv/bin/activate; python -m uvicorn europarser_api.api:app --host 0.0.0.0 --port $EUROPARSER_PORT --root-path $ROOT_PATH --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+    screen -S EuropressParser -dm bash -c "$COMMAND"
 else
     echo "europarser already running, restarting..."
     screen -S EuropressParser -X quit
-    screen -S EuropressParser -dm bash -c "source $FOLDER/venv/bin/activate; python -m uvicorn europarser_api.api:app --host 0.0.0.0 --port $EUROPARSER_PORT --root-path $ROOT_PATH --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+    screen -S EuropressParser -dm bash -c "$COMMAND"
 fi
 
 cd -
