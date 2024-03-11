@@ -5,13 +5,13 @@ import concurrent.futures
 from tqdm import tqdm
 
 from europarser.models import Output, FileToTransform, TransformerOutput, Params
-from europarser.transformers.csv import CSVTransformer
-from europarser.transformers.iramuteq import IramuteqTransformer
-from europarser.transformers.json import JSONTransformer
-from europarser.transformers.markdown import MarkdownTransformer
+from europarser.transformers.to_csv import CSVTransformer
+from europarser.transformers.to_iramuteq import IramuteqTransformer
+from europarser.transformers.to_json import JSONTransformer
+from europarser.transformers.to_markdown import MarkdownTransformer
 from europarser.pivot import PivotTransformer
-from europarser.transformers.txm import TXMTransformer
-from europarser.transformers.stats import StatsTransformer
+from europarser.transformers.to_txm import TXMTransformer
+from europarser.transformers.to_stats import StatsTransformer
 
 transformer_factory = {
     "json": JSONTransformer().transform,
