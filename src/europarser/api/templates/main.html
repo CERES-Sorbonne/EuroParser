@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Europresse Parser</title>
+    <link rel="icon" href="../static/favicon.ico"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
+    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">
+    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="{{ host + '/static/dropzone.min.js' }}"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 400;
+            background-color: #91d1df;
+        }
+
+        #myDropzone {
+            min-height: 150px;
+            border: 3.5px dashed rgb(0 0 0 / 30%);
+            background: #fff;
+            padding: 20px 20px;
+            border-radius: 2.5rem;
+        }
+
+        .myButton {
+            padding: 0.5em;
+            border-radius: 0.5em;
+            display: block;
+            border: solid 0.1px grey;
+        }
+
+        .myButton:hover {
+            cursor: pointer;
+            background-color: #ffffff;
+        }
+
+        .mySelect {
+            border: 0px;
+            outline: 0px;
+            padding: 0.5em;
+            border-radius: 1em;
+            background: #ffffff
+        }
+
+        .mySelect:hover {
+            cursor: pointer;
+            background-color: #dddddd;
+        }
+
+        .myBlock {
+            display: flex;
+            margin: auto;
+        }
+
+        .myDivInput {
+            margin: auto 1vh 1vh 45%;
+        }
+
+        .myInput {
+            margin: auto;
+        }
+
+        .collapsible {
+            background-color: #777;
+            color: white;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .active, .collapsible:hover {
+            background-color: #555;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212";
+        }
+
+        .content {
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            background-color: #f1f1f1;
+        }
+
+        .padder {
+            padding: 20px;
+        }
+
+    </style>
+
+
+</head>
+
+<body>
+
+<div class="mt-5" style="width: 30%;margin: auto; text-align: center">
+    <h1 style="font-weight: 100">Convertisseur Europresse</h1>
+    <h5 style="font-weight: 100">Convertissez des HTMLs Europresse vers d'autres formats</h5>
+</div>
+<!-- <form action="/upload" class="dropzone" id="my-great-dropzone"> -->
+<div class="container mt-5">
+    <div>
+        <div class="" style="display: flex;
+      flex-direction: column;
+      justify-content: center; ">
+            <form method="post" enctype="multipart/form-data" action="/upload" id="myForm">
+                <div class="dropzone mb-3" id="myDropzone"></div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="iramuteq" name="output" value="iramuteq" class="myInput"> <label
+                        for="iramuteq">IRAMUTEQ</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="txm" name="output" value="txm" class="myInput"> <label for="txm">TXM
+                    (XML)</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="json" name="output" value="json" class="myInput"> <label
+                        for="json">JSON</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="csv" name="output" value="csv" class="myInput"> <label
+                        for="csv">CSV</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="markdown" name="output" value="markdown" class="myInput"> <label
+                        for="markdown">Markdown</label>
+                </div>
+
+                <h3 style="font-weight: 100">Statistiques</h3>
+
+                <div class="myDivInput">
+                    <input type="checkbox" id="stats" name="output" value="stats" class="myInput"> <label for="stats">Statistiques</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="processed_stats" name="output" value="processed_stats" class="myInput">
+                    <label for="processed_stats">Statistiques traitées</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="checkbox" id="plots" name="output" value="plots" class="myInput"> <label for="plots">Graphiques</label>
+                </div>
+                <h3 style="font-weight: 100">Paramètres</h3>
+
+                <div class="myDivInput">
+                    <input type="checkbox" id="filter_keywords" name="params" value="false" class="myInput"> <label
+                        for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul article</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="number" id="minimal_support" name="params" value="1" min="1" class="myInput"
+                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support">Effectif
+                    minimal par défaut global</label>
+                </div>
+
+                <h4 class="collapsible" style="font-weight: 80" onclick="
+                this.classList.toggle('active');
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
+            ">
+                    Effectif minimal par catégorie</h4>
+                <div class="content">
+                <div class="myDivInput">
+                    <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="myInput"
+                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_kw">Support
+                    minimal pour les mots clés</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="number" id="minimal_support_journals" name="params" value="1" min="1" class="myInput"
+                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_journals">Support
+                    minimal pour les journaux</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="number" id="minimal_support_authors" name="params" value="1" min="1" class="myInput"
+                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_authors">Support
+                    minimal pour les auteurs</label>
+                </div>
+                <div class="myDivInput">
+                    <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="myInput"
+                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_dates">Support
+                    minimal pour les mois</label>
+                </div>
+                </div>
+
+
+                {#            <input class=" myInput" type="checkbox" id="langToggle"\>#}
+                <button id="submit-all" type="submit" class="btn btn-primary myBlock">Upload</button>
+            </form>
+            <div class="spinner-border text-light myBlock mt-3" role="status" id="loader" style="display: none;">
+                <span class="sr-only">Traitement en cours...</span>
+            </div>
+            <a href="#" id="download" class="btn btn-success" role="button" aria-pressed="true"
+               style="display: none; width: 20%; margin: auto">Télécharger le résultat</a>
+            <div id="error" class="alert alert-danger" role="alert" style="display: none;">
+                Erreur
+            </div>
+            <!- Prevents changing the height of the page when the loading spinner is displayed -->
+            <div class="padder" id="padder"></div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementsByClassName('myInput').forEach(function (item) {
+        item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
+    });
+
+
+    function saveBlob(blob, fileName) {
+        var download = document.getElementById('download');
+        download.href = window.URL.createObjectURL(blob);
+        download.download = fileName;
+    }
+
+    function createUrl(files, dataBlock) {
+        let url = "{{host + '/upload?'}}"
+            + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
+            + "&minimal_support=" + (document.getElementById('minimal_support').value || 1)
+            + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 1)
+            + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 1)
+            + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 1)
+            + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 1)
+
+        console.log(url)
+        return (url)
+    }
+
+    Dropzone.options.myDropzone = {
+        paramName: 'files',
+        url: createUrl,
+        autoProcessQueue: false,
+        uploadMultiple: true,
+        parallelUploads: 100,
+        maxFiles: 100,
+        acceptedFiles: '.html',
+        // addRemoveLinks: true,
+        // headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+
+        init: function () {
+            dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
+
+            // for Dropzone to process the queue (instead of default form behavior):
+            document.getElementById("submit-all").addEventListener("click", function (e) {
+                // Make sure that the form isn't actually being sent.
+                e.preventDefault();
+                e.stopPropagation();
+                dzClosure.processQueue();
+
+            })
+
+            //send all the form data along with the files:
+            this.on("sendingmultiple", function (data, xhr, formData) {
+                if (document.getElementById('iramuteq').checked) {
+                    formData.append("output", "iramuteq");
+                }
+                if (document.getElementById('txm').checked) {
+                    formData.append("output", "txm");
+                }
+                if (document.getElementById('json').checked) {
+                    formData.append("output", "json");
+                }
+                if (document.getElementById('csv').checked) {
+                    formData.append("output", "csv");
+                }
+                if (document.getElementById('stats').checked) {
+                    formData.append("output", "stats");
+                }
+                if (document.getElementById('processed_stats').checked) {
+                    formData.append("output", "processed_stats");
+                    checked = true;
+                }
+                if (document.getElementById('plots').checked) {
+                    formData.append("output", "plots");
+                }
+                if (document.getElementById('markdown').checked) {
+                    formData.append("output", "markdown");
+                }
+
+                for (let el of data) {
+                    let blob = new Blob([el], {type: el.type});
+                    formData.append("files", blob, el.name)
+                }
+                document.getElementById('loader').style.display = "block";
+                document.getElementById('submit-all').style.display = "none";
+
+
+                len_ = document.getElementsByClassName("myInput").length
+                for (let i = 0; i < len_; i++) {
+                    document.getElementsByClassName("myInput")[i].disabled = true;
+                    document.getElementsByClassName("myInput")[i].cursor = "not-allowed";
+                    document.getElementsByClassName("myDivInput")[i].style.opacity = "0.5";
+                }
+
+                xhr.responseType = 'blob';
+                xhr.onload = function (e) {
+                    if (e.currentTarget.status > 300) {
+                        document.getElementById('loader').style.display = "none";
+                        document.getElementById('error').innerHTML = e.currentTarget.statusText;
+                        document.getElementById('error').style.display = "block";
+                    }
+                    var blob = e.currentTarget.response;
+                    var contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
+                    // https://stackoverflow.com/a/23054920/
+                    var fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
+                    document.getElementById('download').style.display = "block";
+                    document.getElementById('loader').style.display = "none";
+                    saveBlob(blob, fileName);
+                }
+                xhr.send(formData)
+            });
+        }
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
