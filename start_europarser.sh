@@ -32,7 +32,7 @@ then
 fi
 source $FOLDER/venv/bin/activate || exit
 
-COMMAND="source $FOLDER/venv/bin/activate; python -m uvicorn europarser_api.api:app --host 0.0.0.0 --port $EUROPARSER_PORT --root-path $ROOT_PATH --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
+COMMAND="source $FOLDER/venv/bin/activate; python -m uvicorn src.europarser.api.api:app --host 0.0.0.0 --port $EUROPARSER_PORT --root-path $ROOT_PATH --workers 8 --limit-max-requests 8 --timeout-keep-alive 1000 --log-config log.conf"
 printf "Starting europarser with command:\n"
 echo "$COMMAND"
 
