@@ -4,10 +4,12 @@
 /.idea/
 # Profiler outputs from the stats tranformer
 /profiler/
+.venv
 
 ## Files
 # Every json tests
 json*.json
+*.json
 # Testfile for the datetimes
 test.txt
 # Tests on stats

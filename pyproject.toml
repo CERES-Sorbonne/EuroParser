@@ -1,0 +1,106 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "europarser"
+dynamic = ["version"]
+description = ''
+readme = "README.md"
+requires-python = ">=3.9"
+license = "AGPL-3.0-or-later"
+keywords = []
+authors = [
+  { name = "Marceau", email = "git@marceau-h.fr" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = [
+    "beautifulsoup4~=4.12.2",
+    "cython",
+    "faust-cchardet",
+    "langid~=1.1.6",
+    "lxml",
+    "matplotlib~=3.7.2",
+    "numpy",
+    "pandas~=2.0.3",
+    "plotly",
+    "polars~=0.19.12",
+    "py3langid",
+    "pydantic>=2.0.0",
+    "python-dateutil~=2.8.2",
+    "tqdm",
+    "XlsxWriter",
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "jinja2",
+    "aiofiles",
+]
+
+[project.urls]
+Documentation = "https://github.com/CERES-sorbonne/europarser#readme"
+Issues = "https://github.com/CERES-sorbonne/europarser/issues"
+Source = "https://github.com/CERES-sorbonne/europarser"
+
+[tool.hatch.version]
+path = "src/europarser/__about__.py"
+
+[tool.hatch.envs.default]
+dependencies = [
+  "coverage[toml]>=6.5",
+  "pytest",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest {args:tests}"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+]
+cov = [
+  "test-cov",
+  "cov-report",
+]
+
+[[tool.hatch.envs.all.matrix]]
+python = ["3.9", "3.10", "3.11", "3.12"]
+
+[tool.hatch.envs.types]
+dependencies = [
+  "mypy>=1.0.0",
+]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/europarser tests}"
+
+[tool.coverage.run]
+source_pkgs = ["europarser", "tests"]
+branch = true
+parallel = true
+omit = [
+  "src/europarser/__about__.py",
+]
+
+[tool.coverage.paths]
+europarser = ["src/europarser", "*/europarser/src/europarser"]
+tests = ["tests", "*/europarser/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
+
+[project.scripts]
+europarser = "europarser.main:main"
+europarser-api = "europarser.api.api:main"
