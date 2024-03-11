@@ -33,8 +33,8 @@ def main(folder: Path, outputs: list[Output], params: Optional[Params] = None) -
 
 if __name__ == '__main__':
     folder = Path('/home/marceau/Nextcloud/eurocollectes/15-18')
-    # outputs = ["json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"]
-    outputs = ["json", "stats", "processed_stats", "plots"]
+    outputs = ["json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"]
+    # outputs = ["json", "stats", "processed_stats", "plots"]
     params = Params(
         minimal_support_kw=5,
         minimal_support_authors=2,
