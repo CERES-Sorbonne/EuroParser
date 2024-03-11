@@ -19,10 +19,6 @@ else
     fi
 fi
 
-
-export EUROPARSER_SERVER=https://ceres.huma-num.fr/europarser
-export EUROPARSER_PORT=8001
-export FOLDER=/home/marceau/GH/EuropressParser
 set +a
 
 cd $FOLDER || exit
