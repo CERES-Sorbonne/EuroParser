@@ -11,7 +11,7 @@ requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 keywords = []
 authors = [
-  { name = "Marceau", email = "git@marceau-h.fr" },
+  { name = "Marceau", email = "pypi@marceau-h.fr" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
