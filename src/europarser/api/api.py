@@ -98,8 +98,10 @@ async def handle_files(files: Annotated[list[UploadFile], File(...)],
     )
 
 def main():
-    import uvicorn
     from argparse import ArgumentParser
+
+    import uvicorn
+
     parser = ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", default=8000, help="Port to bind to", type=int)
