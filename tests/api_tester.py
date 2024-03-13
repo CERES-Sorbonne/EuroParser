@@ -3,7 +3,7 @@ import requests
 
 from concurrent.futures import ThreadPoolExecutor
 
-from ..models import FileToTransform, Params
+from europarser.models import FileToTransform, Params
 
 # server = "https://ceres.huma-num.fr/europarser"
 server = "http://localhost:8000"
