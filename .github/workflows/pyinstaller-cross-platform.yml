@@ -230,7 +230,6 @@ jobs:
             fi
 
       - name: Build with pyinstaller
-#        if: matrix.os != 'windows-latest' # UPX is only available on Windows for now
         run: |
           pyinstaller pyinstaller.py \
           --onefile \
@@ -241,19 +240,6 @@ jobs:
           --add-data src/europarser/api/static/dropzone.min.css:./europarser/api/static \
           --add-data src/europarser/api/static/dropzone.min.js:./europarser/api/static \
           --add-data src/europarser/api/static/favicon.ico:./europarser/api/static
-
-#      - name: Build with pyinstaller windows version # This crap dont work \w `:`
-#        if: matrix.os == 'windows-latest' # UPX is only available on Windows for now
-#        run: |
-#          pyinstaller src/europarser/api/api.py \
-#          --onefile \
-#          --name=europarser-${{ env.OS }}-${{ needs.envs.outputs.ver }} \
-#          --windowed \
-#          --add-data src/europarser/api/templates/main.html;./europarser/api/templates \
-#          --add-data src/europarser/api/static/basic.min.css;./europarser/api/static \
-#          --add-data src/europarser/api/static/dropzone.min.css;./europarser/api/static \
-#          --add-data src/europarser/api/static/dropzone.min.js;./europarser/api/static \
-#          --add-data src/europarser/api/static/favicon.ico;./europarser/api/static
 
         #- name: Fake build ## Debug
         #  run: |
