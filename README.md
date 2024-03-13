@@ -48,11 +48,26 @@ pip install europarser
 
 2) Lancez le serveur avec la commande suivante
 ```console
-europarser-api [--host HOST] [--port PORT]
+europarser [--host HOST] [--port PORT]
 ```
 
 3) Allez sur [localhost:8000](http://localhost:8000) (par défaut) pour accéder à l'interface de l'API
 
+### Usage en ligne de commande
+1) Installez le package
+```console
+pip install europarser
+```
+
+2) Utilisez la commande suivante pour parser un dossier
+```console
+europarser-cli --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
+```
+
+#### Exemple
+```console
+europarser-cli --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
+```
 
 ## License
 
