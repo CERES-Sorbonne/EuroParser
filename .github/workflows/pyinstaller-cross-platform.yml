@@ -243,7 +243,7 @@ jobs:
           --add-data src/europarser/api/static/favicon.ico:./europarser/api/static
 
       - name: Build with pyinstaller windows version # This crap dont work \w `:`
-        if: matrix.os != 'windows-latest' # UPX is only available on Windows for now
+        if: matrix.os == 'windows-latest' # UPX is only available on Windows for now
         run: |
           pyinstaller src/europarser/api/api.py \
           --onefile \
