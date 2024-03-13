@@ -232,7 +232,7 @@ jobs:
       - name: Build with pyinstaller
 #        if: matrix.os != 'windows-latest' # UPX is only available on Windows for now
         run: |
-          pyinstaller src/europarser/api/api.py \
+          pyinstaller pyinstaller.py \
           --onefile \
           --name=europarser-${{ env.OS }}-${{ needs.envs.outputs.ver }} \
           --windowed \
