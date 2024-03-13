@@ -32,6 +32,7 @@ dependencies = [
     "matplotlib~=3.7.2",
     "numpy",
     "pandas~=2.0.3",
+    "PyArrow",
     "plotly",
     "polars~=0.19.12",
     "py3langid",

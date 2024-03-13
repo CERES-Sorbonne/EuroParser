@@ -201,7 +201,7 @@ jobs:
 
       - name: Install europarser
         run: |
-          pip install .
+          pip install europarser
 
       - name: Fix linux msgcat
         if: matrix.os == 'ubuntu-latest'
