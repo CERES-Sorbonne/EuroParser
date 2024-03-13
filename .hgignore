@@ -1,5 +1,11 @@
 Dockerfile
 docker_log.conf
+
 start_europarser.sh
+venv/
 .venv/
+tests/
+pyinstaller.py
+
 *.json
+*.ipynb
