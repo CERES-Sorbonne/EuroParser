@@ -103,5 +103,4 @@ exclude_lines = [
 
 
 [project.scripts]
-europarser = "europarser.main:main"
-europarser-api = "europarser.api.api:main"
+europarser = "europarser.endpoint:main"

@@ -18,7 +18,8 @@ parser.add_argument("--api", help="Run as API", action="store_true")
 parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
 parser.add_argument("--port", default=8000, help="Port to bind to", type=int)
 
-if __name__ == '__main__':
+
+def main():
     args = parser.parse_args()
 
     if args.api or all([args.host, args.port]):
@@ -59,3 +60,7 @@ if __name__ == '__main__':
 
     main(folder, outputs, params=params)
     exit(0)
+
+
+if __name__ == '__main__':
+    main()
