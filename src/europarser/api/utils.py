@@ -1,6 +1,6 @@
 from typing import Literal
 
-from ..models import OutputFormat
+from .. import OutputFormat
 
 MimeType = Literal["text/csv", "application/json", "text/plain", "text/xml"]
 
