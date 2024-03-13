@@ -16,7 +16,6 @@ permissions:
 jobs:
   get-ref:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,8 +38,10 @@ jobs:
           BRANCH=$(echo $BRANCH | base64 -w 0)
           echo "BRANCH=$BRANCH" >> $GITHUB_OUTPUT
           echo "Branch is $BRANCH."
+
     outputs:
       branch-name: ${{ steps.check_step.outputs.BRANCH }}
+
 
   get-tag:
     runs-on: ubuntu-latest
@@ -69,6 +70,7 @@ jobs:
 
     outputs:
       tag: ${{ env.TAG }}
+
 
   deploy:
     runs-on: ubuntu-latest

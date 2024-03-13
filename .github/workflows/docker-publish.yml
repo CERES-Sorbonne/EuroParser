@@ -27,7 +27,6 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/europarser
-
           tags: |
             type=sha,enable=true,priority=100,prefix=sha-,suffix=,format=short
             type=ref,event=branch
