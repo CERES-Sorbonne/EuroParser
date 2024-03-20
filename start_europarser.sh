@@ -23,7 +23,7 @@ set +a
 
 cd "${FOLDER:=${pwd}}" || exit
 
-git pull origin master --quiet || exit
+# git pull origin master --quiet || exit
 
 if [ ! -d "venv" ]
 then
