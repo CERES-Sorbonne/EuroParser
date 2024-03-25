@@ -3,9 +3,7 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/europarser.svg)](https://pypi.org/project/europarser)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/europarser.svg)](https://pypi.org/project/europarser)
 
-Parsing d'articles de presse pour extraire le contenu et le transformer en des formats d'analyse comme TXM ou Iramuteq
-
-This readme is also available in [English](https://github.com/CERES-Sorbonne/EuroperssParser/blob/master/README_en.md)
+Parsing press articles to extract content and transform it into analysis formats such as TXM or Iramuteq
 
 -----
 
@@ -17,24 +15,24 @@ This readme is also available in [English](https://github.com/CERES-Sorbonne/Eur
 
 ## Installation
 ### PyPi
-Europarser est disponible sur PyPi, vous pouvez l'installer avec pip à l'aide de la commande suivante:
+Europarser is available on PyPi, you can install it with pip using the following command:
 ```bash
 pip install europarser
 ```
-Vous pouvez ensuite vérifier que l'installation s'est bien passée en lançant la commande `europarser --version`
-Une fois installé, vous pouvez lancer l'interface graphique avec la commande `europarser`.
+You can then check that the installation went well by running the `europarser --version` command
+Once installed, you can launch the graphical interface with the `europarser` command.
 
 ### Docker
 ```bash
 docker run -p 8000:8000 --name europarser ceressorbonne/europarser
 ```
-Le serveur sera accessible sur [localhost:8000](http://localhost:8000), vous pouvez également spécifier un autre port de la manière suivante:
+The server will be accessible on [localhost:8000](http://localhost:8000), you can also specify another port as follows:
 ```bash
-docker run -p [port souhaité]:8000 --name europarser ceressorbonne/europarser
+docker run -p [desired port]:8000 --name europarser ceressorbonne/europarser
 ```
 
-### Développement
-Pour installer Europarser en mode développement, vous pouvez cloner le dépôt git et installer les dépendances avec pip:
+### Development
+To install Europarser in development mode, you can clone the git repository and install the dependencies with pip:
 ```bash
 git clone https://github.com/CERES-Sorbonne/EuropressParser.git
 cd EuropressParser
@@ -42,8 +40,8 @@ pip install -e .
 ```
 
 
-## Usages
-#### Usage basique
+## Usage
+#### Basic Usage
 ```python
 from pathlib import Path
 
@@ -63,35 +61,35 @@ params = Params(
 main(folder, outputs, params=params)
 ```
 
-### Usage sous forme d'API
-1) Installez le package
+### Usage as an API
+1) Install the package
 ```bash
 pip install europarser
 ```
 
-2) Lancez le serveur avec la commande suivante
+2) Start the server with the following command
 ```bash
 europarser [--host HOST] [--port PORT]
 ```
 
-3) Allez sur [localhost:8000](http://localhost:8000) (par défaut) pour accéder à l'interface de l'API
+3) Go to [localhost:8000](http://localhost:8000) (by default) to access the API interface
 
-### Usage en ligne de commande
-1) Installez le package
+### Usage from the command line
+1) Install the package
 ```bash
 pip install europarser
 ```
 
-2) Utilisez la commande suivante pour parser un dossier
+2) Use the following command to parse a folder
 ```bash
 europarser-cli --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
 ```
 
-#### Exemple
+#### Example
 ```bash
 europarser-cli --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
 ```
 
 ## License
 
-`europarser` est distribué sous les termes de la licence [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html).
+`europarser` is distributed under the terms of the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) license.
