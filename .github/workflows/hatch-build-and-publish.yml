@@ -123,7 +123,7 @@ jobs:
           hatch build
 
       - name: Publish package
-        uses: pypa/gh-action-pypi-publish@v1.8.11
+        uses: pypa/gh-action-pypi-publish@release/v1
 
       - name: Update the about.py file
         uses: stefanzweifel/git-auto-commit-action@v5
