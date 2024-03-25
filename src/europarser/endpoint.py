@@ -1,6 +1,8 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
+from .__about__ import __version__
+
 parser = ArgumentParser()
 
 parser.add_argument("-c", "--cli", help="Run as CLI", action="store_true")
@@ -18,6 +20,7 @@ parser.add_argument("--api", help="Run as API", action="store_true")
 parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
 parser.add_argument("--port", default=8000, help="Port to bind to", type=int)
 
+parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
 
 def main():
     args = parser.parse_args()
