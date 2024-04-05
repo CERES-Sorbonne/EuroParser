@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-set -efaou pipefail
+set -efaoux pipefail
 
-source .env_txm4txm > /dev/null 2>&1
+source .env_europarser > /dev/null 2>&1
 
 set +a
 
