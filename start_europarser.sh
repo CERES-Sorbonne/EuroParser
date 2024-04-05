@@ -41,7 +41,7 @@ then
     pip install -r requirements.txt
 fi
 
-source "$FOLDER""venv/bin/activate"
+source "$FOLDER"/"venv/bin/activate"
 
 # Ensure that we have everything we need
 for package in `cat requirements.txt`
