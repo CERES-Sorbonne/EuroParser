@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -efaoux pipefail
+set -efaou pipefail
 
 source .env_europarser > /dev/null 2>&1
 
