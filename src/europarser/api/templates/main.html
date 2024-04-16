@@ -143,6 +143,10 @@
                         for="csv">CSV</label>
                 </div>
                 <div class="myDivInput">
+                    <input type="checkbox" id="excel" name="output" value="excel" class="myInput"> <label
+                        for="excel">Excel</label>
+                </div>
+                <div class="myDivInput">
                     <input type="checkbox" id="markdown" name="output" value="markdown" class="myInput"> <label
                         for="markdown">Markdown</label>
                 </div>
@@ -282,6 +286,9 @@
                 }
                 if (document.getElementById('csv').checked) {
                     formData.append("output", "csv");
+                }
+                if (document.getElementById('excel').checked) {
+                    formData.append("output", "excel");
                 }
                 if (document.getElementById('stats').checked) {
                     formData.append("output", "stats");

@@ -41,8 +41,8 @@ class Pivot(BaseModel):
         return ', '.join(kw)
 
 
-OutputFormat = Literal["csv", "json", "txt", "xml", "zip"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "stats", "processed_stats", "plots", "markdown"]
+OutputFormat = Literal["csv", "excel", "json", "txt", "xml", "zip"]
+Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "excel", "stats", "processed_stats", "plots", "markdown"]
 
 
 class TransformerOutput(BaseModel):

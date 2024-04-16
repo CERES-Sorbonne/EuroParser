@@ -32,6 +32,7 @@ class Outputs(str, Enum):
     iramuteq = "iramuteq"
     gephi = "gephi"
     csv = "csv"
+    excel = "excel"
     stats = "stats"
     processed_stats = "processed_stats"
     plots = "plots"

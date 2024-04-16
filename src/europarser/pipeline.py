@@ -6,6 +6,7 @@ from tqdm.auto import tqdm
 
 from .models import Output, FileToTransform, TransformerOutput, Params
 from .transformers.to_csv import CSVTransformer
+from .transformers.to_excel import ExcelTransformer
 from .transformers.to_iramuteq import IramuteqTransformer
 from .transformers.to_json import JSONTransformer
 from .transformers.to_markdown import MarkdownTransformer
@@ -19,6 +20,7 @@ transformer_factory = {
     "iramuteq": IramuteqTransformer().transform,
     "gephi": None,
     "csv": CSVTransformer().transform,
+    "excel": ExcelTransformer().transform,
     "stats": "get_stats",
     "processed_stats": "get_processed_stats",
     "plots": "get_plots",
