@@ -5,13 +5,21 @@ from . import pipeline
 from .models import FileToTransform, TransformerOutput, Params, Output
 
 
-def main(folder: Path, outputs: list[Output], params: Optional[Params] = None) -> None:
+def main(folder: Path | str, outputs: list[Output], params: Optional[Params] = None) -> None:
     if params is None:
         params = Params()
+
+    if isinstance(folder, str):
+        folder = Path(folder)
+    elif not isinstance(folder, Path):
+        raise ValueError(f"folder must be a Path or a string, not {type(folder)}")
 
     # parse all files
     files = []
     for file in folder.iterdir():
+        if file.suffix.lower() != ".html":
+            print(f"Skipping {file.name} (not an HTML file)")
+            continue
         if file.is_file():
             with open(file, 'r', encoding='utf-8') as f:
                 files.append(FileToTransform(name=file.name, file=f.read()))
