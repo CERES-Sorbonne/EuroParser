@@ -121,11 +121,10 @@
 <!-- <form action="/upload" class="dropzone" id="my-great-dropzone"> -->
 <div class="container mt-5">
     <div>
-        <div class="" style="display: flex;
-      flex-direction: column;
-      justify-content: center; ">
+        <div class="" style="display: flex; flex-direction: column; justify-content: center;">
             <form method="post" enctype="multipart/form-data" action="/upload" id="myForm">
-                <div class="dropzone mb-3" id="myDropzone"></div>
+                <div class="dropzone mb-3" id="myDropzone">
+                </div>
                 <div class="myDivInput">
                     <input type="checkbox" id="iramuteq" name="output" value="iramuteq" class="myInput"> <label
                         for="iramuteq">IRAMUTEQ</label>
@@ -186,26 +185,28 @@
             ">
                     Effectif minimal par catégorie</h4>
                 <div class="content">
-                <div class="myDivInput">
-                    <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="myInput"
-                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_kw">Support
-                    minimal pour les mots clés</label>
-                </div>
-                <div class="myDivInput">
-                    <input type="number" id="minimal_support_journals" name="params" value="1" min="1" class="myInput"
-                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_journals">Support
-                    minimal pour les journaux</label>
-                </div>
-                <div class="myDivInput">
-                    <input type="number" id="minimal_support_authors" name="params" value="1" min="1" class="myInput"
-                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_authors">Support
-                    minimal pour les auteurs</label>
-                </div>
-                <div class="myDivInput">
-                    <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="myInput"
-                           placeholder="Support minimal pour les mots clés"> <label for="minimal_support_dates">Support
-                    minimal pour les mois</label>
-                </div>
+                    <div class="myDivInput">
+                        <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="myInput"
+                               placeholder="Support minimal pour les mots clés"> <label for="minimal_support_kw">Support
+                        minimal pour les mots clés</label>
+                    </div>
+                    <div class="myDivInput">
+                        <input type="number" id="minimal_support_journals" name="params" value="1" min="1"
+                               class="myInput"
+                               placeholder="Support minimal pour les mots clés"> <label for="minimal_support_journals">Support
+                        minimal pour les journaux</label>
+                    </div>
+                    <div class="myDivInput">
+                        <input type="number" id="minimal_support_authors" name="params" value="1" min="1"
+                               class="myInput"
+                               placeholder="Support minimal pour les mots clés"> <label for="minimal_support_authors">Support
+                        minimal pour les auteurs</label>
+                    </div>
+                    <div class="myDivInput">
+                        <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="myInput"
+                               placeholder="Support minimal pour les mots clés"> <label for="minimal_support_dates">Support
+                        minimal pour les mois</label>
+                    </div>
                 </div>
 
 
@@ -262,7 +263,7 @@
         // headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
 
         init: function () {
-            dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
+            let dzClosure = this; // Makes sure that 'this' is understood inside the functions below.
 
             // for Dropzone to process the queue (instead of default form behavior):
             document.getElementById("submit-all").addEventListener("click", function (e) {
@@ -304,10 +305,19 @@
                     formData.append("output", "markdown");
                 }
 
-                for (let el of data) {
-                    let blob = new Blob([el], {type: el.type});
-                    formData.append("files", blob, el.name)
+                {#for (let el of data) {#}
+                {#    let blob = new Blob([el], {type: el.type});#}
+                {#    formData.append("files", blob, el.name)#}
+                {# } #}
+
+                for (let file of data) {
+                    if (file.size === 0) { // Directory
+                        // pass
+                    } else { // File
+                        formData.append("files", file);
+                    }
                 }
+
                 document.getElementById('loader').style.display = "block";
                 document.getElementById('submit-all').style.display = "none";
 
