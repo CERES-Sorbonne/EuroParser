@@ -15,17 +15,26 @@ parser.add_argument("--filter-keywords", help="Filter keywords", type=bool, defa
 parser.add_argument("--filter-lang", help="Filter language", type=bool, default=False)
 
 parser.add_argument("--api", help="Run as API", action="store_true")
-parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
-parser.add_argument("--port", default=8000, help="Port to bind to", type=int)
+parser.add_argument("--host", help="Host to bind to", type=str)
+parser.add_argument("--port", help="Port to bind to", type=int)
+parser.add_argument(
+    "--expose",
+    help="Expose the API (shorthand for --host 0.0.0.0 --port 8000), dosent override --host or --port if specified",
+    action="store_true",
+)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    if args.api or all([args.host, args.port]):
+    if args.api or all([args.host, args.port]) or args.expose:
         import uvicorn
         from europarser.api import app
 
-        uvicorn.run(app, host=args.host, port=args.port)
+        if args.expose:
+            args.host = args.host or "0.0.0.0"
+
+        uvicorn.run(app, host=args.host or "127.0.0.1", port=args.port or 8000)
         exit(0)
 
     if args.cli:
