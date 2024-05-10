@@ -53,12 +53,15 @@ def main():
 
     from . import main
     from . import Params, Output
+    from typing import get_args
+
+    possible_outputs = get_args(Output)
 
     folder = Path(args.folder)
     assert folder.is_dir(), f"Folder {folder} does not exist"
     outputs = args.output
     for output in outputs:
-        assert output in Output, f"Output {output} is not supported"
+        assert output in possible_outputs, f"Output {output} is not supported"
 
     params = Params(
         minimal_support_kw=args.support_kw,
