@@ -41,7 +41,7 @@ class Outputs(str, Enum):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse('main.html', {'request': request, 'host': host})
+    return templates.TemplateResponse('new_wui.html', {'request': request, 'host': host})
 
 
 @app.post("/upload")

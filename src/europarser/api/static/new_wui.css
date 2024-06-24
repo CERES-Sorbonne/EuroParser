@@ -1,0 +1,188 @@
+body {
+    --main-bg-color: #2E3D73;
+    --main-text-on-bg-color: #FFFFFF;
+    --secondary-text-on-bg-color: #B2B9DC;
+
+    --main-text-color: #5462AC;
+    --main-text-size: 1.2em;
+    --main-text-weight: 500;
+    --main-text-family: 'IBM Plex Sans', sans-serif;
+
+    --secondary-text-color: #2E3D73;
+    --secondary-text-size: 1.5em;
+    --secondary-text-weight: 800;
+    --secondary-text-family: 'IBM Plex Sans', sans-serif;
+
+    background: var(--main-bg-color);
+    color: var(--main-text-color);
+}
+
+.main {
+    color: var(--main-text-color);
+    font-size: var(--main-text-size);
+    font-weight: var(--main-text-weight);
+    font-family: var(--main-text-family);
+}
+
+.secondary {
+    color: var(--secondary-text-color);
+    font-size: var(--secondary-text-size);
+    font-weight: var(--secondary-text-weight);
+    font-family: var(--secondary-text-family);
+}
+
+.topnav {
+    margin: 2em 2em 0 2em;
+    display: inline-flex;
+    color: var(--main-text-on-bg-color);
+    padding: 1em;
+    align-items: center;
+    /*overflow: hidden;*/
+    position: relative;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    p {
+        font-weight: 800;
+        font-size: 1.5em;
+        max-width: 20em;
+    }
+
+    h1 {
+        display: inline-flex;
+    }
+}
+
+.separator {
+    /*border-left: 1em solid #FFFFFF;*/
+    /*height: fit-content;*/
+    border: .1em solid #FFFFFF;
+    width: .1em;
+    height: 2.5em;
+    position: relative;
+    margin: 0 10px;
+}
+
+main {
+    display: flex;
+    justify-content: space-evenly;
+    min-height: 60svh;
+    color: var(--main-text-color);
+    padding: 2em;
+    align-items: stretch;
+
+}
+
+.rectangle {
+    width: 24%;
+    /*height: 70vh;*/
+    /*min-height: 70svh;*/
+    flex-shrink: 0;
+    border-radius: 9px;
+    background: #FFF;
+    padding: 1em;
+}
+
+.number {
+    font-size: 2em;
+    font-weight: 800;
+    margin: 1em;
+    color: #B2B9DC;
+    word-wrap: break-word
+
+}
+
+footer {
+    padding: 2em;
+}
+
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 10vh;
+    background: var(--main-bg-color);
+    color: var(--main-text-on-bg-color);
+}
+
+.card-title {
+    margin: .5em;
+}
+
+.submit {
+    background: #FFFFFF;
+    color: var(--main-text-color);
+    border-color: var(--main-text-color);
+    padding: .5em 1em;
+    border-radius: .5em;
+    font-size: var(--main-text-size);
+    font-weight: var(--secondary-text-weight);
+    margin: .5em;
+    cursor: pointer;
+}
+
+.submit:hover {
+    background: var(--main-text-color);
+    color: var(--main-text-on-bg-color);
+}
+
+.left-hand {
+    margin: 0 .03em 0 0;
+}
+.right-hand {
+    margin: 0 0 0 .03em;
+}
+
+.mail {
+    color: var(--main-text-on-bg-color);
+}
+.mail:hover {
+    color: var(--secondary-text-on-bg-color);
+}
+.actual-mail {
+    color: var(--secondary-text-on-bg-color);
+}
+
+.switch {
+    background: #FFFFFF;
+    color: var(--main-text-color);
+    width: fit-content;
+    min-width: 30%;
+    height: 2.3em;
+    font-size: 1em;
+    text-size-adjust: 100%;
+    border-radius: 1rem;
+    input {
+        display: none;
+    }
+}
+
+.switch:hover {
+    background: var(--main-text-color);
+    color: var(--main-text-on-bg-color);
+}
+.switch:has(input:checked) {
+    background: var(--main-bg-color);
+    color: var(--main-text-on-bg-color);
+}
+
+.formats-container {
+    display: block;
+    justify-content: space-evenly;
+    align-items: center;
+    color: var(--main-text-color);
+    margin-left: 2em;
+}
+.label {
+    display: flex;
+    justify-content: space-between;
+}
+.tooltip {
+    display: block;
+    border: 1px solid red;
+    padding: 1em;
+    background: red;
+    color: red;
+}

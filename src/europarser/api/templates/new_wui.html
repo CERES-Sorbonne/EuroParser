@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Europresse Parser</title>
+    <link rel="icon" href="../static/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">
+    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">
+    <link href="{{ host + '/static/new_wui.css' }}" rel="stylesheet">
+    <script src="{{ host + '/static/dropzone.min.js' }}"></script>
+    <script src="{{ host + '/static/new_wui.js' }}"></script>
+    {#    <script src="{{ host + '/static/jquery-3.6.0.min.js' }}"></script>#}
+    {#    <script src="{{ host + '/static/bootstrap.min.js' }}"></script>#}
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+            crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+            crossorigin="anonymous"></script>
+</head>
+
+<body>
+<header>
+    <div class="topnav">
+        <h1 aria-label="EuroParser">
+            <span class="left-hand title">
+                Eur
+            </span>
+            <div class="logo">
+                <img src="{{ host + '/static/logo.svg' }}" alt="CERES">
+            </div>
+            <span class="right-hand title">
+                Parser
+            </span>
+        </h1>
+        <div class="separator"></div>
+        <p>Convertissez des fichiers html Europresse vers d'autres formats</p>
+    </div>
+</header>
+
+<form method="post" enctype="multipart/form-data" action="/upload" id="myForm">
+    <main>
+        <div class="rectangle">
+            <div class="number">
+                0
+            </div>
+            <div class="card-title secondary">
+                Récupérez vos fichiers html sur Europresse
+            </div>
+            <div class="card-body main">
+                Pour plus d’informations sur comment les télécharger,
+                consultez le tutoriel CERES
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="number">
+                1
+            </div>
+            <div class="card-title secondary">
+                Téléchargez les fichiers que vous souhaitez transformer
+            </div>
+            <div class="card-body main">
+                <div class="dropzone mb-3" id="myDropzone"></div>
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="number">
+                2
+            </div>
+            <div class="card-title secondary">
+                Choisissez les formats de sortie
+            </div>
+            <div class="formats-container">
+                <div class="label">
+                    <label class="switch btn btn-primary" for="Iramuteq">Iramuteq
+                        <input type="checkbox" name="formats" value="Iramuteq" id="Iramuteq">
+                    </label>
+                    <div class="tooltip" id="iramuteq-tooltip" onfocusin="showTooltip(this)" onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour le logiciel Iramuteq</p>
+                    </div>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="TXM">TXM
+                        <input type="checkbox" name="formats" value="TXM" id="TXM">
+                    </label>
+                    <div class="tooltip" id="txm-tooltip" onfocusin="showTooltip(this)" onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour le logiciel TXM</p>
+                    </div>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="JSON">JSON
+                        <input type="checkbox" name="formats" value="JSON" id="JSON">
+                    </label>
+                    <div class="tooltip" id="json-tooltip" onfocusin="showTooltip(this)" onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour les données en JSON</p>
+                    </div>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="CSV">CSV
+                        <input type="checkbox" name="formats" value="CSV" id="CSV">
+                    </label>
+                    <div class="tooltip" id="csv-tooltip" onfocusin="showTooltip(this)" onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour les données en CSV</p>
+                    </div>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="Excel">Excel (xls)
+                        <input type="checkbox" name="formats" value="Excel" id="Excel">
+                    </label>
+                    <div class="tooltip" id="excel-tooltip" onfocusin="showTooltip(this)" onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour les données en Excel</p>
+                    </div>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="Markdown">Markdown
+                        <input type="checkbox" name="formats" value="Markdown" id="Markdown">
+                    </label>
+                    <div class="tooltip" id="markdown-tooltip" onfocusin="showTooltip(this)"
+                         onfocusout="hideTooltip(this)">
+                        <p>Format de sortie pour les données en Markdown</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-title secondary">
+                et/ou les statistiques à générer
+            </div>
+            <div class="formats-container">
+                <div class="label">
+                    <label class="switch btn btn-primary" for="stats">Statistiques
+                        <input type="checkbox" name="stats" value="stats" id="stats">
+                    </label>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="processed">Statistiques traitées
+                        <input type="checkbox" name="stats" value="processed" id="processed">
+                    </label>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="static-graphs">Graphiques statiques
+                        <input type="checkbox" name="stats" value="static-graphs" id="static-graphs">
+                    </label>
+                </div>
+                <div class="label">
+                    <label class="switch btn btn-primary" for="dynamic-graphs">Graphiques interactifs
+                        <input type="checkbox" name="stats" value="dynamic-graphs" id="dynamic-graphs">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="number">
+                3
+            </div>
+            <div class="card-title secondary">
+                Téléchargez les fichiers transformés sur votre ordinateur
+            </div>
+            <div class="card-body main">
+                <button id="submit-all" type="submit" class="btn btn-primary submit">Convertir</button>
+            </div>
+        </div>
+    </main>
+</form>
+
+<footer>
+    <div class="footer">
+        <div class="footer-help">
+            <p>Vous rencontrez un problème ? </p>
+            <a href="mailto:lettres-ceres@sorbonne-université.fr" class="mail">
+                Écrivez-nous à l’adresse : <span class="actual-mail">lettres-ceres@sorbonne-université.fr</span>
+            </a>
+        </div>
+        <div class="footer-credits">
+            <a href="https://ceres.sorbonne-universite.fr/outils/" class="ceres-link">
+                Outils CERES
+                <img src="{{ host + '/static/logo.svg' }}" alt="CERES">
+            </a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
