@@ -28,7 +28,7 @@ class TXMTransformer(Transformer):
                     "annee": pivot.annee,
                     "mois": pivot.mois,
                     "jour": pivot.jour,
-                    "journal_clean": pivot.journal_clean,
+                    "journalClean": pivot.journal_clean,
                     "keywords": ', '.join(pivot.keywords),
                     "langue": pivot.langue,
                     "url": pivot.url,
