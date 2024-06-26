@@ -75,5 +75,14 @@ class Transformer(ABC):
     def _to_pascal(string: str) -> str:
         return "".join(x.capitalize() for x in string.lower().split("_"))
 
-def strip_accents(s):
-    return ''.join(c for c in unicodedata.normalize('NFKD', s) if unicodedata.category(c) != 'Mn')
+    @staticmethod
+    def _to_camel(string: str) -> str:
+        return "".join(
+            x.capitalize()
+            if i > 0
+            else x.lower()
+            for i, x in enumerate(string.lower().split("_"))
+        )
+
+def strip_accents(string: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) != 'Mn')
