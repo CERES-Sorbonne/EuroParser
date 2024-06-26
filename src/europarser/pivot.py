@@ -54,6 +54,7 @@ class PivotTransformer(Transformer):
         assert isinstance(article, BeautifulSoup), "article is not a BeautifulSoup object"
         try:
             doc = {
+                "id": None,
                 "journal": None,
                 "date": None,
                 "annee": None,
@@ -185,6 +186,7 @@ class PivotTransformer(Transformer):
                 doc["langue"] = langue
 
             if id_ not in self.ids:
+                doc["id"] = hashlib.sha256(id_.encode()).hexdigest()
                 self.corpus.append(Pivot(**doc))
                 self.ids.add(id_)
 
