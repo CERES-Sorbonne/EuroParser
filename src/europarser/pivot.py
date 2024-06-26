@@ -23,14 +23,14 @@ class BadArticle(Exception):
 class PivotTransformer(Transformer):
     journal_split = re.compile(r"\(| -|,? no. | \d|  | ;|\.fr")
     double_spaces_and_beyond = re.compile(r"(\s{2,})")
-    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
+    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]) -> None:
         super().__init__(params, **kwargs)
         self.corpus = []
         self.bad_articles = []
         self.ids = set()
         self.all_keywords = Counter()
 
-    def subspaces(self, s):
+    def subspaces(self, s: str) -> str:
         return self.double_spaces_and_beyond.sub(r"\1", s).strip()
 
     def transform(self, files_to_transform: list[FileToTransform]) -> list[Pivot]:
@@ -50,7 +50,8 @@ class PivotTransformer(Transformer):
 
         return sorted(self.corpus, key=lambda x: x.epoch)
 
-    def transform_article(self, article):
+    def transform_article(self, article: BeautifulSoup) -> None:
+        assert isinstance(article, BeautifulSoup), "article is not a BeautifulSoup object"
         try:
             doc = {
                 "journal": None,
@@ -194,20 +195,20 @@ class PivotTransformer(Transformer):
 
         return
 
-    def apply_parameters(self):
+    def apply_parameters(self) -> list[Pivot]:
         if self.params.filter_keywords is True:
             for article in self.corpus:
                 article.keywords = list(filter(self.filter_kw, article.keywords))
 
         return self.corpus
 
-    def filter_kw(self, keyword):
+    def filter_kw(self, keyword: str) -> bool:
         return self.all_keywords[keyword] > 1
 
-    def get_bad_articles(self):
+    def get_bad_articles(self) -> None:
         print(self.bad_articles)
 
-    def persist_json(self):
+    def persist_json(self) -> None:
         """
         utility function to persist the result of the pivot transformation
         """

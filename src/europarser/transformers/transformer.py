@@ -45,15 +45,15 @@ class Transformer(ABC):
         """
         raise NotImplementedError()
 
-    def _add_error(self, error, article):
+    def _add_error(self, error: Exception, article: Pivot) -> None:
         self.errors.append(Error(message=str(error), article=article.text, transformer=self.name))
 
-    def _persist_errors(self, filename):
+    def _persist_errors(self, filename: str) -> None:
         """
         Save all errors to disk
         :param filename: name of the file being transformed
         """
-        dir_path = Path(os.path.join(str(Path.home()), 'europarser'))
+        dir_path = Path.home() / "europarser"
         dir_path.mkdir(parents=True, exist_ok=True)
         path = os.path.join(dir_path, f"errors-{filename}.json")
         mode = "a" if os.path.exists(path) else "w"
@@ -61,7 +61,7 @@ class Transformer(ABC):
             json.dump([e.dict() for e in self.errors], f, ensure_ascii=False)
 
     @staticmethod
-    def _format_value(value: str):
+    def _format_value(value: str) -> str:
         # value = re.sub(r"[éèê]", "e", value)
         # value = re.sub(r"ô", "o", value)
         # value = re.sub(r"à", "a", value)
