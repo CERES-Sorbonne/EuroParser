@@ -144,6 +144,14 @@ footer {
 .actual-mail {
     color: var(--secondary-text-on-bg-color);
 }
+.pretty-link {
+    color: var(--secondary-text-color);
+    text-decoration: none;
+}
+.pretty-link:hover {
+    color: var(--main-text-color);
+    text-decoration: underline;
+}
 
 .switch {
     background: #FFFFFF;
