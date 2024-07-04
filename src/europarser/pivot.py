@@ -4,9 +4,9 @@ import logging
 import concurrent.futures
 import re
 from collections import Counter
-from typing import Optional, Any
+from typing import Optional, Any, Union
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, element
 from tqdm.auto import tqdm
 
 from .models import FileToTransform, Pivot, Params
@@ -39,7 +39,7 @@ class PivotTransformer(Transformer):
             soup = BeautifulSoup(file.file, 'lxml')
             articles = soup.find_all("article")
 
-            with concurrent.futures.ThreadPoolExecutor(1) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 
@@ -50,8 +50,8 @@ class PivotTransformer(Transformer):
 
         return sorted(self.corpus, key=lambda x: x.epoch)
 
-    def transform_article(self, article: BeautifulSoup) -> None:
-        assert isinstance(article, BeautifulSoup), "article is not a BeautifulSoup object"
+    def transform_article(self, article: Union[BeautifulSoup, element.Tag]) -> None:
+        assert isinstance(article, (BeautifulSoup, element.Tag)), "article is not a BeautifulSoup object"
         try:
             doc = {
                 "id": None,
@@ -85,7 +85,7 @@ class PivotTransformer(Transformer):
                 doc_header = ""
 
             try:
-                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span")
+                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text
             except AttributeError:
                 doc_sub_section = ""
 
