@@ -1,3 +1,6 @@
+// import * as Popper from 'https://unpkg.com/@popperjs/core@2/dist/umd/popper.js';
+import 'https://unpkg.com/@popperjs/core@2/dist/umd/popper.js';
+
 document.getElementsByClassName('myInput').forEach(function (item) {
     item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
 });
@@ -95,9 +98,10 @@ Dropzone.options.myDropzone = {
                 document.getElementsByClassName("myInput")[i].cursor = "not-allowed";
                 document.getElementsByClassName("myDivInput")[i].style.opacity = "0.5";
             }
-
+            alert(1)
             xhr.responseType = 'blob';
             xhr.onload = function (e) {
+                alert(1)
                 if (e.currentTarget.status > 300) {
                     document.getElementById('loader').style.display = "none";
                     document.getElementById('error').innerHTML = e.currentTarget.statusText;
@@ -116,6 +120,124 @@ Dropzone.options.myDropzone = {
     }
 }
 
-showtooltip = function (id) {
-    document.getElementById(id).style.display = "block";
+
+
+// const button = document.querySelector('#button');
+// const tooltip = document.querySelector('#tooltip');
+//
+// const popperInstance = window.Popper.createPopper(button, tooltip, {
+//     modifiers: [
+//         {
+//             name: 'offset',
+//             options: {
+//                 offset: [0, 8],
+//             },
+//         },
+//     ],
+// });
+//
+// function show() {
+//     // Make the tooltip visible
+//     tooltip.setAttribute('data-show', '');
+//
+//     // Enable the event listeners
+//     popperInstance.setOptions((options) => ({
+//         ...options,
+//         modifiers: [
+//             ...options.modifiers,
+//             {name: 'eventListeners', enabled: true},
+//         ],
+//     }));
+//
+//     // Update its position
+//     popperInstance.update();
+// }
+//
+// function hide() {
+//     // Hide the tooltip
+//     tooltip.removeAttribute('data-show');
+//
+//     // Disable the event listeners
+//     popperInstance.setOptions((options) => ({
+//         ...options,
+//         modifiers: [
+//             ...options.modifiers,
+//             {name: 'eventListeners', enabled: false},
+//         ],
+//     }));
+// }
+//
+// const showEvents = ['mouseenter', 'focus'];
+// const hideEvents = ['mouseleave', 'blur'];
+//
+// showEvents.forEach((event) => {
+//     button.addEventListener(event, show);
+// });
+//
+// hideEvents.forEach((event) => {
+//     button.addEventListener(event, hide);
+// });
+
+const tooltip_triggers = document.querySelectorAll(".tooltip-trigger");
+// const tooltip = document.querySelectorAll(".tooltip");
+
+tooltip_triggers.forEach((trigger) => {
+    const label = trigger.getAttribute('aria-label');
+    const tooltip_ = document.querySelector("#" + label);
+
+    const popperInstance = window.Popper.createPopper(trigger, tooltip_, {
+        modifiers: [
+            {
+                name: 'offset',
+                options: {
+                    offset: [0, 8],
+                },
+            },
+        ],
+    });
+    const show = () => {
+        // Make the tooltip visible
+        tooltip_.setAttribute('data-show', '');
+
+        // Enable the event listeners
+        popperInstance.setOptions((options) => ({
+            ...options,
+            modifiers: [
+                ...options.modifiers,
+                {name: 'eventListeners', enabled: true},
+            ],
+        }));
+
+        // Update its position
+        popperInstance.update();
+    }
+
+    const hide = () => {
+        // Hide the tooltip
+        tooltip_.removeAttribute('data-show');
+
+        // Disable the event listeners
+        popperInstance.setOptions((options) => ({
+            ...options,
+            modifiers: [
+                ...options.modifiers,
+                {name: 'eventListeners', enabled: false},
+            ],
+        }));
+    }
+
+    const showEvents = ['mouseenter', 'focus'];
+    const hideEvents = ['mouseleave', 'blur'];
+
+    showEvents.forEach((event) => {
+        trigger.addEventListener(event, show);
+    }
+    );
+
+    hideEvents.forEach((event) => {
+        trigger.addEventListener(event, hide);
+    }
+    );
 }
+);
+
