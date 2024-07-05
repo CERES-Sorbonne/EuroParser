@@ -214,15 +214,23 @@ footer {
     padding: 4px 8px;
     font-size: calc(var(--main-text-size) * 0.9);
     border-radius: 4px;
-    display: none;
+    visibility: hidden;
     max-width: 20em;
     text-align: center;
     position: relative;
+    transition: visibility .1s ease-out, opacity .5s ease-out;
+    /*display: none;*/
+      opacity: 0;
+
+
 }
 
 .tooltip-content[data-show] {
-    display: block;
+    visibility: visible;
     z-index: 999;
+    /*display: block;*/
+    opacity: 1;
+
 }
 
 .arrow,
@@ -259,15 +267,18 @@ footer {
     left: -4px;
 }
 
-.big-boi {
+.footer {
     font-size: var(--secondary-text-size);
-    font-weight: 800;
+    font-weight: 600;
     margin: 1.5em;
-    word-wrap: break-word
+    word-wrap: break-word;
+    align-self: center;
+    justify-content: space-between;
+    display: flex;
 
     img {
-        width: 1em;
-        height: 1em;
-        margin: 0 .5em;
+        width: var(--secondary-text-size);
+        height: var(--secondary-text-size);
+        margin: .5em;
     }
 }

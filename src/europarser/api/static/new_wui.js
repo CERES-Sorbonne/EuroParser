@@ -231,11 +231,13 @@ tooltip_triggers.forEach((trigger) => {
 
     showEvents.forEach((event) => {
         trigger.addEventListener(event, show);
+        tooltip_.addEventListener(event, show);
     }
     );
 
     hideEvents.forEach((event) => {
         trigger.addEventListener(event, hide);
+        tooltip_.addEventListener(event, hide);
     }
     );
 }
