@@ -54,7 +54,7 @@ class PivotTransformer(Transformer):
         assert isinstance(article, (BeautifulSoup, element.Tag)), "article is not a BeautifulSoup object"
         try:
             doc = {
-                "id": None,
+                "identifiant": None,
                 "journal": None,
                 "date": None,
                 "annee": None,
@@ -179,16 +179,16 @@ class PivotTransformer(Transformer):
 
             self.all_keywords.update(doc["keywords"])
 
-            id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
+            identifiant = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
 
             langue = detect_lang(doc["texte"])
             if langue:
                 doc["langue"] = langue
 
-            if id_ not in self.ids:
-                doc["id"] = hashlib.sha256(id_.encode()).hexdigest()
+            if identifiant not in self.ids:
+                doc["identifiant"] = hashlib.sha256(identifiant.encode()).hexdigest()
                 self.corpus.append(Pivot(**doc))
-                self.ids.add(id_)
+                self.ids.add(identifiant)
 
         except BadArticle as e:
             if self._logger.isEnabledFor(logging.DEBUG):
