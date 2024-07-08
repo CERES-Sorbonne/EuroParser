@@ -1,19 +1,19 @@
-import hashlib
+import concurrent.futures
 import json
 import logging
-import concurrent.futures
 import re
 from collections import Counter
+from hashlib import sha256
 from typing import Optional, Any, Union
 
 from bs4 import BeautifulSoup, element
 from tqdm.auto import tqdm
 
+from .daniel_light import get_KW
+from .lang_detect import detect_lang
 from .models import FileToTransform, Pivot, Params
 from .transformers.transformer import Transformer
 from .utils import find_datetime
-from .daniel_light import get_KW
-from .lang_detect import detect_lang
 
 
 class BadArticle(Exception):
@@ -23,6 +23,7 @@ class BadArticle(Exception):
 class PivotTransformer(Transformer):
     journal_split = re.compile(r"\(| -|,? no. | \d|  | ;|\.fr")
     double_spaces_and_beyond = re.compile(r"(\s{2,})")
+
     def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]) -> None:
         super().__init__(params, **kwargs)
         self.corpus = []
@@ -50,7 +51,10 @@ class PivotTransformer(Transformer):
 
         return sorted(self.corpus, key=lambda x: x.epoch)
 
-    def transform_article(self, article: Union[BeautifulSoup, element.Tag]) -> None:
+    def transform_article(
+            self,
+            article: Union[BeautifulSoup, element.Tag],
+    ) -> None:
         assert isinstance(article, (BeautifulSoup, element.Tag)), "article is not a BeautifulSoup object"
         try:
             doc = {
@@ -85,7 +89,10 @@ class PivotTransformer(Transformer):
                 doc_header = ""
 
             try:
-                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span").text
+                doc_sub_section = article.find(
+                    "span",
+                    attrs={"class": "DocTitreSousSection"}
+                ).find_next_sibling("span").text
             except AttributeError:
                 doc_sub_section = ""
 
@@ -163,7 +170,6 @@ class PivotTransformer(Transformer):
                     doc["url"] = u.get("href")
                     break
 
-
             doc["texte"] = self.subspaces(doc_text.text.strip())
 
             doc_auteur = doc_titre_full.find_next_sibling('p')
@@ -179,16 +185,23 @@ class PivotTransformer(Transformer):
 
             self.all_keywords.update(doc["keywords"])
 
-            identifiant = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
+            identifiant = sha256(
+                ' '.join((doc["titre"], doc["journal_clean"], doc["date"])
+                         ).encode()).hexdigest()
 
             langue = detect_lang(doc["texte"])
             if langue:
                 doc["langue"] = langue
 
             if identifiant not in self.ids:
-                doc["identifiant"] = hashlib.sha256(identifiant.encode()).hexdigest()
+                doc["identifiant"] = identifiant
                 self.corpus.append(Pivot(**doc))
                 self.ids.add(identifiant)
+            else:
+                self._logger(
+                    "Article déjà présent dans le corpus : "
+                    f"{doc['titre'] = }, {doc['date'] = }, {doc['journal'] = }, {identifiant = }"
+                )
 
         except BadArticle as e:
             if self._logger.isEnabledFor(logging.DEBUG):
@@ -218,9 +231,8 @@ class PivotTransformer(Transformer):
             return
 
         json_ver = json.dumps({i: article.dict() for i, article in enumerate(self.corpus)}, ensure_ascii=False)
-        # hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
-        # with (self.output_path / f"{hash_json}.json").open("w", encoding="utf-8") as f:
-        output_file = self.output_path / f"{hashlib.sha256(json_ver.encode()).hexdigest()}.json"
+
+        output_file = self.output_path / f"{sha256(json_ver.encode()).hexdigest()}.json"
 
         with output_file.open("w", encoding="utf-8") as f:
             f.write(json_ver)

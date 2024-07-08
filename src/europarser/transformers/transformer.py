@@ -3,10 +3,11 @@ import logging
 import os
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 import re
 
 import unicodedata
+from bs4 import BeautifulSoup, Tag
 
 from ..models import Error, Pivot, TransformerOutput, Params
 
@@ -36,7 +37,8 @@ class Transformer(ABC):
         self._logger = logging.getLogger(self.name)
         self._logger.setLevel(logging.WARNING)
         # self.output_type = "json" # TODO any use of setting the output type ? Should maybe be a None ?
-        self.params = params or Params(**kwargs)  # If no kwargs are passed, params will be initialized with default values
+        self.params = params or Params(
+            **kwargs)  # If no kwargs are passed, params will be initialized with default values
 
     @abstractmethod
     def transform(self, pivot: List[Pivot]) -> TransformerOutput:
@@ -45,7 +47,7 @@ class Transformer(ABC):
         """
         raise NotImplementedError()
 
-    def _add_error(self, error: Exception, article: Pivot) -> None:
+    def _add_error(self, error: Exception, article: Union[Pivot, BeautifulSoup, Tag]) -> None:
         self.errors.append(Error(message=str(error), article=article.text, transformer=self.name))
 
     def _persist_errors(self, filename: str) -> None:
@@ -83,6 +85,7 @@ class Transformer(ABC):
             else x.lower()
             for i, x in enumerate(string.lower().split("_"))
         )
+
 
 def strip_accents(string: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) != 'Mn')
