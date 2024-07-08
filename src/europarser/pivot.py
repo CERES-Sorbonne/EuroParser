@@ -208,6 +208,11 @@ class PivotTransformer(Transformer):
                 self._add_error(e, article)
                 self.bad_articles.append(article)
 
+        # To avoid the exception to be lost when catched by the ThreadPoolExecutor
+        except Exception as e:
+            print(e)
+            raise e
+
         return
 
     def apply_parameters(self) -> list[Pivot]:
