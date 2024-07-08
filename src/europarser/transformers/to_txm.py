@@ -21,7 +21,7 @@ class TXMTransformer(Transformer):
 
             for pivot in pivot_list:
                 pivot_dict = {
-                    "id": pivot.id,
+                    "identifiant": pivot.identifiant,
                     "titre": pivot.titre,
                     "date": pivot.date,
                     "journal": pivot.journal,
