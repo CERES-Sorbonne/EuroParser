@@ -282,3 +282,45 @@ footer {
         margin: .5em;
     }
 }
+
+@media screen and (max-width: 901px) {
+    .topnav {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        max-width: 100%;
+
+        .description {
+            align-self: center;
+            height: 70%;
+            text-align: center;
+        }
+    }
+
+    .separator {
+        display: none;
+    }
+
+
+}
+
+@media screen and (max-width: 1400px) {
+    main {
+        flex-wrap: wrap;
+    }
+
+    .rectangle {
+        min-width: 500px;
+    }
+
+    .footer {
+        font-size: calc(var(--secondary-text-size) * 0.8);
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    .rectangle {
+        min-width: 400px;
+    }
+}
