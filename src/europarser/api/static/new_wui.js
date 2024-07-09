@@ -194,12 +194,21 @@ tooltip_triggers.forEach((trigger) => {
                         offset: [0, 20],
                     },
                 },
-            },
-        ],
-    });
-    const show = () => {
-        // Make the tooltip visible
-        tooltip_.setAttribute('data-show', '');
+                {
+                    name: 'flip',
+                    options: {
+                        fallbackPlacements: ['left', 'bottom'],
+                    },
+                },
+                {
+                    name: "boundary",
+
+                }
+            ],
+        });
+        const show = () => {
+            // Make the tooltip visible
+            tooltip_.setAttribute('data-show', '');
 
         // Enable the event listeners
         popperInstance.setOptions((options) => ({
