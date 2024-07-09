@@ -1,3 +1,9 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css");
+
+.bi {
+    font-size: 1.5em;
+}
+
 body {
     --main-bg-color: #2E3D73;
     --main-text-on-bg-color: #FFFFFF;
@@ -219,8 +225,7 @@ footer {
     width: 100%;
     display: flex;
     justify-content: space-between;
-
-
+    /*padding-left: 10%;*/
 }
 
 .tooltip-trigger {
@@ -241,8 +246,6 @@ footer {
     transition: visibility .6s ease-out, opacity .5s ease-out;
     /*display: none;*/
     opacity: 0;
-
-
 }
 
 .tooltip-content[data-show] {
@@ -250,7 +253,6 @@ footer {
     z-index: 999;
     /*display: block;*/
     opacity: 1;
-
 }
 
 .arrow,
@@ -306,7 +308,6 @@ footer {
         }
     }
 
-
     img {
         width: calc(var(--secondary-text-size) * 1.2);
         height: calc(var(--secondary-text-size) * 1.2);
@@ -316,7 +317,6 @@ footer {
 .footer-credits {
     text-align: right;
     display: inline-flex;
-
 }
 
 @media screen and (max-width: 901px) {
@@ -337,8 +337,6 @@ footer {
     .separator {
         display: none;
     }
-
-
 }
 
 @media screen and (max-width: 1400px) {
