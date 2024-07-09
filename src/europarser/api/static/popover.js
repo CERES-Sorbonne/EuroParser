@@ -63,7 +63,7 @@ tooltip_triggers.forEach((trigger) => {
         const hideEvents = ['mouseleave', 'blur'];
 
         showEvents.forEach((event) => {
-                parent.addEventListener(event, show);
+                trigger.addEventListener(event, show);
             }
         );
 
