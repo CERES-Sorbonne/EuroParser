@@ -121,7 +121,6 @@ Dropzone.options.myDropzone = {
 }
 
 
-
 // const button = document.querySelector('#button');
 // const tooltip = document.querySelector('#tooltip');
 //
@@ -211,35 +210,35 @@ tooltip_triggers.forEach((trigger) => {
             // Make the tooltip visible
             tooltip_.setAttribute('data-show', '');
 
-        // Enable the event listeners
-        popperInstance.setOptions((options) => ({
-            ...options,
-            modifiers: [
-                ...options.modifiers,
-                {name: 'eventListeners', enabled: true},
-            ],
-        }));
+            // Enable the event listeners
+            popperInstance.setOptions((options) => ({
+                ...options,
+                modifiers: [
+                    ...options.modifiers,
+                    {name: 'eventListeners', enabled: true},
+                ],
+            }));
 
-        // Update its position
-        popperInstance.update();
-    }
+            // Update its position
+            popperInstance.update();
+        }
 
-    const hide = () => {
-        // Hide the tooltip
-        tooltip_.removeAttribute('data-show');
+        const hide = () => {
+            // Hide the tooltip
+            tooltip_.removeAttribute('data-show');
 
-        // Disable the event listeners
-        popperInstance.setOptions((options) => ({
-            ...options,
-            modifiers: [
-                ...options.modifiers,
-                {name: 'eventListeners', enabled: false},
-            ],
-        }));
-    }
+            // Disable the event listeners
+            popperInstance.setOptions((options) => ({
+                ...options,
+                modifiers: [
+                    ...options.modifiers,
+                    {name: 'eventListeners', enabled: false},
+                ],
+            }));
+        }
 
-    const showEvents = ['mouseenter', 'focus'];
-    const hideEvents = ['mouseleave', 'blur'];
+        const showEvents = ['mouseenter', 'focus'];
+        const hideEvents = ['mouseleave', 'blur'];
 
         showEvents.forEach((event) => {
                 parent.addEventListener(event, show);
