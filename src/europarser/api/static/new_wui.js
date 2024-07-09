@@ -182,8 +182,9 @@ const tooltip_triggers = document.querySelectorAll(".tooltip-trigger");
 // const tooltip = document.querySelectorAll(".tooltip");
 
 tooltip_triggers.forEach((trigger) => {
-    const label = trigger.getAttribute('aria-label');
-    const tooltip_ = document.querySelector("#" + label);
+        const parent = trigger.parentElement;
+        const label = trigger.getAttribute('aria-label');
+        const tooltip_ = document.querySelector("#" + label);
 
         const popperInstance = window.Popper.createPopper(trigger, tooltip_, {
             placement: 'right',
@@ -240,17 +241,15 @@ tooltip_triggers.forEach((trigger) => {
     const showEvents = ['mouseenter', 'focus'];
     const hideEvents = ['mouseleave', 'blur'];
 
-    showEvents.forEach((event) => {
-        trigger.addEventListener(event, show);
-        tooltip_.addEventListener(event, show);
-    }
-    );
+        showEvents.forEach((event) => {
+                parent.addEventListener(event, show);
+            }
+        );
 
-    hideEvents.forEach((event) => {
-        trigger.addEventListener(event, hide);
-        tooltip_.addEventListener(event, hide);
+        hideEvents.forEach((event) => {
+                parent.addEventListener(event, hide);
+            }
+        );
     }
-    );
-}
 );
 
