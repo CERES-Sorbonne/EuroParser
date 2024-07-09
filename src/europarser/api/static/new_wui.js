@@ -185,12 +185,14 @@ tooltip_triggers.forEach((trigger) => {
     const label = trigger.getAttribute('aria-label');
     const tooltip_ = document.querySelector("#" + label);
 
-    const popperInstance = window.Popper.createPopper(trigger, tooltip_, {
-        modifiers: [
-            {
-                name: 'offset',
-                options: {
-                    offset: [0, 8],
+        const popperInstance = window.Popper.createPopper(trigger, tooltip_, {
+            placement: 'right',
+            modifiers: [
+                {
+                    name: 'offset',
+                    options: {
+                        offset: [0, 20],
+                    },
                 },
             },
         ],
