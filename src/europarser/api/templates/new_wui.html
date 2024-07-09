@@ -49,7 +49,7 @@
             </span>
         </h1>
         <div class="separator"></div>
-        <p>Convertissez des fichiers html Europresse vers d'autres formats</p>
+        <span class="description">Convertissez des fichiers html Europresse vers d'autres formats</span>
     </div>
 </header>
 
@@ -93,68 +93,182 @@
             <div class="formats-container">
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Iramuteq-tooltip"
-                         aria-describedby="tooltip"
-                         aria-label="Iramuteq-tooltip">
+                         aria-describedby="tooltip" aria-label="Iramuteq-tooltip">
                         <label class="switch btn btn-primary" for="Iramuteq">Iramuteq
                             <input type="checkbox" name="formats" value="Iramuteq" id="Iramuteq">
                         </label>
                     </div>
                     <div class="tooltip-content" role="tooltip" id="Iramuteq-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
                         <p>Le format Iramuteq est un format de fichier texte brut qui peut être utilisé pour l'analyse
-                            de texte avec le logiciel <a href="https://www.iramuteq.org/" target="_blank" class="pretty-link">Iramuteq</a>
+                            de texte avec le logiciel <a href="http://www.iramuteq.org/" target="_blank"
+                                                         class="pretty-link">Iramuteq</a>
                             ainsi que d'autres logiciels compatibles comme
                             <a href="https://hyperbase.unice.fr//" target="_blank" class="pretty-link">Hyperbase</a>.
-                        <div class="arrow" data-popper-arrow></div>
+                        </p>
                     </div>
                 </div>
-                <div class="label">
-                    <label class="switch btn btn-primary" for="TXM">TXM
-                        <input type="checkbox" name="formats" value="TXM" id="TXM">
-                    </label>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="TXM-tooltip"
+                         aria-describedby="tooltip" aria-label="TXM-tooltip">
+                        <label class="switch btn btn-primary" for="TXM">TXM
+                            <input type="checkbox" name="formats" value="TXM" id="TXM">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="TXM-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>TXM est un format de fichier texte brut qui peut être utilisé pour l'analyse de texte avec le
+                            logiciel <a href="http://textometrie.ens-lyon.fr/?lang=fr" target="_blank"
+                                        class="pretty-link">TXM</a>.
+                        </p>
+                    </div>
                 </div>
-                <div class="label">
-                    <label class="switch btn btn-primary" for="JSON">JSON
-                        <input type="checkbox" name="formats" value="JSON" id="JSON">
-                    </label>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="JSON-tooltip"
+                         aria-describedby="tooltip" aria-label="JSON-tooltip">
+                        <label class="switch btn btn-primary" for="JSON">JSON
+                            <input type="checkbox" name="formats" value="JSON" id="JSON">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="JSON-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Le format JSON est un format de fichier texte brut qui peut être utilisé pour l'analyse de
+                            texte avec des logiciels compatibles.
+                        </p>
+                    </div>
                 </div>
-                <div class="label">
-                    <label class="switch btn btn-primary" for="CSV">CSV
-                        <input type="checkbox" name="formats" value="CSV" id="CSV">
-                    </label>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="CSV-tooltip"
+                         aria-describedby="tooltip" aria-label="CSV-tooltip">
+                        <label class="switch btn btn-primary" for="CSV">CSV
+                            <input type="checkbox" name="formats" value="CSV" id="CSV">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="CSV-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Le format CSV est un format de fichier texte brut qui peut être utilisé pour l'analyse de
+                            texte avec des logiciels compatibles.
+                        </p>
+                    </div>
                 </div>
-                <div class="label">
-                    <label class="switch btn btn-primary" for="Excel">Excel (xls)
-                        <input type="checkbox" name="formats" value="Excel" id="Excel">
-                    </label>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Excel-tooltip"
+                         aria-describedby="tooltip" aria-label="Excel-tooltip">
+                        <label class="switch btn btn-primary" for="Excel">Excel (xls)
+                            <input type="checkbox" name="formats" value="Excel" id="Excel">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Excel-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Le format Excel est un format de fichier tableur qui peut être utilisé pour l'analyse de
+                            texte
+                            avec des logiciels compatibles.
+                        </p>
+                    </div>
                 </div>
-                <div class="label">
-                    <label class="switch btn btn-primary" for="Markdown">Markdown
-                        <input type="checkbox" name="formats" value="Markdown" id="Markdown">
-                    </label>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Word-tooltip"
+                         aria-describedby="tooltip" aria-label="Word-tooltip">
+                        <label class="switch btn btn-primary" for="Word">Word (docx)
+                            <input type="checkbox" name="formats" value="Word" id="Word">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Word-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Le format Word est un format de fichier texte brut qui peut être utilisé pour l'analyse de
+                            texte avec des logiciels compatibles.
+                        </p>
+                    </div>
                 </div>
-                <div class="card-title secondary">
-                    et/ou les statistiques à générer
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Markdown-tooltip"
+                         aria-describedby="tooltip" aria-label="Markdown-tooltip">
+                        <label class="switch btn btn-primary" for="Markdown">Markdown
+                            <input type="checkbox" name="formats" value="Markdown" id="Markdown">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Markdown-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Le format Markdown est un format de fichier texte brut qui peut être utilisé pour l'analyse
+                            de
+                            texte avec des logiciels compatibles.
+                        </p>
+                    </div>
                 </div>
-                <div class="formats-container">
-                    <div class="label">
+            </div>
+            <br>
+            <br>
+            <div class="card-title secondary">
+                et/ou les statistiques à générer
+            </div>
+            <div class="formats-container">
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="stats-tooltip"
+                         aria-describedby="tooltip" aria-label="stats-tooltip">
                         <label class="switch btn btn-primary" for="stats">Statistiques
                             <input type="checkbox" name="stats" value="stats" id="stats">
                         </label>
                     </div>
-                    <div class="label">
+                    <div class="tooltip-content" role="tooltip" id="stats-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Les statistiques sont des données textuelles qui peuvent être utilisées pour l'analyse de
+                            texte avec des logiciels compatibles.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="processed-tooltip"
+                         aria-describedby="tooltip" aria-label="processed-tooltip">
                         <label class="switch btn btn-primary" for="processed">Statistiques traitées
                             <input type="checkbox" name="stats" value="processed" id="processed">
                         </label>
                     </div>
-                    <div class="label">
+                    <div class="tooltip-content" role="tooltip" id="processed-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Les statistiques traitées sont des données textuelles qui peuvent être utilisées pour
+                            l'analyse de texte avec des logiciels compatibles.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="static-graphs-tooltip"
+                         aria-describedby="tooltip" aria-label="static-graphs-tooltip">
                         <label class="switch btn btn-primary" for="static-graphs">Graphiques statiques
                             <input type="checkbox" name="stats" value="static-graphs" id="static-graphs">
                         </label>
                     </div>
-                    <div class="label">
+                    <div class="tooltip-content" role="tooltip" id="static-graphs-tooltip"
+                         data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Les graphiques statiques sont des données textuelles qui peuvent être utilisées pour
+                            l'analyse de texte avec des logiciels compatibles.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="dynamic-graphs-tooltip"
+                         aria-describedby="tooltip" aria-label="dynamic-graphs-tooltip">
                         <label class="switch btn btn-primary" for="dynamic-graphs">Graphiques interactifs
                             <input type="checkbox" name="stats" value="dynamic-graphs" id="dynamic-graphs">
                         </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="dynamic-graphs-tooltip"
+                         data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+
+                        <p>Les graphiques interactifs sont des données textuelles qui peuvent être utilisées pour
+                            l'analyse de texte avec des logiciels compatibles.
+                        </p>
                     </div>
                 </div>
             </div>
