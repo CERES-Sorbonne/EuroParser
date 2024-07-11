@@ -1,13 +1,4 @@
-document.getElementsByClassName('myInput').forEach(function (item) {
-    item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
-});
-
-
-function saveBlob(blob, fileName) {
-    var download = document.getElementById('download');
-    download.href = window.URL.createObjectURL(blob);
-    download.download = fileName;
-}
+import {spawn_dropzone} from './dropzone_handler.js'
 
 function createUrl(files, dataBlock) {
     // let url = "{{host + '/upload?'}}"
@@ -22,6 +13,8 @@ function createUrl(files, dataBlock) {
     console.log(url)
     return (url)
 }
+
+const myDropzone = spawn_dropzone("files-dropzone", createUrl)
 
 function submitForm() {
     //send all the form data along with the files:
@@ -67,14 +60,25 @@ function submitForm() {
     xhr.send(formData);
 }
 
-let data = Dropzone.options.myDropzone = {
-    paramName: 'files',
-    url: createUrl,
-    autoProcessQueue: false,
-    uploadMultiple: true,
-    parallelUploads: 100,
-    maxFiles: 100,
-    acceptedFiles: '.html',
-}
+// let data = Dropzone.options.myDropzone = {
+//     paramName: 'files',
+//     url: createUrl,
+//     autoProcessQueue: false,
+//     uploadMultiple: true,
+//     parallelUploads: 100,
+//     maxFiles: 100,
+//     acceptedFiles: '.html',
+// }
+
+// document.getElementsByClassName('myInput').forEach(function (item) {
+//     item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
+// });
+//
+//
+// function saveBlob(blob, fileName) {
+//     var download = document.getElementById('download');
+//     download.href = window.URL.createObjectURL(blob);
+//     download.download = fileName;
+// }
 
 

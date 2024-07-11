@@ -23,17 +23,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">
-    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">
+{#    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">#}
+{#    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">#}
     <link href="{{ host + '/static/new_wui.css' }}" rel="stylesheet">
 
-    <script src="{{ host + '/static/dropzone.min.js' }}"></script>
-    <script src="{{ host + '/static/new_wui.js' }}"></script>
+{#    <script src="{{ host + '/static/dropzone.min.js' }}"></script>#}
+    <script type="module" src="{{ host + '/static/new_wui.js' }}"></script>
     <script type="module" src="{{ host + '/static/popover.js' }}"></script>
+{#    <script type="module" src="{{ host + '/static/dropzone_handler.js' }}"></script>#}
 </head>
 
 <body>
@@ -81,7 +81,20 @@
                 Téléchargez les fichiers que vous souhaitez transformer
             </div>
             <div class="card-body main">
-                <div class="dropzone mb-3" id="myDropzone"></div>
+                <div class="dropzone-container" id="dropzone-continer">
+                    <div style="display: none;" id="state">0</div>
+                    <div class="dropzone mb-3" id="files-dropzone">
+                        <div class="dz-message" data-dz-message>
+                            <div class="icon">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                            </div>
+                            <div class="text">
+                                <h4>Déposez vos fichiers ici</h4>
+                                <h5>ou cliquez pour les sélectionner</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
