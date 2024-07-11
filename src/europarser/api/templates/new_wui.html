@@ -17,7 +17,7 @@
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
             crossorigin="anonymous"></script>
 
-    <link rel="icon" href="../static/favicon.ico">
+    <link id="favicon" rel="icon" type="image/x-icon"  href={{ host + '/favicon.ico'}}>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -295,8 +295,7 @@
                 <div id="submit-all" type="submit" class="btn btn-primary submit"
                      onclick="submitForm()">
                     Convertir
-                    <i class="bi bi-power"></i>
-{#                    <i class="bi bi-send"></i>#}
+                     <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir">
                 </div>
             </div>
         </div>

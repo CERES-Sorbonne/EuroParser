@@ -3,18 +3,36 @@ import {spawn_dropzone} from './dropzone_handler.js'
 function createUrl(files, dataBlock) {
     // let url = "{{host + '/upload?'}}"
     let url = "/upload?"
-        // + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
-        // + "&minimal_support=" + (document.getElementById('minimal_support').value || 1)
-        // + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 1)
-        // + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 1)
-        // + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 1)
-        // + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 1)
+    // + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
+    // + "&minimal_support=" + (document.getElementById('minimal_support').value || 1)
+    // + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 1)
+    // + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 1)
+    // + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 1)
+    // + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 1)
 
     console.log(url)
     return (url)
 }
 
-const myDropzone = spawn_dropzone("files-dropzone", createUrl)
+async function createFileUploadUrl() {
+    let url = null;
+    let url_promise = fetch("/create_file_upload_url")
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            url = data.upload_url;
+        })
+        .catch(error => {
+            if (error === "UUID collision") {
+                return createFileUploadUrl();
+            }
+        });
+
+    await url_promise;
+    return url;
+}
+
+const myDropzone = spawn_dropzone("files-dropzone", await createFileUploadUrl())
 
 function submitForm() {
     //send all the form data along with the files:
@@ -31,7 +49,7 @@ function submitForm() {
     }
 
     // TODO add the rest of the form data (files)
-    1/0
+    1 / 0
 
     console.log(formData.get("output"))
     xhr.open("POST", createUrl());
