@@ -16,11 +16,13 @@ function createUrl(files, dataBlock) {
 
 async function createFileUploadUrl() {
     let url = null;
+    let uuid_ = null;
     let url_promise = fetch("/create_file_upload_url")
         .then(response => response.json())
         .then(data => {
             console.log(data);
             url = data.upload_url;
+            uuid_ = data.uuid;
         })
         .catch(error => {
             if (error === "UUID collision") {
@@ -29,12 +31,10 @@ async function createFileUploadUrl() {
         });
 
     await url_promise;
-    return url;
+    return [url, uuid_];
 }
 
-const myDropzone = spawn_dropzone("files-dropzone", await createFileUploadUrl())
-
-function submitForm() {
+export function submitForm() {
     //send all the form data along with the files:
     var xhr = new XMLHttpRequest();
     var formData = new FormData();
@@ -48,10 +48,12 @@ function submitForm() {
         }
     }
 
-    // TODO add the rest of the form data (files)
-    1 / 0
+    formData.append("uuid", uuid_);
+
 
     console.log(formData.get("output"))
+    console.log(formData.get("uuid"))
+
     xhr.open("POST", createUrl());
 
     let len_ = checkboxes.length
@@ -78,25 +80,10 @@ function submitForm() {
     xhr.send(formData);
 }
 
-// let data = Dropzone.options.myDropzone = {
-//     paramName: 'files',
-//     url: createUrl,
-//     autoProcessQueue: false,
-//     uploadMultiple: true,
-//     parallelUploads: 100,
-//     maxFiles: 100,
-//     acceptedFiles: '.html',
-// }
-
-// document.getElementsByClassName('myInput').forEach(function (item) {
-//     item.style.margin = 'auto 1vh 1vh' + document.getElementById('myDropzone').offsetHeight + 'px' + ' 50vh';
-// });
-//
-//
-// function saveBlob(blob, fileName) {
-//     var download = document.getElementById('download');
-//     download.href = window.URL.createObjectURL(blob);
-//     download.download = fileName;
-// }
 
 
+const uploadUrl = await createFileUploadUrl()
+const url = uploadUrl[0]
+const uuid_ = uploadUrl[1]
+
+const myDropzone = spawn_dropzone("files-dropzone", url)
