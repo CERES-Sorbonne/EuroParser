@@ -14,7 +14,7 @@ export function spawn_dropzone(id_, url) {
 
     return new Dropzone(dropzone, {
         url: url,
-        paramName: "files",
+        paramName: "file",
         maxFiles: 1_000,
         acceptedFiles: "text/html", // "text/html, application/zip",
         autoProcessQueue: true,

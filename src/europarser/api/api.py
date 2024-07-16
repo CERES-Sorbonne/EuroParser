@@ -71,7 +71,7 @@ async def create_file_upload_url():
 @app.post("/upload/{uuid}")
 async def upload_file(
         uuid: str,
-        file: Annotated[list[UploadFile], File(...)],
+        file: Annotated[UploadFile, File(...)],
 ):
     tmp_folder = temp_dir / uuid
     if not tmp_folder.exists():

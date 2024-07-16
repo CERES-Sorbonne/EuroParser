@@ -39,16 +39,15 @@ export function submitForm() {
     var xhr = new XMLHttpRequest();
     var formData = new FormData();
 
+    formData.append("uuid", uuid_);
+
     let checkboxes = document.getElementsByTagName('input');
-    checkboxes = Array.from(checkboxes);
 
     for (let checkbox of checkboxes) {
         if (checkbox.type === 'checkbox' && checkbox.checked) {
             formData.append("output", checkbox.id.toString().toLowerCase());
         }
     }
-
-    formData.append("uuid", uuid_);
 
 
     console.log(formData.get("output"))
