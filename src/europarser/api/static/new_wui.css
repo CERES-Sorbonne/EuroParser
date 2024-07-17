@@ -91,7 +91,6 @@ main {
     padding: 2em;
     align-items: stretch;
     /*min-width: calc(210px * 4.5);*/
-
 }
 
 .rectangle {
@@ -136,21 +135,47 @@ footer {
     margin: .5em;
 }
 
-.submit {
+.fourth-rectangle-button {
     background: #FFFFFF;
     color: var(--main-text-color);
-    border-color: var(--main-text-color);
-    padding: .5em 1em;
+    border: 4px solid var(--main-text-color);
+    padding: 2em 2em;
     border-radius: .5em;
     font-size: var(--main-text-size);
     font-weight: var(--secondary-text-weight);
-    margin: .5em;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 15rem;
+    width: 15rem;
+    margin: auto;
+
+    * {
+        margin: .5em 0
+    }
 }
 
-.submit:hover {
+
+.fourth-rectangle-button:hover {
     background: var(--main-text-color);
     color: var(--main-text-on-bg-color);
+    border: 4px solid var(--secondary-text-color);
+}
+
+.fourth-rectangle-button.loading {
+    cursor: not-allowed;
+}
+
+.fourth-rectangle-button.loading:hover {
+    background: #FFFFFF;
+    color: var(--main-text-color);
+    border: 4px solid var(--main-text-color);
+}
+
+.download-link:hover {
+    text-decoration: none;
 }
 
 .left-hand {
