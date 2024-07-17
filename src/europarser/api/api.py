@@ -1,5 +1,4 @@
 import logging
-import logging
 import os
 import zipfile
 from enum import Enum
@@ -32,19 +31,6 @@ favicon_path = root_dir / "static/favicon.ico"
 
 logger = logging.getLogger("europarser_api.api")
 logger.setLevel(logging.DEBUG)
-
-
-class Outputs(str, Enum):
-    json = "json"
-    txm = "txm"
-    iramuteq = "iramuteq"
-    gephi = "gephi"
-    csv = "csv"
-    excel = "excel"
-    stats = "stats"
-    processed_stats = "processed_stats"
-    plots = "plots"
-    markdown = "markdown"
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -80,18 +66,26 @@ async def upload_file(
         f.write(file.file.read())
     return {"file": file.filename}
 
-@app.get("/convert")
+
+@app.post("/convert")
 async def convert(
         uuid: Annotated[str, Form(...)],
         output: Annotated[list[Outputs], Form(...)],
-        params: Annotated[dict, Form(...)],
+        # params: Annotated[dict, Form(...)],
+        filter_keywords: Annotated[bool, Form(...)] = None,
+        filter_lang: Annotated[bool, Form(...)] = None,
+        minimal_support: Annotated[int, Form(...)] = None,
+        minimal_support_kw: Annotated[int, Form(...)] = None,
+        minimal_support_journals: Annotated[int, Form(...)] = None,
+        minimal_support_authors: Annotated[int, Form(...)] = None,
+        minimal_support_dates: Annotated[int, Form(...)] = None,
 ):
     folder = temp_dir / uuid
 
     if not folder.exists():
         raise HTTPException(status_code=404, detail="UUID not found")
 
-    files = list(folder.glob("*.html"))
+    files = list(folder.glob("*.[hH][tT][mM][lL]"))
     other_files = list(folder.glob("*"))
     if len(files) == 0:
         raise HTTPException(status_code=404, detail="No files found")
@@ -104,9 +98,28 @@ async def convert(
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
 
+    try:
+        params = Params(
+            **{k: v for k, v in {
+                "filter_keywords": filter_keywords,
+                "filter_lang": filter_lang,
+                "minimal_support": minimal_support,
+                "minimal_support_kw": minimal_support_kw,
+                "minimal_support_journals": minimal_support_journals,
+                "minimal_support_authors": minimal_support_authors,
+                "minimal_support_dates": minimal_support_dates,
+            }.items() if v is not None}
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
-    # process result
-    results: list[TransformerOutput] = pipeline(to_process, output, params)
+    try:
+        # process result
+        results: list[TransformerOutput] = pipeline(to_process, output, params)
+    except NotImplementedError as e:
+        raise HTTPException(status_code=500, detail=f"A unimplemented output was requested\nError:{e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     # if only one output was required let's return a single file
     if len(results) == 1:
