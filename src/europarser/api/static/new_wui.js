@@ -167,5 +167,12 @@ const url = uploadUrl[0]
 const uuid_ = uploadUrl[1]
 
 const myDropzone = spawn_dropzone("files-dropzone", url)
-
+myDropzone.on("success", function(file){
+  $(".dz-success-mark svg").css("background", "green").css('border-radius', '30px');
+  $(".dz-error-mark").css("display", "none");
+});
+myDropzone.on("error", function(file) {
+  $(".dz-error-mark svg").css("background", "red").css('border-radius', '30px');
+  $(".dz-success-mark").css("display", "none");
+});
 window.submitForm = submitForm
