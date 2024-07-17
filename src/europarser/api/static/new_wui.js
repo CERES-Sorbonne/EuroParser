@@ -14,14 +14,24 @@ const base_params = {
 
 }
 
+function addBaseURL(path) {
+    if (path.startsWith("/") && base_url.endsWith("/")) {
+        return base_url + path.slice(1);
+    }
+    if (!path.startsWith("/") && !base_url.endsWith("/")) {
+        return base_url + "/" + path;
+    }
+    return base_url + path;
+}
+
 async function createFileUploadUrl() {
     let url = null;
     let uuid_ = null;
-    let url_promise = fetch(base_url + "/create_file_upload_url")
+    let url_promise = fetch(addBaseURL("/create_file_upload_url"))
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            url = base_url + data.upload_url;
+            url = addBaseURL(data.upload_url);
             uuid_ = data.uuid;
         })
         .catch(error => {
@@ -100,7 +110,7 @@ function submitForm() {
     console.log(formData.get("output"))
     console.log(formData.get("uuid"))
 
-    xhr.open("POST", base_url + "/convert");
+    xhr.open("POST", addBaseURL("convert"));
 
     let labels = document.getElementsByTagName('label');
     for (let label of labels) {
