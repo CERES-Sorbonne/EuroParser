@@ -1,6 +1,7 @@
 import {spawn_dropzone} from './dropzone_handler.js'
 
 const base_url = window.location.href
+console.log("base url : " + base_url)
 
 const base_params = {
     "filter_keywords": false,
@@ -30,6 +31,8 @@ async function createFileUploadUrl() {
         });
 
     await url_promise;
+    console.log("upload url : " + url);
+    console.log("upload uuid : " + uuid_);
     return [url, uuid_];
 }
 
