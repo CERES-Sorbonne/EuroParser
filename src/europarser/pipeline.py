@@ -4,16 +4,15 @@ import concurrent.futures
 
 from tqdm.auto import tqdm
 
-from .models import Output, FileToTransform, TransformerOutput, Params
 from .models import Outputs, FileToTransform, TransformerOutput, Params
+from .pivot import PivotTransformer
 from .transformers.to_csv import CSVTransformer
 from .transformers.to_excel import ExcelTransformer
 from .transformers.to_iramuteq import IramuteqTransformer
 from .transformers.to_json import JSONTransformer
 from .transformers.to_markdown import MarkdownTransformer
-from .pivot import PivotTransformer
-from .transformers.to_txm import TXMTransformer
 from .transformers.to_stats import StatsTransformer
+from .transformers.to_txm import TXMTransformer
 
 transformer_factory = {
     "json": JSONTransformer().transform,
@@ -28,8 +27,8 @@ transformer_factory = {
     "markdown": MarkdownTransformer().transform
 }
 
-stats_outputs = {"stats", "processed_stats", "plots", "markdown"}
 stats_outputs = {"stats", "processedStats", "dynamicGraphs", "markdown"}
+not_implemented = {"staticGraphs"}
 
 
 def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Params) -> list[TransformerOutput]:
@@ -67,6 +66,9 @@ def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Param
         st.transform(pivots)
 
     for output in outputs:
+        if output in not_implemented:
+            raise NotImplementedError(f"{output} is not implemented yet")
+
         if output in stats_outputs and output != "markdown":
             func = getattr(st, transformer_factory[output])
             to_process.append((func, []))
