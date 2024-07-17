@@ -291,28 +291,41 @@
             <div class="card-title secondary">
                 Téléchargez les fichiers transformés sur votre ordinateur
             </div>
-            <div class="card-body main" id="conversion-container">
-                <div id="submit-all" type="submit" class="btn btn-primary submit"
+            <div id="conversion-container" class="card-body main fourth-rectangle-container">
+                <div id="submit-all" type="submit" class="fourth-rectangle-button"
                      onclick="submitForm()">
-                    >
-                    Convertir
-                    <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir">
+                    <div class="content-image">
+                        <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir" class="content-image">
+                    </div>
+                    <div>
+                        Convertir
+                    </div>
                 </div>
             </div>
-            <div id="download-container" class="card-body main" style="display: none;">
-                <a id="download">
-                    <div class="download-icon">
-                        <i class="bi bi-cloud-download"></i>
-                    </div>
-                    <div class="download-text">
-                        Télécharger
+            <div id="download-container" class="card-body main fourth-rectangle-container" style="display: none;">
+                <a id="download" href="" download class="download-link">
+                    <div class="fourth-rectangle-button">
+                        <div class="content-image">
+                            <i class="bi bi-cloud-download content-image" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            Télécharger
+                        </div>
                     </div>
                 </a>
             </div>
-            <div id="loader-container" class="card-body main" style="display: none;">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="sr-only">Loading...</span>
+            <div id="loader-container" class="card-body main fourth-rectangle-container" style="display: none;">
+                <div class="fourth-rectangle-button loading">
+                    <div class="content-image">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div>
+                        Conversion...
+                    </div>
                 </div>
+            </div>
         </div>
     </main>
 </form>
