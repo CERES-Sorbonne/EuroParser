@@ -5,6 +5,7 @@ import concurrent.futures
 from tqdm.auto import tqdm
 
 from .models import Output, FileToTransform, TransformerOutput, Params
+from .models import Outputs, FileToTransform, TransformerOutput, Params
 from .transformers.to_csv import CSVTransformer
 from .transformers.to_excel import ExcelTransformer
 from .transformers.to_iramuteq import IramuteqTransformer
@@ -22,15 +23,16 @@ transformer_factory = {
     "csv": CSVTransformer().transform,
     "excel": ExcelTransformer().transform,
     "stats": "get_stats",
-    "processed_stats": "get_processed_stats",
-    "plots": "get_plots",
+    "processedStats": "get_processed_stats",
+    "dynamicGraphs": "get_plots",
     "markdown": MarkdownTransformer().transform
 }
 
 stats_outputs = {"stats", "processed_stats", "plots", "markdown"}
+stats_outputs = {"stats", "processedStats", "dynamicGraphs", "markdown"}
 
 
-def pipeline(files: list[FileToTransform], outputs: list[Output], params: Params) -> list[TransformerOutput]:
+def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Params) -> list[TransformerOutput]:
     """
     main function that transforms the files into pivots and then in differents required ouptputs
     """

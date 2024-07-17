@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Literal, Set, Union, Optional
 
 from pydantic import BaseModel, field_serializer
@@ -42,7 +43,18 @@ class Pivot(BaseModel):
 
 
 OutputFormat = Literal["csv", "excel", "json", "txt", "xml", "zip"]
-Output = Literal["json", "txm", "iramuteq", "gephi", "csv", "excel", "stats", "processed_stats", "plots", "markdown"]
+
+class Outputs(str, Enum):
+    iramuteq = "iramuteq"
+    txm = "txm"
+    json = "json"
+    csv = "csv"
+    excel = "excel"
+    markdown = "markdown"
+    stats = "stats"
+    processedStats = "processedStats"
+    staticGraphs = "staticGraphs"
+    dynamicGraphs = "dynamicGraphs"
 
 
 class TransformerOutput(BaseModel):

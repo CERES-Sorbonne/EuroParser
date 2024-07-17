@@ -2,10 +2,10 @@ from pathlib import Path
 from typing import Optional
 
 from . import pipeline
-from .models import FileToTransform, TransformerOutput, Params, Output
+from .models import FileToTransform, TransformerOutput, Params, Outputs
 
 
-def main(folder: Path | str, outputs: list[Output], params: Optional[Params] = None) -> None:
+def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = None) -> None:
     if params is None:
         params = Params()
 

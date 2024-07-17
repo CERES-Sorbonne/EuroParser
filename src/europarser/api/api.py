@@ -17,7 +17,7 @@ from starlette.responses import FileResponse, StreamingResponse
 
 from src.europarser import FileToTransform, pipeline
 from src.europarser.api.utils import get_mimetype
-from src.europarser.models import TransformerOutput
+from src.europarser.models import TransformerOutput, Params, Outputs
 
 # root_dir = os.path.dirname(__file__)
 root_dir = Path(__file__).parent
