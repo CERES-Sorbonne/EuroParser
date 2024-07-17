@@ -1,5 +1,7 @@
 import {spawn_dropzone} from './dropzone_handler.js'
 
+let base_url = window.location.href
+
 const base_params = {
     "filter_keywords": false,
     "filter_lang": false,
@@ -14,7 +16,7 @@ const base_params = {
 async function createFileUploadUrl() {
     let url = null;
     let uuid_ = null;
-    let url_promise = fetch("/create_file_upload_url")
+    let url_promise = fetch(base_url + "/create_file_upload_url")
         .then(response => response.json())
         .then(data => {
             console.log(data);
@@ -95,7 +97,7 @@ function submitForm() {
     console.log(formData.get("output"))
     console.log(formData.get("uuid"))
 
-    xhr.open("POST", "/convert");
+    xhr.open("POST", base_url + "/convert");
 
     let labels = document.getElementsByTagName('label');
     for (let label of labels) {
