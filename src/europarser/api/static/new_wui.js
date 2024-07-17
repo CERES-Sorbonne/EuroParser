@@ -86,3 +86,5 @@ const url = uploadUrl[0]
 const uuid_ = uploadUrl[1]
 
 const myDropzone = spawn_dropzone("files-dropzone", url)
+
+window.submitForm = submitForm
