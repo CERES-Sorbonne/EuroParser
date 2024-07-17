@@ -17,7 +17,7 @@
             integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
             crossorigin="anonymous"></script>
 
-    <link id="favicon" rel="icon" type="image/x-icon"  href={{ host + '/favicon.ico'}}>
+    <link id="favicon" rel="icon" type="image/x-icon" href={{ host + '/favicon.ico' }}>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,14 +26,14 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 
-{#    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">#}
-{#    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">#}
+    {#    <link href="{{ host + '/static/dropzone.min.css' }}" rel="stylesheet">#}
+    {#    <link href="{{ host + '/static/basic.min.css' }}" rel="stylesheet">#}
     <link href="{{ host + '/static/new_wui.css' }}" rel="stylesheet">
 
-{#    <script src="{{ host + '/static/dropzone.min.js' }}"></script>#}
+    {#    <script src="{{ host + '/static/dropzone.min.js' }}"></script>#}
     <script type="module" src="{{ host + '/static/new_wui.js' }}"></script>
     <script type="module" src="{{ host + '/static/popover.js' }}"></script>
-{#    <script type="module" src="{{ host + '/static/dropzone_handler.js' }}"></script>#}
+    {#    <script type="module" src="{{ host + '/static/dropzone_handler.js' }}"></script>#}
 </head>
 
 <body>
@@ -291,13 +291,28 @@
             <div class="card-title secondary">
                 Téléchargez les fichiers transformés sur votre ordinateur
             </div>
-            <div class="card-body main">
+            <div class="card-body main" id="conversion-container">
                 <div id="submit-all" type="submit" class="btn btn-primary submit"
                      onclick="submitForm()">
+                    >
                     Convertir
-                     <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir">
+                    <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir">
                 </div>
             </div>
+            <div id="download-container" class="card-body main" style="display: none;">
+                <a id="download">
+                    <div class="download-icon">
+                        <i class="bi bi-cloud-download"></i>
+                    </div>
+                    <div class="download-text">
+                        Télécharger
+                    </div>
+                </a>
+            </div>
+            <div id="loader-container" class="card-body main" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
         </div>
     </main>
 </form>

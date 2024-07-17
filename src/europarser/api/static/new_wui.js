@@ -1,17 +1,14 @@
 import {spawn_dropzone} from './dropzone_handler.js'
 
-function createUrl(files, dataBlock) {
-    // let url = "{{host + '/upload?'}}"
-    let url = "/upload?"
-    // + "filter_keywords=" + document.getElementById('filter_keywords').checked.toString()
-    // + "&minimal_support=" + (document.getElementById('minimal_support').value || 1)
-    // + "&minimal_support_kw=" + (document.getElementById('minimal_support_kw').value || 1)
-    // + "&minimal_support_journals=" + (document.getElementById('minimal_support_journals').value || 1)
-    // + "&minimal_support_authors=" + (document.getElementById('minimal_support_authors').value || 1)
-    // + "&minimal_support_dates=" + (document.getElementById('minimal_support_dates').value || 1)
+const base_params = {
+    "filter_keywords": false,
+    "filter_lang": false,
+    "minimal_support": 1,
+    "minimal_support_kw": 1,
+    "minimal_support_journals": 1,
+    "minimal_support_authors": 1,
+    "minimal_support_dates": 1
 
-    console.log(url)
-    return (url)
 }
 
 async function createFileUploadUrl() {
@@ -34,52 +31,121 @@ async function createFileUploadUrl() {
     return [url, uuid_];
 }
 
-export function submitForm() {
-    //send all the form data along with the files:
-    var xhr = new XMLHttpRequest();
-    var formData = new FormData();
+function submitForm() {
+    // Ensure that all files have been uploaded
+    if (myDropzone.files.length === 0) {
+        alert("Please upload files first");
+        return;
+    }
+    if (myDropzone.getUploadingFiles().length > 0 || myDropzone.getQueuedFiles().length > 0) {
+        alert("Please wait for all files to upload");
+        return;
+    }
+    if (myDropzone.getRejectedFiles().length > 0) {
+        alert("Please upload only valid files");
+        return;
+    }
+    if (myDropzone.getAcceptedFiles().length !== myDropzone.files.length) {
+        alert("Please wait for all files to be processed");
+        return;
+    }
 
-    formData.append("uuid", uuid_);
-
+    // Ensure that at least one output format is selected
     let checkboxes = document.getElementsByTagName('input');
-
+    let checked = false;
     for (let checkbox of checkboxes) {
         if (checkbox.type === 'checkbox' && checkbox.checked) {
-            formData.append("output", checkbox.id.toString().toLowerCase());
+            checked = true;
+            break;
+        }
+    }
+    if (!checked) {
+        alert("Please select at least one output format");
+        return;
+    }
+
+    const conversion_container = document.getElementById('conversion-container');
+    conversion_container.style.display = "none";
+
+    //send all the form data along with the files:
+    let xhr = new XMLHttpRequest();
+    let formData = new FormData();
+
+    // UUID (for the server to know which files to convert)
+    formData.append("uuid", uuid_);
+
+    // Output formats (for the server to know which formats to convert to)
+    // let checkboxes = document.getElementsByTagName('input');
+    for (let checkbox of checkboxes) {
+        if (checkbox.type === 'checkbox' && checkbox.checked) {
+            formData.append("output", checkbox.id);
         }
     }
 
+    // Params (for the server to know which parameters to use)
+    // let params = document.getElementsByClassName('param');
+    // let params_dict = {};
+    // for (let param of params) {
+    //     formData.append(param.id, param.value);
+    // }
+    for (let key in base_params) {
+        formData.append(key, base_params[key]);
+    }
 
     console.log(formData.get("output"))
     console.log(formData.get("uuid"))
 
-    xhr.open("POST", createUrl());
+    xhr.open("POST", "/convert");
 
-    let len_ = checkboxes.length
-    for (let i = 0; i < len_; i++) {
-        checkboxes[i].disabled = true;
-        checkboxes[i].cursor = "not-allowed";
-        checkboxes[i].style.opacity = "0.5";
+    let labels = document.getElementsByTagName('label');
+    for (let label of labels) {
+        label.disabled = true;
+        label.cursor = "not-allowed";
+        label.style.opacity = "0.5";
     }
+    for (let checkbox of checkboxes) {
+        checkbox.disabled = true;
+        checkbox.cursor = "not-allowed";
+        checkbox.style.opacity = "0.5";
+    }
+
     xhr.responseType = 'blob';
     xhr.onload = function (e) {
         if (e.currentTarget.status > 300) {
-            document.getElementById('loader').style.display = "none";
+            document.getElementById('loader-container').style.display = "none";
             document.getElementById('error').innerHTML = e.currentTarget.statusText;
             document.getElementById('error').style.display = "block";
         }
-        var blob = e.currentTarget.response;
-        var contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
+        let blob = e.currentTarget.response;
+        let contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
         // https://stackoverflow.com/a/23054920/
-        var fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
-        document.getElementById('download').style.display = "block";
-        document.getElementById('loader').style.display = "none";
+        let fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
+        document.getElementById('loader-container').style.display = "none";
         saveBlob(blob, fileName);
     }
+
+    xhr.upload.onprogress = function (e) {
+        let percentComplete = (e.loaded / e.total) * 100;
+        document.getElementById('loader-container').style.display = "block";
+        document.getElementById('loader-container').value = percentComplete
+    }
+
     xhr.send(formData);
 }
 
+function saveBlob(blob, fileName) {
+    console.log("saveBlob")
 
+    let download_container = document.getElementById('download-container');
+    let download = document.getElementById('download');
+
+    download.href = window.URL.createObjectURL(blob);
+    download.download = fileName;
+
+    download_container.style.display = "block";
+
+    download.click();
+}
 
 const uploadUrl = await createFileUploadUrl()
 const url = uploadUrl[0]
