@@ -7,8 +7,24 @@ tooltip_triggers.forEach((trigger) => {
         const label = trigger.getAttribute('aria-label');
         const tooltip_ = document.querySelector("#" + label);
 
+        let placement = 'right';
+        let fallbackPlacements = ['left', 'bottom'];
+        const data_popper_placement = tooltip_.getAttribute('data-popper-placement');
+        if (data_popper_placement === 'top') {
+            placement = 'top';
+            fallbackPlacements = ['bottom', 'right'];
+        }
+        if (data_popper_placement === 'left') {
+            placement = 'left';
+            fallbackPlacements = ['top', 'right'];
+        }
+        if (data_popper_placement === 'bottom') {
+            placement = 'bottom';
+            fallbackPlacements = ['top', 'right'];
+        }
+
         const popperInstance = window.Popper.createPopper(trigger, tooltip_, {
-            placement: 'right',
+            placement: placement,
             modifiers: [
                 {
                     name: 'offset',
@@ -19,7 +35,7 @@ tooltip_triggers.forEach((trigger) => {
                 {
                     name: 'flip',
                     options: {
-                        fallbackPlacements: ['left', 'bottom'],
+                        fallbackPlacements: fallbackPlacements,
                     },
                 },
                 {
