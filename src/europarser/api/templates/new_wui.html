@@ -99,8 +99,23 @@
         </div>
 
         <div class="rectangle">
-            <div class="number">
-                2
+            <div class="params-button-container">
+                <div class="number">
+                    2
+                </div>
+                <div class="params">
+                    <i class="params bi bi-sliders params-button tooltip-trigger" id="formats_params_button"
+                       src="{{ host + '/static/sliders.svg' }}"
+                       describedby="tooltip" aria-label="formats-params-tooltip"
+                       alt="Paramètres"
+                       onclick="modal"
+                    ></i>
+                    <div class="tooltip-content left" role="tooltip" id="formats-params-tooltip"
+                         data-popper-placement="left">
+                        Paramètres avancés
+                    </div>
+                </div>
+
             </div>
             <div class="card-title secondary">
                 Choisissez les formats de sortie
@@ -123,7 +138,6 @@
                             <a href="https://hyperbase.unice.fr//" target="_blank" class="pretty-link">Hyperbase</a>.
                         </p>
                     </div>
-                    <div class="params bi bi-gear-fill" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="TXM-tooltip"
@@ -141,7 +155,6 @@
                                         class="pretty-link">TXM</a>.
                         </p>
                     </div>
-                    <div class="params bi bi-gear-fill" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="JSON-tooltip"
@@ -157,7 +170,6 @@
                             texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-gear-fill" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="CSV-tooltip"
@@ -173,7 +185,6 @@
                             texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-gear-fill" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Excel-tooltip"
@@ -190,7 +201,6 @@
                             avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-three-dots" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Markdown-tooltip"
@@ -206,7 +216,6 @@
                             de texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-three-dots-vertical" onclick="paramsModal(this)"></div>
                 </div>
             </div>
             <br>
@@ -229,7 +238,6 @@
                             texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-gear" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="processed-tooltip"
@@ -245,7 +253,6 @@
                             l'analyse de texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-bar-chart" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover" style="display: none"> <!-- TODO: change to block when added output-->
                     <div class="label tooltip-trigger" alt="static-graphs-tooltip"
@@ -255,14 +262,13 @@
                         </label>
                     </div>
                     <div class="tooltip-content" role="tooltip" id="static-graphs-tooltip"
-                         data-popper-placement="right" >
+                         data-popper-placement="right">
                         <div class="arrow" data-popper-arrow></div>
                         <p>
                             Les graphiques statiques sont des données textuelles qui peuvent être utilisées pour
                             l'analyse de texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-gear-wide" onclick="paramsModal(this)"></div>
                 </div>
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="dynamic-graphs-tooltip"
@@ -279,7 +285,7 @@
                             l'analyse de texte avec des logiciels compatibles.
                         </p>
                     </div>
-                    <div class="params bi bi-sliders" onclick="paramsModal(this)"></div>
+
                 </div>
             </div>
         </div>
