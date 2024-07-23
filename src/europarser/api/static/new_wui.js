@@ -192,6 +192,17 @@ function closeParentModal(this_) {
     console.error("No parent modal found");
 }
 
+function seeHelp(id_) {
+    let help_ = document.querySelectorAll('[ id$="help" ]');
+    for (let help of help_) {
+        if (help.id === id_) {
+            help.style.display = "block";
+        } else {
+            help.style.display = "none";
+        }
+    }
+}
+
 addModalEvents()
 
 const uploadUrl = await createFileUploadUrl()
@@ -211,3 +222,4 @@ myDropzone.on("error", function (file) {
 window.submitForm = submitForm
 window.closeThis = closeThis
 window.closeParentModal = closeParentModal
+window.seeHelp = seeHelp
