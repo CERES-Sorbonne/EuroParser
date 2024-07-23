@@ -137,7 +137,7 @@ footer {
 
 .fourth-rectangle-button {
     background: #FFFFFF;
-    color: var(--main-text-color);
+    color: var(--secondary-text-color);
     border: 4px solid var(--main-text-color);
     padding: 2em 2em;
     border-radius: .5em;
@@ -155,6 +155,14 @@ footer {
     * {
         margin: .5em 0
     }
+
+    .idle {
+        display: block;
+    }
+
+    .active {
+        display: none;
+    }
 }
 
 
@@ -162,6 +170,14 @@ footer {
     background: var(--main-text-color);
     color: var(--main-text-on-bg-color);
     border: 4px solid var(--secondary-text-color);
+
+    .idle {
+        display: none;
+    }
+
+    .active {
+        display: block;
+    }
 }
 
 .fourth-rectangle-button.loading {
