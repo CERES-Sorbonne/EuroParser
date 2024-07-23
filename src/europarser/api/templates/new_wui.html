@@ -56,6 +56,56 @@
 </header>
 
 <form method="post" enctype="multipart/form-data" action="/convert" id="myForm">
+    <dialog class="modal" id="formats_params_modal" onclick="closeThis(this)">
+        <div class="modal-content" id="format_params_main_content">
+            <div class="modal-header">
+                <h5 class="modal-title">Paramètres avancés</h5>
+                <button type="button" class="close" id="formats_params_close" onclick="closeParentModal(this)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <input type="checkbox" id="filter_keywords" name="params" value="false" class="params-input"> <label
+                        for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul article</label>
+                </div>
+                <div>
+                    <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
+                           placeholder="Support minimal pour les mots clés">
+                    <label for="minimal_support">
+                        Support minimal par défaut global
+                    </label>
+                </div>
+                <div>
+                    <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="params-input"
+                           placeholder="Support minimal pour les mots clés">
+                    <label for="minimal_support_kw">
+                        Support minimal pour les mots clés
+                    </label>
+                </div>
+                <div>
+                    <input type="number" id="minimal_support_journals" name="params" value="1" min="1"
+                           class="params-input" placeholder="Support minimal pour les mots clés">
+                    <label for="minimal_support_journals">
+                        Support minimal pour les journaux
+                    </label>
+                </div>
+                <div>
+                    <input type="number" id="minimal_support_authors" name="params" value="1" min="1"
+                           class="params-input" placeholder="Support minimal pour les mots clés">
+                    <label for="minimal_support_authors">
+                        Support minimal pour les auteurs
+                    </label>
+                </div>
+                <div>
+                    <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="params-input"
+                           placeholder="Support minimal pour les mots clés">
+                    <label for="minimal_support_dates">
+                        Support minimal pour les mois
+                    </label>
+                </div>
+
+    </dialog>
     <main>
         <div class="rectangle">
             <div class="number">

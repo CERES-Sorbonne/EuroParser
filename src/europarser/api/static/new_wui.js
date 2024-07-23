@@ -92,20 +92,20 @@ function submitForm() {
     // Output formats (for the server to know which formats to convert to)
     // let checkboxes = document.getElementsByTagName('input');
     for (let checkbox of checkboxes) {
-        if (checkbox.type === 'checkbox' && checkbox.checked) {
+        if (checkbox.type === 'checkbox' && checkbox.checked && !checkbox.className.includes("params-input")) {
             formData.append("output", checkbox.id);
         }
     }
 
     // Params (for the server to know which parameters to use)
-    // let params = document.getElementsByClassName('param');
-    // let params_dict = {};
-    // for (let param of params) {
-    //     formData.append(param.id, param.value);
-    // }
-    for (let key in base_params) {
-        formData.append(key, base_params[key]);
+    let params = document.getElementsByClassName('params-input');
+    let params_dict = {};
+    for (let param of params) {
+        formData.append(param.id, param.value);
     }
+    // for (let key in base_params) {
+    //     formData.append(key, base_params[key]);
+    // }
 
     console.log(formData.get("output"))
     console.log(formData.get("uuid"))
