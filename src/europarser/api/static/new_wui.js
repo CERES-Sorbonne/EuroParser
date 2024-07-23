@@ -162,17 +162,52 @@ function saveBlob(blob, fileName) {
     download.click();
 }
 
+function addModalEvents() {
+    let buttons = document.querySelectorAll('[ id$="params_button" ]');
+    for (let button of buttons) {
+        button.onclick = function () {
+            let modal = document.getElementById(button.id.replace("button", "modal"));
+            modal.showModal();
+        }
+    }
+}
+
+function closeThis(this_) {
+    if (event.target !== this_) {
+        return;
+    }
+
+    this_.close();
+}
+
+function closeParentModal(this_) {
+    let a = this_;
+    while (a) {
+        if (a.tagName === "DIALOG") {
+            a.close();
+            return;
+        }
+        a = a.parentElement;
+    }
+    console.error("No parent modal found");
+}
+
+addModalEvents()
+
 const uploadUrl = await createFileUploadUrl()
 const url = uploadUrl[0]
 const uuid_ = uploadUrl[1]
 
 const myDropzone = spawn_dropzone("files-dropzone", url)
-myDropzone.on("success", function(file){
-  $(".dz-success-mark svg").css("background", "green").css('border-radius', '30px');
-  $(".dz-error-mark").css("display", "none");
+myDropzone.on("success", function (file) {
+    $(".dz-success-mark svg").css("background", "green").css('border-radius', '30px');
+    $(".dz-error-mark").css("display", "none");
 });
-myDropzone.on("error", function(file) {
-  $(".dz-error-mark svg").css("background", "red").css('border-radius', '30px');
-  $(".dz-success-mark").css("display", "none");
+myDropzone.on("error", function (file) {
+    $(".dz-error-mark svg").css("background", "red").css('border-radius', '30px');
+    $(".dz-success-mark").css("display", "none");
 });
+
 window.submitForm = submitForm
+window.closeThis = closeThis
+window.closeParentModal = closeParentModal
