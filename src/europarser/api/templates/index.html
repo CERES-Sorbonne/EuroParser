@@ -160,8 +160,10 @@
     </dialog>
     <main>
         <div class="rectangle">
-            <div class="number">
-                0
+            <div class="params-button-container">
+                <div class="number">
+                    0
+                </div>
             </div>
             <div class="card-title secondary">
                 Récupérez vos fichiers html sur Europresse
@@ -170,15 +172,17 @@
                 Pour plus d’informations sur comment les télécharger,
                 consultez le
                 <a href="https://ceres.sorbonne-universite.fr/ateliers/2023-10-26_Atelier_Europresse/"
-                   class="pretty-link" target="_blank">
+                   class="pretty-link link-light-bg" target="_blank">
                     tutoriel CERES
                 </a>
             </div>
         </div>
 
         <div class="rectangle">
-            <div class="number">
-                1
+            <div class="params-button-container">
+                <div class="number">
+                    1
+                </div>
             </div>
             <div class="card-title secondary">
                 Téléchargez les fichiers que vous souhaitez transformer
@@ -188,8 +192,8 @@
                     <div style="display: none;" id="state">0</div>
                     <div class="dropzone mb-3" id="files-dropzone">
                         <div class="dz-message" data-dz-message>
-                            <div class="icon">
-                                <i class="bi bi-cloud-arrow-up"></i>
+                            <div class="icon" style="padding: 0 0 .5em 0;">
+                                <i class="bi bi-file-earmark-arrow-up"></i>
                             </div>
                             <div class="text">
                                 <h4>Déposez vos fichiers ici</h4>
@@ -206,8 +210,8 @@
                 <div class="number">
                     2
                 </div>
-                <div class="params">
-                    <i class="params bi bi-sliders params-button tooltip-trigger" id="formats_params_button"
+                <div class="" style="padding: 0 2em;">
+                    <i class="bi bi-sliders params-button tooltip-trigger" id="formats_params_button"
                        src="{{ host + '/static/sliders.svg' }}"
                        describedby="tooltip" aria-label="formats-params-tooltip"
                        alt="Paramètres"
@@ -218,16 +222,16 @@
                         Paramètres avancés
                     </div>
                 </div>
-
             </div>
             <div class="card-title secondary">
-                Choisissez les formats de sortie
+                Choisissez les formats vers lesquels convertir
             </div>
+            <div style="padding: .6em"></div>
             <div class="formats-container">
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Iramuteq-tooltip"
                          aria-describedby="tooltip" aria-label="Iramuteq-tooltip">
-                        <label class="switch btn btn-primary" for="iramuteq">Iramuteq
+                        <label class="switch" for="iramuteq">Iramuteq
                             <input type="checkbox" name="formats" value="iramuteq" id="iramuteq">
                         </label>
                     </div>
@@ -245,7 +249,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="TXM-tooltip"
                          aria-describedby="tooltip" aria-label="TXM-tooltip">
-                        <label class="switch btn btn-primary" for="txm">TXM
+                        <label class="switch" for="txm">TXM
                             <input type="checkbox" name="formats" value="txm" id="txm">
                         </label>
                     </div>
@@ -262,7 +266,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="JSON-tooltip"
                          aria-describedby="tooltip" aria-label="JSON-tooltip">
-                        <label class="switch btn btn-primary" for="json">JSON
+                        <label class="switch" for="json">JSON
                             <input type="checkbox" name="formats" value="json" id="json">
                         </label>
                     </div>
@@ -277,7 +281,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="CSV-tooltip"
                          aria-describedby="tooltip" aria-label="CSV-tooltip">
-                        <label class="switch btn btn-primary" for="csv">CSV
+                        <label class="switch" for="csv">CSV
                             <input type="checkbox" name="formats" value="csv" id="csv">
                         </label>
                     </div>
@@ -292,7 +296,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Excel-tooltip"
                          aria-describedby="tooltip" aria-label="Excel-tooltip">
-                        <label class="switch btn btn-primary" for="excel">Excel (xls)
+                        <label class="switch" for="excel">Excel (xls)
                             <input type="checkbox" name="formats" value="excel" id="excel">
                         </label>
                     </div>
@@ -308,7 +312,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="Markdown-tooltip"
                          aria-describedby="tooltip" aria-label="Markdown-tooltip">
-                        <label class="switch btn btn-primary" for="markdown">Markdown
+                        <label class="switch" for="markdown">Markdown
                             <input type="checkbox" name="formats" value="markdown" id="markdown">
                         </label>
                     </div>
@@ -322,15 +326,15 @@
                 </div>
             </div>
             <br>
-            <br>
             <div class="card-title secondary">
                 et/ou les statistiques à générer
             </div>
+            <div style="padding: .6em"></div>
             <div class="formats-container">
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="stats-tooltip"
                          aria-describedby="tooltip" aria-label="stats-tooltip">
-                        <label class="switch btn btn-primary" for="stats">Statistiques
+                        <label class="switch" for="stats">Statistiques
                             <input type="checkbox" name="stats" value="stats" id="stats">
                         </label>
                     </div>
@@ -345,7 +349,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="processed-tooltip"
                          aria-describedby="tooltip" aria-label="processed-tooltip">
-                        <label class="switch btn btn-primary" for="processedStats">Statistiques traitées
+                        <label class="switch" for="processedStats">Statistiques traitées
                             <input type="checkbox" name="stats" value="processedStats" id="processedStats">
                         </label>
                     </div>
@@ -360,7 +364,7 @@
                 <div class="label-and-popover" style="display: none"> <!-- TODO: change to block when added output-->
                     <div class="label tooltip-trigger" alt="static-graphs-tooltip"
                          aria-describedby="tooltip" aria-label="static-graphs-tooltip">
-                        <label class="switch btn btn-primary" for="staticGraphs">Graphiques statiques
+                        <label class="switch" for="staticGraphs">Graphiques statiques
                             <input type="checkbox" name="stats" value="staticGraphs" id="staticGraphs">
                         </label>
                     </div>
@@ -376,7 +380,7 @@
                 <div class="label-and-popover">
                     <div class="label tooltip-trigger" alt="dynamic-graphs-tooltip"
                          aria-describedby="tooltip" aria-label="dynamic-graphs-tooltip">
-                        <label class="switch btn btn-primary" for="dynamicGraphs">Graphiques interactifs
+                        <label class="switch" for="dynamicGraphs">Graphiques interactifs
                             <input type="checkbox" name="stats" value="dynamicGraphs" id="dynamicGraphs">
                         </label>
                     </div>
@@ -394,8 +398,10 @@
         </div>
 
         <div class="rectangle">
-            <div class="number">
-                3
+            <div class="params-button-container">
+                <div class="number">
+                    3
+                </div>
             </div>
             <div class="card-title secondary">
                 Téléchargez les fichiers transformés sur votre ordinateur
@@ -403,10 +409,8 @@
             <div id="conversion-container" class="card-body main fourth-rectangle-container">
                 <div id="submit-all" type="submit" class="fourth-rectangle-button"
                      onclick="submitForm()">
-                    <div class="content-image">
-                        <img src="{{ host + '/static/convertir.svg' }}" alt="Convertir" class="content-image idle">
-                        <img src="{{ host + '/static/convertir_blanc.svg' }}" alt="Convertir"
-                             class="content-image active">
+                    <div class="">
+                        <i class="bi bi-file-earmark-play content-image text-center" aria-hidden="true"></i>
                     </div>
                     <div class="content-text">
                         Convertir
@@ -416,8 +420,8 @@
             <div id="download-container" class="card-body main fourth-rectangle-container" style="display: none;">
                 <a id="download" href="" download class="download-link">
                     <div class="fourth-rectangle-button">
-                        <div class="content-image">
-                            <i class="bi bi-cloud-download content-image" aria-hidden="true"></i>
+                        <div class="">
+                            <i class="bi bi-file-earmark-arrow-down content-image" aria-hidden="true"></i>
                         </div>
                         <div>
                             Télécharger
@@ -425,10 +429,10 @@
                     </div>
                 </a>
             </div>
-            <div id="loader-container" class="card-body main fourth-rectangle-container" style="display: none;">
-                <div class="fourth-rectangle-button loading">
-                    <div class="content-image">
-                        <div class="spinner-border text-primary" role="status">
+            <div id="loader-container" class="card-body main fourth-rectangle-container" style="display:none;">
+                <div class="fourth-rectangle-button-no-hover">
+                    <div class="">
+                        <div class="spinner-border" role="status" id="loader">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
@@ -450,8 +454,9 @@
             </a>
         </div>
         <div class="footer-credits">
-            <a href="https://ceres.sorbonne-universite.fr/outils/" class="pretty-link big-boi" target="_blank">
+            <a href="https://ceres.sorbonne-universite.fr/outils/" class="pretty-link big-boi outils-du-ceres" target="_blank">
                 Outils du CERES
+                <span style="padding-left: 0.3em;"></span>
                 <img src="{{ host + '/static/logo.svg' }}" alt="CERES" class="logo">
             </a>
         </div>
