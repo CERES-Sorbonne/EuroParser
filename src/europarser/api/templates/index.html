@@ -64,55 +64,72 @@
             </div>
             <div class="modal-body">
                 <div>
-                    <input type="checkbox" id="filter_keywords" name="params" value="false" class="params-input"> <label
-                        for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul article</label>
-                </div>
-                <div>
-                    <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
-                           placeholder="Support minimal pour les mots clés">
-                    <label for="minimal_support">
-                        Support minimal par défaut global
-                    </label>
-                </div>
-                <div>
-                    <input type="number" id="minimal_support_kw" name="params" value="1" min="1" class="params-input"
-                           placeholder="Support minimal pour les mots clés">
-                    <label for="minimal_support_kw">
-                        Support minimal pour les mots clés
-                    </label>
-                </div>
-                <div>
-                    <input type="number" id="minimal_support_journals" name="params" value="1" min="1"
-                           class="params-input" placeholder="Support minimal pour les mots clés">
-                    <label for="minimal_support_journals">
-                        Support minimal pour les journaux
-                    </label>
-                </div>
-                <div>
-                    <input type="number" id="minimal_support_authors" name="params" value="1" min="1"
-                           class="params-input" placeholder="Support minimal pour les mots clés">
-                    <label for="minimal_support_authors">
-                        Support minimal pour les auteurs
-                    </label>
-                </div>
-                <div>
-                    <input type="number" id="minimal_support_dates" name="params" value="1" min="1" class="params-input"
-                           placeholder="Support minimal pour les mots clés">
-                    <label for="minimal_support_dates">
-                        Support minimal pour les mois
-                    </label>
+                    <div>
+                        <input type="checkbox" id="filter_keywords" name="params" value="false" class="params-input">
+                        <label
+                                for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul
+                            article</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="filter_lang" name="params" value="false" class="params-input">
+                        <label for="filter_lang">Filter les langues autres que le français</label>
+                    </div>
                 </div>
 
-                <div class="see-help" onclick="seeHelp('keywords_help')">
-                    <i class="bi bi-question-circle"></i>
-                    <span>À quoi sert le filtre de mots clés ?</span>
+                <br>
+
+                <div>
+                    <div>
+                        <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support">
+                            Support minimal par défaut global
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_kw" name="params" value="1" min="1"
+                               class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_kw">
+                            Support minimal pour les mots clés
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_journals" name="params" value="1" min="1"
+                               class="params-input" placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_journals">
+                            Support minimal pour les journaux
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_authors" name="params" value="1" min="1"
+                               class="params-input" placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_authors">
+                            Support minimal pour les auteurs
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_dates" name="params" value="1" min="1"
+                               class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_dates">
+                            Support minimal pour les mois
+                        </label>
+                    </div>
                 </div>
 
-                <div class="see-help" onclick="seeHelp('support_help')">
-                    <i class="bi bi-question-circle"></i>
-                    <span>Qu'est-ce que le support minimal ?</span>
-                </div>
+                <br>
 
+                <div>
+                    <div class="see-help btn btn-primary" onclick="seeHelp('keywords_help')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>À quoi servent les filtres ? (mots clés &amp; langues)</span>
+                    </div>
+                    <div class="see-help btn btn-primary" onclick="seeHelp('support_help')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Qu'est-ce que le support minimal ?</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -152,7 +169,8 @@
             <div class="card-body main">
                 Pour plus d’informations sur comment les télécharger,
                 consultez le
-                <a href="https://ceres.sorbonne-universite.fr/ateliers/2023-10-26_Atelier_Europresse/" class="pretty-link" target="_blank">
+                <a href="https://ceres.sorbonne-universite.fr/ateliers/2023-10-26_Atelier_Europresse/"
+                   class="pretty-link" target="_blank">
                     tutoriel CERES
                 </a>
             </div>
