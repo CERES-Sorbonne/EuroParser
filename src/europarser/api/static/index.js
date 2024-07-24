@@ -1,8 +1,24 @@
 import {spawn_dropzone} from './dropzone_handler.js'
 
-const base_url = window.location.href
-console.log("base url : " + base_url)
 
+function getBaseURL() {
+    let base_url = window.location.href;
+    if (base_url.includes("?")) {
+        base_url = base_url.split("?")[0];
+    }
+
+    if (base_url.endsWith("/")) {
+        return base_url;
+    }
+
+    return base_url + "/";
+}
+
+const base_url = getBaseURL();
+console.log("base url : " + base_url)
+const urlParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlParams.entries());
+console.log(params);
 const base_params = {
     "filter_keywords": false,
     "filter_lang": false,
@@ -49,19 +65,19 @@ async function createFileUploadUrl() {
 function submitForm() {
     // Ensure that all files have been uploaded
     if (myDropzone.files.length === 0) {
-        alert("Please upload files first");
+        alert("Veuillez d'abord déposer vos fichiers à convertir");
         return;
     }
     if (myDropzone.getUploadingFiles().length > 0 || myDropzone.getQueuedFiles().length > 0) {
-        alert("Please wait for all files to upload");
+        alert("Merci d'attendre que tous les fichiers soient téléchargés");
         return;
     }
     if (myDropzone.getRejectedFiles().length > 0) {
-        alert("Please upload only valid files");
+        alert("Veillez à ce que tous les fichiers soient acceptés (uniquement les fichiers .html issus de Europresse)");
         return;
     }
     if (myDropzone.getAcceptedFiles().length !== myDropzone.files.length) {
-        alert("Please wait for all files to be processed");
+        alert("Merci de patienter jusqu'à ce que tous les fichiers soient acceptés");
         return;
     }
 
@@ -127,6 +143,7 @@ function submitForm() {
     xhr.responseType = 'blob';
     xhr.onload = function (e) {
         if (e.currentTarget.status > 300) {
+            mutePedro();
             document.getElementById('loader-container').style.display = "none";
             document.getElementById('error').innerHTML = e.currentTarget.statusText;
             document.getElementById('error').style.display = "block";
@@ -135,12 +152,14 @@ function submitForm() {
         let contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
         // https://stackoverflow.com/a/23054920/
         let fileName = contentDispo.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)[1];
+        mutePedro();
         document.getElementById('loader-container').style.display = "none";
         saveBlob(blob, fileName);
     }
 
     xhr.upload.onprogress = function (e) {
         let percentComplete = (e.loaded / e.total) * 100;
+        hearPedro();
         document.getElementById('loader-container').style.display = "block";
         document.getElementById('loader-container').value = percentComplete
     }
@@ -203,6 +222,25 @@ function seeHelp(id_) {
     }
 }
 
+function seePedro() {
+    if (params.hasOwnProperty('pedro')) {
+        document.getElementById('loader').className = "spinner-border-pedro";
+    }
+}
+
+function hearPedro() {
+    if (params.hasOwnProperty('pedro')) {
+    window.audio = new Audio('static/pedro.mp3');
+    audio.play();
+    }
+}
+
+function mutePedro() {
+    if (window.audio) {
+        audio.pause();
+    }
+}
+
 addModalEvents()
 
 const uploadUrl = await createFileUploadUrl()
@@ -218,6 +256,9 @@ myDropzone.on("error", function (file) {
     $(".dz-error-mark svg").css("background", "red").css('border-radius', '30px');
     $(".dz-success-mark").css("display", "none");
 });
+
+seePedro();
+
 
 window.submitForm = submitForm
 window.closeThis = closeThis
