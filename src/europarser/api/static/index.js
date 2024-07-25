@@ -225,6 +225,8 @@ function seeHelp(id_) {
 function seePedro() {
     if (params.hasOwnProperty('pedro')) {
         document.getElementById('loader').className = "spinner-border-pedro";
+        document.getElementById('loader').style["background-image"] = "url('" + base_url + "static/pedro.png')";
+
     }
 }
 
