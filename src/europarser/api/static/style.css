@@ -641,6 +641,17 @@ footer {
     animation: spinner-border 1.5s linear infinite;
 }
 
+.spinner-border-ceres {
+    font-size: 0;
+    width: 6rem;
+    height: 6rem;
+    animation: spinner-border 3s linear infinite;
+    background-image: url('/static/logo_ceres.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: contain;
+}
+
 .spinner-border-pedro {
     width: 6rem;
     height: 6rem;

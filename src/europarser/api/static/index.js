@@ -14,11 +14,39 @@ function getBaseURL() {
     return base_url + "/";
 }
 
-const base_url = getBaseURL();
-console.log("base url : " + base_url)
-const urlParams = new URLSearchParams(window.location.search);
-const params = Object.fromEntries(urlParams.entries());
-console.log(params);
+function getURLParam() {
+    const urlParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+    // let ceres = false;
+    // let pedro = false;
+    //
+    // for (let key in urlParams) {
+    //     if (key === "ceres") {
+    //         ceres = true;
+    //     } else if (key === "pedro") {
+    //         pedro = true;
+    //     }
+    // }
+    //
+    // if (ceres && pedro) {
+    //     return null;
+    // }
+    // if (ceres) {
+    //     return "ceres";
+    // }
+    // if (pedro) {
+    //     return "pedro";
+    // }
+
+    // If both ceres and pedro are present, return null to indicate an error else return the present key
+
+    if (Object.keys(urlParams).length !== 1) {
+        return null;
+    }
+    return Object.keys(urlParams)[0] // return the key
+
+}
+
+
 const base_params = {
     "filter_keywords": false,
     "filter_lang": false,
@@ -223,17 +251,29 @@ function seeHelp(id_) {
 }
 
 function seePedro() {
-    if (params.hasOwnProperty('pedro')) {
+    if (urlParam === 'pedro') {
         document.getElementById('loader').className = "spinner-border-pedro";
         document.getElementById('loader').style["background-image"] = "url('" + base_url + "static/pedro.png')";
 
     }
 }
 
+function seeCeres() {
+    if (urlParam === 'ceres') {
+        document.getElementById('loader').className = "spinner-border-ceres";
+        document.getElementById('loader').style["background-image"] = "url('" + base_url + "static/logo_ceres.png')";
+    }
+
+}
+
 function hearPedro() {
-    if (params.hasOwnProperty('pedro')) {
-    window.audio = new Audio('static/pedro.mp3');
-    audio.play();
+    if (urlParam === 'pedro') {
+        window.audio = new Audio('static/pedro.mp3');
+        audio.play().then(
+            console.log("audio played")
+        ).catch(
+            console.error("audio not played")
+        )
     }
 }
 
@@ -242,6 +282,13 @@ function mutePedro() {
         audio.pause();
     }
 }
+
+const base_url = getBaseURL();
+console.log("base url : " + base_url)
+
+const urlParam = getURLParam();
+console.log("url param : " + urlParam)
+
 
 addModalEvents()
 
@@ -260,6 +307,7 @@ myDropzone.on("error", function (file) {
 });
 
 seePedro();
+seeCeres();
 
 
 window.submitForm = submitForm
