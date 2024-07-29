@@ -298,12 +298,26 @@ const uuid_ = uploadUrl[1]
 
 const myDropzone = spawn_dropzone("files-dropzone", url)
 myDropzone.on("success", function (file) {
-    $(".dz-success-mark svg").css("background", "green").css('border-radius', '30px');
-    $(".dz-error-mark").css("display", "none");
+    let success_marks = document.getElementsByClassName('dz-success-mark');
+    for (let success_mark of success_marks) {
+        success_mark.style.background = "green";
+        success_mark.style.borderRadius = "30px";
+    }
+    // let error_marks = document.getElementsByClassName('dz-error-mark');
+    // for (let error_mark of error_marks) {
+    //     error_mark.style.display = "none";
+    // }
 });
 myDropzone.on("error", function (file) {
-    $(".dz-error-mark svg").css("background", "red").css('border-radius', '30px');
-    $(".dz-success-mark").css("display", "none");
+    let error_marks = document.getElementsByClassName('dz-error-mark');
+    for (let error_mark of error_marks) {
+        error_mark.style.background = "red";
+        error_mark.style.borderRadius = "30px";
+    }
+    // let success_marks = document.getElementsByClassName('dz-success-mark');
+    // for (let success_mark of success_marks) {
+    //     success_mark.style.display = "none";
+    // }
 });
 
 seePedro();
