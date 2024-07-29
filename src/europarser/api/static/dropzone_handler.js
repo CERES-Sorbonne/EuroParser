@@ -1,5 +1,5 @@
-// import 'https://unpkg.com/dropzone@5/dist/min/dropzone.min.js'
-import 'https://unpkg.com/dropzone@5/dist/dropzone.js'
+import 'https://unpkg.com/dropzone@5/dist/min/dropzone.min.js'
+// import 'https://unpkg.com/dropzone@5/dist/dropzone.js'
 Dropzone.autoDiscover = false;
 
 function updateState(elem, number) {
