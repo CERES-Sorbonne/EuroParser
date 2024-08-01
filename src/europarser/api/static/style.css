@@ -36,6 +36,10 @@ body {
     --box-border-style-dropzone: dashed;
     background: var(--main-bg-color);
     color: var(--main-text-color);
+
+    --header-and-footer-side-margins: max(2em, 2.5%);
+    --header-and-footer-top-margin: 0;
+    --header-and-footer-bottom-margin: 0;
 }
 
 .main {
@@ -54,7 +58,7 @@ body {
 
 .topnav {
     /*margin: 5em 2em 0 5em;*/
-    margin-left: 2em;
+    margin: var(--header-and-footer-top-margin) var(--header-and-footer-side-margins) var(--header-and-footer-bottom-margin) var(--header-and-footer-side-margins);
     margin-top: 1em;
     display: inline-flex;
     color: var(--main-text-on-bg-color);
@@ -99,7 +103,7 @@ body {
 main {
     display: flex;
     justify-content: space-evenly;
-    min-height: 75svh;
+    min-height: 70svh;
     color: var(--main-text-color);
     padding: 0 1em;
     align-items: stretch;
@@ -116,9 +120,8 @@ main {
     min-height: 40svh;
     border-radius: 9px;
     background: #FFF;
-    padding: 1em;
-    max-width: 800px;
-    padding-bottom: 2em;
+    max-width: max(20%, 800px);
+    padding: 1em 1em 2em;
 }
 
 .number {
@@ -130,7 +133,7 @@ main {
 }
 
 footer {
-    padding: 0 2em;
+    margin: var(--header-and-footer-top-margin) var(--header-and-footer-side-margins) var(--header-and-footer-bottom-margin) var(--header-and-footer-side-margins);
 }
 
 
