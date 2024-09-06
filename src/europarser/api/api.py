@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Annotated  # , Optional
 from uuid import uuid4
 from zipfile import ZipFile
+from datetime import date
 
 from fastapi import FastAPI, UploadFile, Request, HTTPException, File, Form  # , Query
 from fastapi.responses import HTMLResponse
@@ -135,7 +136,7 @@ async def convert(
         return StreamingResponse(
             result.data,
             media_type=get_mimetype(result.output),
-            headers={'Content-Disposition': f"attachment; filename={result.filename}"}
+            headers={'Content-Disposition': f"attachment; filename=EuroParser_{date.today().strftime('%d-%m-%Y')}_{result.filename}"}
         )
 
     # else let's create a zip with all files
@@ -157,7 +158,7 @@ async def convert(
     return StreamingResponse(
         zip_io,
         media_type="application/zip",
-        headers={'Content-Disposition': 'attachment; filename=result.zip'}
+        headers={'Content-Disposition': f'attachment; filename=EuroParser_{date.today().strftime("%d-%m-%Y")}.zip'}
     )
 
 
