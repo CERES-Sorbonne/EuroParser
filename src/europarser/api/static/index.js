@@ -7,6 +7,10 @@ function getBaseURL() {
         base_url = base_url.split("?")[0];
     }
 
+    if (base_url.includes("#")) {
+        base_url = base_url.split("#")[0] + base_url.split("#")[1];
+    }
+
     if (base_url.endsWith("/")) {
         return base_url;
     }
@@ -59,6 +63,9 @@ const base_params = {
 }
 
 function addBaseURL(path) {
+    if ("#".includes(path)) {
+        path = path.split("#")[0] + path.split("#")[1]; // remove the hash
+    }
     if (path.startsWith("/") && base_url.endsWith("/")) {
         return base_url + path.slice(1);
     }
@@ -175,6 +182,7 @@ function submitForm() {
             document.getElementById('loader-container').style.display = "none";
             document.getElementById('error').innerHTML = e.currentTarget.statusText;
             document.getElementById('error').style.display = "block";
+            document.getElementById('redo-container').style.display = "block";
         }
         let blob = e.currentTarget.response;
         let contentDispo = e.currentTarget.getResponseHeader('Content-Disposition');
@@ -195,6 +203,51 @@ function submitForm() {
     xhr.send(formData);
 }
 
+function redoForm(keep_files = false, keep_params = false) {
+    let conversion_container = document.getElementById('conversion-container');
+    conversion_container.style.display = "block";
+
+    let download_container = document.getElementById('download-container');
+    download_container.style.display = "none";
+
+    let redo_container = document.getElementById('redo-container');
+    redo_container.style.display = "none";
+
+    let labels = document.getElementsByTagName('label');
+    for (let label of labels) {
+        label.disabled = false;
+        label.cursor = "pointer";
+        label.style.opacity = "1";
+    }
+    let inputs = document.getElementsByTagName('input');
+    for (let input of inputs) {
+        input.disabled = false;
+        input.cursor = "pointer";
+        input.style.opacity = "1";
+    }
+
+    if (!keep_files) {
+        myDropzone.removeAllFiles();
+    }
+
+    if (!keep_params) {
+        let checkboxes = document.getElementsByTagName('input');
+        for (let checkbox of checkboxes) {
+            if (checkbox.type === 'checkbox') {
+                checkbox.checked = false;
+            }
+        }
+        let params = document.getElementsByClassName('params-input');
+        for (let param of params) {
+            param.value = 1;
+        }
+    }
+
+    let loader_container = document.getElementById('loader-container');
+    loader_container.style.display = "none";
+
+}
+
 function saveBlob(blob, fileName) {
     console.log("saveBlob")
 
@@ -205,6 +258,9 @@ function saveBlob(blob, fileName) {
     download.download = fileName;
 
     download_container.style.display = "block";
+
+    let redo_container = document.getElementById('redo-container');
+    redo_container.style.display = "block";
 
     download.click();
 }
@@ -328,3 +384,4 @@ window.submitForm = submitForm
 window.closeThis = closeThis
 window.closeParentModal = closeParentModal
 window.seeHelp = seeHelp
+window.redoForm = redoForm

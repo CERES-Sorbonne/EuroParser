@@ -485,22 +485,23 @@
                     </div>
                 </div>
             </div>
-            <div id="redo-container" class="card-body main" style="display: none;"> <!-- TODO: make the redo functions and then display it with the download option -->
+            <div id="redo-container" class="card-body main" style="display: block;">
                 Recommencez :
                 <ul>
                     <li>
-                        <a href="#" onclick="redo_keep_all()">Avec les mêmes fichiers et les mêmes paramètres</a>
+                        <a href="#" onclick="redoForm(true, true)">Avec les mêmes fichiers et les mêmes paramètres</a>
                     </li>
                     <li>
-                        <a href="#" onclick="redo_keep_files()">Avec les mêmes fichiers</a>
+                        <a href="#" onclick="redoForm(true, false)">Avec les mêmes fichiers</a>
                     </li>
                     <li>
-                        <a href="#" onclick="redo_keep_params()">Avec les mêmes paramètres</a>
+                        <a href="#" onclick="redoForm(false, true)">Avec les mêmes paramètres</a>
                     </li>
                     <li>
-                        <a href="#" onclick="redo_keep_nothing()">À partir de zéro</a>
+                        <a href="#" onclick="redoForm()">À partir de zéro</a>
                     </li>
                 </ul>
+            </div>
     </main>
 </form>
 
