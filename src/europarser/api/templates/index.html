@@ -79,6 +79,7 @@
             </div>
             <div class="modal-body">
                 <div>
+                    <h4>Paramètres globaux</h4>
                     <div>
                         <input type="checkbox" id="filter_keywords" name="params" value="false" class="params-input">
                         <label
@@ -94,6 +95,7 @@
                 <br>
 
                 <div>
+                    <h4>Paramètres des statistiques et des graphiques</h4>
                     <div>
                         <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
                                placeholder="Support minimal pour les mots clés">
@@ -135,7 +137,7 @@
 
                 <br>
 
-                <div style="display: none;"> <!-- TODO: change to block when added tutorial-->
+                <div>
                     <div class="see-help btn btn-primary" onclick="seeHelp('keywords_help')">
                         <i class="bi bi-question-circle"></i>
                         <span>À quoi servent les filtres ? (mots clés &amp; langues)</span>
@@ -148,29 +150,55 @@
             </div>
         </div>
 
-        <div class="modal-content help-container" id="keywords_help">
+        <div class="modal-content help-container" id="keywords_help" style="overflow: hidden">
             <h3>À quoi sert le filtre de mots clés ?</h3>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
-            <br>
-            <div class="lorem-ipsum">
-                enuiezngezjmgeljhkgezljklnlkj
-            </div>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
-            <br>
-            <div class="lorem-ipsum">
-                enuiezngezjmgeljhkgezljklnlkj
-            </div>
+            <p>
+                Le filtre de mots clés permet de ne pas prendre en compte les mots clés qui n’apparaissent que dans un
+                seul article.
+            </p>
+            <p>
+                Ce dernier peut alors être utile si l'on souhaite utiliser les mots clés pour comparer les articles,
+                ou si l'on souhaite construire un réseau de mots clés.
+            </p>
+            <p>
+                Ce filtre s'applique sur tous les exports, y compris les statistiques et les graphiques.
+            </p>
+
+            <h3>À quoi sert le filtre de la langue ?</h3>
+            <p>
+                Le filtre de la langue permet de ne pas prendre en compte les articles qui ne sont pas en français
+            </p>
+            <p>
+                La langue est alors déterminée à partir du contenu de l'article.
+            </p>
+            <p>
+                Ce filtre s'applique sur tous les exports, y compris les statistiques et les graphiques.
+            </p>
         </div>
 
         <div class="modal-content help-container" id="support_help">
             <h3>Qu'est-ce que le support minimal ?</h3>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
-            <br>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
-            <br>
-            <div class="lorem-ipsum">
-                enuiezngezjmgeljhkgezljklnlkj
+            <p>
+                Régler le support minimal vous permet de filtrer les valeurs prises en compte lors de la génération des
+                visualisations.
+            </p>
+            <p>
+                Par exemple si vous choisissez un support minimal de 3 pour les journaux, le graphique n’affichera que
+                les journaux qui sont présents 3 fois ou plus.
+            </p>
+            <p>
+                Ces paramètres s'appliquent uniquement sur les statistiques et les graphiques.
+            </p>
+
+            <div class="figure-caption">
+                Graphique non filtré:
             </div>
+            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
+            <br>
+            <div class="figure-caption">
+                Graphique filtré:
+            </div>
+            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
         </div>
     </dialog>
     <main>
