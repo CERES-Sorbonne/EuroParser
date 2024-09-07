@@ -16,6 +16,7 @@ class Error(BaseModel):
 
 
 class Pivot(BaseModel):
+    identifiant: str
     journal: str
     journal_clean: str
     titre: str

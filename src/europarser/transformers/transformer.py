@@ -3,10 +3,11 @@ import logging
 import os
 from pathlib import Path
 from abc import ABC, abstractmethod
-from typing import List, Optional, Any
+from typing import List, Optional, Any, Union
 import re
 
 import unicodedata
+from bs4 import BeautifulSoup, Tag
 
 from ..models import Error, Pivot, TransformerOutput, Params
 
@@ -36,7 +37,8 @@ class Transformer(ABC):
         self._logger = logging.getLogger(self.name)
         self._logger.setLevel(logging.WARNING)
         # self.output_type = "json" # TODO any use of setting the output type ? Should maybe be a None ?
-        self.params = params or Params(**kwargs)  # If no kwargs are passed, params will be initialized with default values
+        self.params = params or Params(
+            **kwargs)  # If no kwargs are passed, params will be initialized with default values
 
     @abstractmethod
     def transform(self, pivot: List[Pivot]) -> TransformerOutput:
@@ -45,15 +47,15 @@ class Transformer(ABC):
         """
         raise NotImplementedError()
 
-    def _add_error(self, error, article):
+    def _add_error(self, error: Exception, article: Union[Pivot, BeautifulSoup, Tag]) -> None:
         self.errors.append(Error(message=str(error), article=article.text, transformer=self.name))
 
-    def _persist_errors(self, filename):
+    def _persist_errors(self, filename: str) -> None:
         """
         Save all errors to disk
         :param filename: name of the file being transformed
         """
-        dir_path = Path(os.path.join(str(Path.home()), 'europarser'))
+        dir_path = Path.home() / "europarser"
         dir_path.mkdir(parents=True, exist_ok=True)
         path = os.path.join(dir_path, f"errors-{filename}.json")
         mode = "a" if os.path.exists(path) else "w"
@@ -61,7 +63,7 @@ class Transformer(ABC):
             json.dump([e.dict() for e in self.errors], f, ensure_ascii=False)
 
     @staticmethod
-    def _format_value(value: str):
+    def _format_value(value: str) -> str:
         # value = re.sub(r"[éèê]", "e", value)
         # value = re.sub(r"ô", "o", value)
         # value = re.sub(r"à", "a", value)
@@ -71,6 +73,19 @@ class Transformer(ABC):
         value = re.sub(r"""[-\[\]'":().=?!,;<>«»—^*\\/|]""", ' ', value)
         return ''.join([w.capitalize() for w in value.split(' ')])
 
+    @staticmethod
+    def _to_pascal(string: str) -> str:
+        return "".join(x.capitalize() for x in string.lower().split("_"))
 
-def strip_accents(s):
-    return ''.join(c for c in unicodedata.normalize('NFKD', s) if unicodedata.category(c) != 'Mn')
+    @staticmethod
+    def _to_camel(string: str) -> str:
+        return "".join(
+            x.capitalize()
+            if i > 0
+            else x.lower()
+            for i, x in enumerate(string.lower().split("_"))
+        )
+
+
+def strip_accents(string: str) -> str:
+    return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) != 'Mn')

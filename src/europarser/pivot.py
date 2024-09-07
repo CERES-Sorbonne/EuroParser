@@ -1,19 +1,19 @@
-import hashlib
+import concurrent.futures
 import json
 import logging
-import concurrent.futures
 import re
 from collections import Counter
-from typing import Optional, Any
+from hashlib import sha256
+from typing import Optional, Any, Union
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, element
 from tqdm.auto import tqdm
 
+from .daniel_light import get_KW
+from .lang_detect import detect_lang
 from .models import FileToTransform, Pivot, Params
 from .transformers.transformer import Transformer
 from .utils import find_datetime
-from .daniel_light import get_KW
-from .lang_detect import detect_lang
 
 
 class BadArticle(Exception):
@@ -23,14 +23,15 @@ class BadArticle(Exception):
 class PivotTransformer(Transformer):
     journal_split = re.compile(r"\(| -|,? no. | \d|  | ;|\.fr")
     double_spaces_and_beyond = re.compile(r"(\s{2,})")
-    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]):
+
+    def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]) -> None:
         super().__init__(params, **kwargs)
         self.corpus = []
         self.bad_articles = []
         self.ids = set()
         self.all_keywords = Counter()
 
-    def subspaces(self, s):
+    def subspaces(self, s: str) -> str:
         return self.double_spaces_and_beyond.sub(r"\1", s).strip()
 
     def transform(self, files_to_transform: list[FileToTransform]) -> list[Pivot]:
@@ -39,7 +40,7 @@ class PivotTransformer(Transformer):
             soup = BeautifulSoup(file.file, 'lxml')
             articles = soup.find_all("article")
 
-            with concurrent.futures.ThreadPoolExecutor(1) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
 
@@ -50,9 +51,14 @@ class PivotTransformer(Transformer):
 
         return sorted(self.corpus, key=lambda x: x.epoch)
 
-    def transform_article(self, article):
+    def transform_article(
+            self,
+            article: Union[BeautifulSoup, element.Tag],
+    ) -> None:
+        assert isinstance(article, (BeautifulSoup, element.Tag)), "article is not a BeautifulSoup object"
         try:
             doc = {
+                "identifiant": None,
                 "journal": None,
                 "date": None,
                 "annee": None,
@@ -83,7 +89,10 @@ class PivotTransformer(Transformer):
                 doc_header = ""
 
             try:
-                doc_sub_section = article.find("span", attrs={"class": "DocTitreSousSection"}).find_next_sibling("span")
+                doc_sub_section = article.find(
+                    "span",
+                    attrs={"class": "DocTitreSousSection"}
+                ).find_next_sibling("span").text
             except AttributeError:
                 doc_sub_section = ""
 
@@ -161,7 +170,6 @@ class PivotTransformer(Transformer):
                     doc["url"] = u.get("href")
                     break
 
-
             doc["texte"] = self.subspaces(doc_text.text.strip())
 
             doc_auteur = doc_titre_full.find_next_sibling('p')
@@ -177,37 +185,50 @@ class PivotTransformer(Transformer):
 
             self.all_keywords.update(doc["keywords"])
 
-            id_ = ' '.join([doc["titre"], doc["journal_clean"], doc["date"]])
+            identifiant = sha256(
+                ' '.join((doc["titre"], doc["journal_clean"], doc["date"])
+                         ).encode()).hexdigest()
 
             langue = detect_lang(doc["texte"])
             if langue:
                 doc["langue"] = langue
 
-            if id_ not in self.ids:
+            if identifiant not in self.ids:
+                doc["identifiant"] = identifiant
                 self.corpus.append(Pivot(**doc))
-                self.ids.add(id_)
+                self.ids.add(identifiant)
+            else:
+                self._logger(
+                    "Article déjà présent dans le corpus : "
+                    f"{doc['titre'] = }, {doc['date'] = }, {doc['journal'] = }, {identifiant = }"
+                )
 
         except BadArticle as e:
             if self._logger.isEnabledFor(logging.DEBUG):
                 self._add_error(e, article)
                 self.bad_articles.append(article)
 
+        # To avoid the exception to be lost when catched by the ThreadPoolExecutor
+        except Exception as e:
+            print(e)
+            raise e
+
         return
 
-    def apply_parameters(self):
+    def apply_parameters(self) -> list[Pivot]:
         if self.params.filter_keywords is True:
             for article in self.corpus:
                 article.keywords = list(filter(self.filter_kw, article.keywords))
 
         return self.corpus
 
-    def filter_kw(self, keyword):
+    def filter_kw(self, keyword: str) -> bool:
         return self.all_keywords[keyword] > 1
 
-    def get_bad_articles(self):
+    def get_bad_articles(self) -> None:
         print(self.bad_articles)
 
-    def persist_json(self):
+    def persist_json(self) -> None:
         """
         utility function to persist the result of the pivot transformation
         """
@@ -215,9 +236,8 @@ class PivotTransformer(Transformer):
             return
 
         json_ver = json.dumps({i: article.dict() for i, article in enumerate(self.corpus)}, ensure_ascii=False)
-        # hash_json = hashlib.sha256(json_ver.encode()).hexdigest()
-        # with (self.output_path / f"{hash_json}.json").open("w", encoding="utf-8") as f:
-        output_file = self.output_path / f"{hashlib.sha256(json_ver.encode()).hexdigest()}.json"
+
+        output_file = self.output_path / f"{sha256(json_ver.encode()).hexdigest()}.json"
 
         with output_file.open("w", encoding="utf-8") as f:
             f.write(json_ver)
