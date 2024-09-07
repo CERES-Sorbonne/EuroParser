@@ -4,6 +4,8 @@
 /.idea/
 # Profiler outputs from the stats tranformer
 /profiler/
+# Libs
+node_modules/
 venv/
 .venv/
 
@@ -11,6 +13,11 @@ venv/
 # Every json tests
 *.json
 *.ipynb
+# Server files
+.env*
+*.log
+*.log.*
+crontab*
 # Testfile for the datetimes
 test.txt
 # Tests on stats
