@@ -62,7 +62,7 @@ def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Param
     to_process = []
     st = None
     if stats_outputs.intersection(outputs):
-        st = StatsTransformer()
+        st = StatsTransformer(params)
         st.transform(pivots)
 
     for output in outputs:
