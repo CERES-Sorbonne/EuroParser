@@ -71,7 +71,7 @@
     <dialog class="modal" id="formats_params_modal" onclick="closeThis(this)">
         <div class="modal-content" id="format_params_main_content">
             <div class="modal-header">
-                <h5 class="modal-title">Paramètres avancés</h5>
+                <h3 class="modal-title">Paramètres avancés</h3>
                 <button type="button" class="close" id="formats_params_close" onclick="closeParentModal(this)">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -95,7 +95,7 @@
 
                 <div>
                     <h4>Paramètres des statistiques et des graphiques</h4>
-                    <div>
+                    <div style="display: none;">
                         <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
                                placeholder="Support minimal pour les mots clés">
                         <label for="minimal_support">
@@ -189,15 +189,18 @@
                 Ces paramètres s'appliquent uniquement sur les statistiques et les graphiques.
             </p>
 
+            <img alt="Graphique du nombre d'articles par journal filtré avec un support minimal de 50"
+                 src="{{ host + '/static/support_50.png' }}" class="modal-image">
             <div class="figure-caption">
-                Graphique non filtré:
+                Figure 1 : Graphique du nombre d'articles par journal filtré avec un support minimal de 50
             </div>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
             <br>
+            <br>
+            <img alt="Graphique du nombre d'articles par journal filtré avec un support minimal de 100"
+                 src="{{ host + '/static/support_100.png' }}" class="modal-image">
             <div class="figure-caption">
-                Graphique filtré:
+                Figure 2 : Graphique du nombre d'articles par journal filtré avec un support minimal de 100
             </div>
-            <img alt="placeholder" src="https://placehold.co/600x400" class="modal-image">
         </div>
     </dialog>
     <main>

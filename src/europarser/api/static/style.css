@@ -569,6 +569,18 @@ footer {
     text-wrap: auto;
 }
 
+.modal-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    max-width: 100%;
+    border-radius: 10px;
+}
+
+.see-help {
+    margin: .3em 0;
+}
+
 .close {
   color: #aaaaaa;
   float: right;
