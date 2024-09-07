@@ -71,7 +71,7 @@ main(folder, outputs, params=params)
 
 2) Lancez le serveur avec la commande suivante
     ```bash
-    europarser [--api] [--host HOST] [--port PORT]
+    europarser --api [--host HOST] [--port PORT]
     ```
 
 3) Allez sur [localhost:8000](http://localhost:8000) (par défaut) pour accéder à l'interface de l'API

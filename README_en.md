@@ -65,27 +65,27 @@ main(folder, outputs, params=params)
 
 ### Usage as a web API
 1) Install the package
-```bash
-pip install europarser
-```
+    ```bash
+    pip install europarser
+    ```
 
 2) Start the server with the following command
-```bash
-europarser --api [--host HOST] [--port PORT]
-```
+    ```bash
+    europarser --api [--host HOST] [--port PORT]
+    ```
 
 3) Go to [localhost:8000](http://localhost:8000) (by default) to access the API interface
 
 ### Usage from the command line
 1) Install the package
-```bash
-pip install europarser
-```
+    ```bash
+    pip install europarser
+    ```
 
 2) Use the following command to parse a folder
-```bash
-europarser --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
-```
+    ```bash
+    europarser --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
+    ```
 
 #### Example
 ```bash
