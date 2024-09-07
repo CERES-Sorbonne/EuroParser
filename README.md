@@ -3,13 +3,13 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/europarser.svg)](https://pypi.org/project/europarser)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/europarser.svg)](https://pypi.org/project/europarser)
 
-Parsing d'articles de presse pour extraire le contenu et le transformer en des formats d'analyse comme TXM ou Iramuteq
+Parsing d'articles de presse pour extraire le contenu et le transformer en des formats d'analyse comme TXM ou Iramuteq.
 
 This readme is also available in [English](https://github.com/CERES-Sorbonne/EuroperssParser/blob/master/README_en.md)
 
 -----
 
-**Table of Contents**
+**Table des matières**
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -63,33 +63,33 @@ params = Params(
 main(folder, outputs, params=params)
 ```
 
-### Usage sous forme d'API
+### Usage sous forme d'API web
 1) Installez le package
-```bash
-pip install europarser
-```
+    ```bash
+    pip install europarser
+    ```
 
 2) Lancez le serveur avec la commande suivante
-```bash
-europarser [--host HOST] [--port PORT]
-```
+    ```bash
+    europarser [--api] [--host HOST] [--port PORT]
+    ```
 
 3) Allez sur [localhost:8000](http://localhost:8000) (par défaut) pour accéder à l'interface de l'API
 
 ### Usage en ligne de commande
 1) Installez le package
-```bash
-pip install europarser
-```
+    ```bash
+    pip install europarser
+    ```
 
 2) Utilisez la commande suivante pour parser un dossier
-```bash
-europarser-cli --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
-```
+    ```bash
+    europarser --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
+    ```
 
 #### Exemple
 ```bash
-europarser-cli --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
+europarser --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
 ```
 
 ## License

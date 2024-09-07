@@ -3,7 +3,9 @@
 [![PyPI - Version](https://img.shields.io/pypi/v/europarser.svg)](https://pypi.org/project/europarser)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/europarser.svg)](https://pypi.org/project/europarser)
 
-Parsing press articles to extract content and transform it into analysis formats such as TXM or Iramuteq
+Parsing press articles to extract content and transform it into analysis formats such as TXM or Iramuteq.
+
+Cette documentation est également disponible en [Français](https://github.com/CERES-Sorbonne/EuroperssParser/blob/master/README.md)
 
 -----
 
@@ -61,7 +63,7 @@ params = Params(
 main(folder, outputs, params=params)
 ```
 
-### Usage as an API
+### Usage as a web API
 1) Install the package
 ```bash
 pip install europarser
@@ -69,7 +71,7 @@ pip install europarser
 
 2) Start the server with the following command
 ```bash
-europarser [--host HOST] [--port PORT]
+europarser --api [--host HOST] [--port PORT]
 ```
 
 3) Go to [localhost:8000](http://localhost:8000) (by default) to access the API interface
@@ -82,12 +84,12 @@ pip install europarser
 
 2) Use the following command to parse a folder
 ```bash
-europarser-cli --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
+europarser --folder /path/to/your/articles --output [one of "json", "txm", "iramuteq", "csv", "stats", "processed_stats", "plots", "markdown"] [--output other_output] [--minimal-support-kw 5] [--minimal-support-authors 2] [--minimal-support-journals 8] [--minimal-support-dates 3]
 ```
 
 #### Example
 ```bash
-europarser-cli --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
+europarser --folder /path/to/your/articles --output json --output txm --minimal-support-kw 5 --minimal-support-authors 2 --minimal-support-journals 8 --minimal-support-dates 3
 ```
 
 ## License
