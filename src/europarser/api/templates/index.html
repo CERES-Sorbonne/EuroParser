@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Europresse Parser</title>
+
+    {#    <script src="https://unpkg.com/@popperjs/core@2/dist/umd/popper.js"#}
+    {#            crossorigin="anonymous"></script>#}
+    {#    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"#}
+    {#            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"#}
+    {#            crossorigin="anonymous"></script>#}
+    {#    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"#}
+    {#            integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"#}
+    {#            crossorigin="anonymous"></script>#}
+    {#    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"#}
+    {#            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"#}
+    {#            crossorigin="anonymous"></script>#}
+
+    <link id="favicon" rel="icon" type="image/x-icon" href={{ host + '/favicon.ico' }}>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <link href="{{ host + '/static/style.css' }}" rel="stylesheet">
+
+    <script type="module" src="{{ host + '/static/index.js' }}"></script>
+    <script type="module" src="{{ host + '/static/popover.js' }}"></script>
+
+    <link rel="prefetch" href="{{ host + '/static/dropzone_handler.js' }}">
+    <link rel="prefetch" href="{{ host + '/static/favicon.ico' }}">
+    <link rel="prefetch" href="{{ host + '/static/logo.svg' }}">
+    <link rel="prefetch" href="{{ host + '/static/logo_ceres.png' }}">
+    <link rel="prefetch" href="{{ host + '/static/pedro.mp3' }}">
+    <link rel="prefetch" href="{{ host + '/static/pedro.png' }}">
+
+
+    <link rel="prefetch" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js">
+    <link rel="prefetch" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css">
+    <link rel="prefetch" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <link rel="prefetch" href="https://placehold.co/600x400">
+
+</head>
+
+<body>
+
+
+<header>
+    <div class="topnav">
+        <h1 aria-label="EuroParser">
+            <span class="left-hand title">
+                Eur
+            </span>
+            <span class="logo-title">
+                <img src="{{ host + '/static/logo.svg' }}" alt="CERES">
+            </span>
+            <span class="right-hand title">
+                Parser
+            </span>
+        </h1>
+        <div class="separator"></div>
+        <span class="description">Convertissez des fichiers html Europresse vers d'autres formats</span>
+    </div>
+</header>
+
+<form method="post" enctype="multipart/form-data" action="/convert" id="myForm">
+    <dialog class="modal" id="formats_params_modal" onclick="closeThis(this)">
+        <div class="modal-content" id="format_params_main_content">
+            <div class="modal-header">
+                <h3 class="modal-title">Paramètres avancés</h3>
+                <button type="button" class="close" id="formats_params_close" onclick="closeParentModal(this)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <h4>Paramètres globaux</h4>
+                    <div>
+                        <input type="checkbox" id="filter_keywords" name="params" value="false" class="params-input">
+                        <label
+                                for="filter_keywords">Filter les mots clés n'apparaissant que dans un seul
+                            article</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" id="filter_lang" name="params" value="false" class="params-input">
+                        <label for="filter_lang">Filter les langues autres que le français</label>
+                    </div>
+                </div>
+
+                <br>
+
+                <div>
+                    <h4>Paramètres des statistiques et des graphiques</h4>
+                    <div style="display: none;">
+                        <input type="number" id="minimal_support" name="params" value="1" min="1" class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support">
+                            Support minimal par défaut global
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_kw" name="params" value="1" min="1"
+                               class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_kw">
+                            Support minimal pour les mots clés
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_journals" name="params" value="1" min="1"
+                               class="params-input" placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_journals">
+                            Support minimal pour les journaux
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_authors" name="params" value="1" min="1"
+                               class="params-input" placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_authors">
+                            Support minimal pour les auteurs
+                        </label>
+                    </div>
+                    <div>
+                        <input type="number" id="minimal_support_dates" name="params" value="1" min="1"
+                               class="params-input"
+                               placeholder="Support minimal pour les mots clés">
+                        <label for="minimal_support_dates">
+                            Support minimal pour les mois
+                        </label>
+                    </div>
+                </div>
+
+                <br>
+
+                <div>
+                    <div class="see-help btn btn-primary" onclick="seeHelp('keywords_help')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>À quoi servent les filtres ? (mots clés &amp; langues)</span>
+                    </div>
+                    <div class="see-help btn btn-primary" onclick="seeHelp('support_help')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Qu'est-ce que le support minimal ?</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-content help-container" id="keywords_help" style="overflow: hidden">
+            <h3>À quoi sert le filtre de mots clés ?</h3>
+            <p>
+                Le filtre de mots clés permet de ne pas prendre en compte les mots clés qui n’apparaissent que dans un
+                seul article.
+            </p>
+            <p>
+                Ce dernier peut alors être utile si l'on souhaite utiliser les mots clés pour comparer les articles,
+                ou si l'on souhaite construire un réseau de mots clés.
+            </p>
+            <p>
+                Ce filtre s'applique sur tous les exports, y compris les statistiques et les graphiques.
+            </p>
+
+            <h3>À quoi sert le filtre de la langue ?</h3>
+            <p>
+                Le filtre de la langue permet de ne pas prendre en compte les articles qui ne sont pas en français
+            </p>
+            <p>
+                La langue est alors déterminée à partir du contenu de l'article.
+            </p>
+            <p>
+                Ce filtre s'applique sur tous les exports, y compris les statistiques et les graphiques.
+            </p>
+        </div>
+
+        <div class="modal-content help-container" id="support_help">
+            <h3>Qu'est-ce que le support minimal ?</h3>
+            <p>
+                Régler le support minimal vous permet de filtrer les valeurs prises en compte lors de la génération des
+                visualisations.
+            </p>
+            <p>
+                Par exemple si vous choisissez un support minimal de 3 pour les journaux, le graphique n’affichera que
+                les journaux qui sont présents 3 fois ou plus.
+            </p>
+            <p>
+                Ces paramètres s'appliquent uniquement sur les statistiques et les graphiques.
+            </p>
+
+            <img alt="Graphique du nombre d'articles par journal filtré avec un support minimal de 50"
+                 src="{{ host + '/static/support_50.png' }}" class="modal-image">
+            <div class="figure-caption">
+                Figure 1 : Graphique du nombre d'articles par journal filtré avec un support minimal de 50
+            </div>
+            <br>
+            <br>
+            <img alt="Graphique du nombre d'articles par journal filtré avec un support minimal de 100"
+                 src="{{ host + '/static/support_100.png' }}" class="modal-image">
+            <div class="figure-caption">
+                Figure 2 : Graphique du nombre d'articles par journal filtré avec un support minimal de 100
+            </div>
+        </div>
+    </dialog>
+    <main>
+        <div class="rectangle">
+            <div class="params-button-container">
+                <div class="number">
+                    0
+                </div>
+            </div>
+            <div class="card-title secondary">
+                Récupérez vos fichiers html sur Europresse
+            </div>
+            <div class="card-body main">
+                Pour plus d’informations sur comment les télécharger,
+                consultez le
+                <a href="https://ceres.sorbonne-universite.fr/tutoriels/2023-06-09_tutoriel_europresse/"
+                   class="pretty-link link-light-bg" target="_blank">
+                    tutoriel CERES
+                </a>
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="params-button-container">
+                <div class="number">
+                    1
+                </div>
+            </div>
+            <div class="card-title secondary">
+                Téléchargez les fichiers que vous souhaitez transformer
+            </div>
+            <div class="card-body main">
+                <div class="dropzone-container" id="dropzone-continer">
+                    <div style="display: none;" id="state">0</div>
+                    <div class="dropzone mb-3" id="files-dropzone">
+                        <div class="dz-message" data-dz-message>
+                            <div class="icon" style="padding: 0 0 .5em 0;">
+                                <i class="bi bi-file-earmark-arrow-up"></i>
+                            </div>
+                            <div class="text">
+                                <h4>Déposez vos fichiers ici</h4>
+                                <h5>ou cliquez pour les sélectionner</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="params-button-container">
+                <div class="number">
+                    2
+                </div>
+                <div class="" style="padding: 0 2em;">
+                    <i class="bi bi-sliders params-button tooltip-trigger" id="formats_params_button"
+                       src="{{ host + '/static/sliders.svg' }}"
+                       describedby="tooltip" aria-label="formats-params-tooltip"
+                       alt="Paramètres"
+                       onclick="modal"
+                    ></i>
+                    <div class="tooltip-content left" role="tooltip" id="formats-params-tooltip"
+                         data-popper-placement="left">
+                        Paramètres avancés
+                    </div>
+                </div>
+            </div>
+            <div class="card-title secondary">
+                Choisissez les formats vers lesquels convertir
+            </div>
+            <div style="padding: .6em"></div>
+            <div class="formats-container">
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Iramuteq-tooltip"
+                         aria-describedby="tooltip" aria-label="Iramuteq-tooltip">
+                        <label class="switch" for="iramuteq">Iramuteq
+                            <input type="checkbox" name="formats" value="iramuteq" id="iramuteq">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Iramuteq-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Le format Iramuteq est un format de fichier texte brut qui peut être utilisé pour l'analyse
+                            de texte avec le logiciel
+                            <a href="http://www.iramuteq.org/" target="_blank" class="pretty-link">Iramuteq</a>
+                            ainsi que d'autres logiciels compatibles comme
+                            <a href="https://hyperbase.unice.fr/" target="_blank" class="pretty-link">Hyperbase</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="TXM-tooltip"
+                         aria-describedby="tooltip" aria-label="TXM-tooltip">
+                        <label class="switch" for="txm">TXM
+                            <input type="checkbox" name="formats" value="txm" id="txm">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="TXM-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            TXM est un format de fichier texte brut (XML) qui peut être utilisé pour l'analyse de texte
+                            avec le logiciel
+                            <a href="http://textometrie.ens-lyon.fr/?lang=fr" target="_blank" class="pretty-link">TXM</a>.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="JSON-tooltip"
+                         aria-describedby="tooltip" aria-label="JSON-tooltip">
+                        <label class="switch" for="json">JSON
+                            <input type="checkbox" name="formats" value="json" id="json">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="JSON-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Le format JSON est un format de fichier texte brut qui peut être utilisé pour l'analyse de
+                            texte avec des logiciels compatibles. Ce format est particulièrement utile pour les
+                            échanges de données.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="CSV-tooltip"
+                         aria-describedby="tooltip" aria-label="CSV-tooltip">
+                        <label class="switch" for="csv">CSV
+                            <input type="checkbox" name="formats" value="csv" id="csv">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="CSV-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Le format CSV est un format de fichier texte brut qui permet de stocker des données
+                            tabulaires. Il est alors souvent utilisé pour l'enregistrement de données structurées.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Excel-tooltip"
+                         aria-describedby="tooltip" aria-label="Excel-tooltip">
+                        <label class="switch" for="excel">Excel (xls)
+                            <input type="checkbox" name="formats" value="excel" id="excel">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Excel-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Le format Excel est un format de fichier tableur qui peut être utilisé pour l'analyse de
+                            texte avec des logiciels compatibles. Cependant, il est recommandé d'utiliser le format CSV
+                            si le fichier est destiné à être utilisé dans un logiciel d'analyse de texte.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="Markdown-tooltip"
+                         aria-describedby="tooltip" aria-label="Markdown-tooltip">
+                        <label class="switch" for="markdown">Markdown
+                            <input type="checkbox" name="formats" value="markdown" id="markdown">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="Markdown-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Le format Markdown est un format de fichier texte brut qui est courrament utilisé pour
+                            l'affichage de texte sur le web. Il est particulièrement utile pour la rédaction de documents.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="card-title secondary">
+                et/ou les statistiques à générer
+            </div>
+            <div style="padding: .6em"></div>
+            <div class="formats-container">
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="stats-tooltip"
+                         aria-describedby="tooltip" aria-label="stats-tooltip">
+                        <label class="switch" for="stats">Statistiques
+                            <input type="checkbox" name="stats" value="stats" id="stats">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="stats-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Les statistiques sont des données textuelles (JSON) qui peuvent être utilisées pour
+                            l'analyse de corpus avec des logiciels compatibles.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="processed-tooltip"
+                         aria-describedby="tooltip" aria-label="processed-tooltip">
+                        <label class="switch" for="processedStats">Statistiques traitées
+                            <input type="checkbox" name="stats" value="processedStats" id="processedStats">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="processed-tooltip" data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Les statistiques traitées sont des données textuelles (JSON) procurant des informations
+                            générales sur le corpus. Contraitement aux statistiques, elles sont déjà traitées et
+                            prêtes à être utilisées.
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover" style="display: none"> <!-- TODO: change to block when added output-->
+                    <div class="label tooltip-trigger" alt="static-graphs-tooltip"
+                         aria-describedby="tooltip" aria-label="static-graphs-tooltip">
+                        <label class="switch" for="staticGraphs">Graphiques statiques
+                            <input type="checkbox" name="stats" value="staticGraphs" id="staticGraphs">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="static-graphs-tooltip"
+                         data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Les graphiques statiques sont des images (PNG) représentant les statistiques calculées
+                            sur le corpus (export statistiques traitées).
+                        </p>
+                    </div>
+                </div>
+                <div class="label-and-popover">
+                    <div class="label tooltip-trigger" alt="dynamic-graphs-tooltip"
+                         aria-describedby="tooltip" aria-label="dynamic-graphs-tooltip">
+                        <label class="switch" for="dynamicGraphs">Graphiques interactifs
+                            <input type="checkbox" name="stats" value="dynamicGraphs" id="dynamicGraphs">
+                        </label>
+                    </div>
+                    <div class="tooltip-content" role="tooltip" id="dynamic-graphs-tooltip"
+                         data-popper-placement="right">
+                        <div class="arrow" data-popper-arrow></div>
+                        <p>
+                            Les graphiques interactifs sont des pages web (HTML) représentant les statistiques calculées
+                            sur le corpus (export statistiques traitées). Ils permettent une exploration interactive
+                            où l'on peut venir filtrer les données, zoomer, etc., puis en exporter une image.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="rectangle">
+            <div class="params-button-container">
+                <div class="number">
+                    3
+                </div>
+            </div>
+            <div class="card-title secondary">
+                Téléchargez les fichiers transformés sur votre ordinateur
+            </div>
+            <div id="conversion-container" class="card-body main fourth-rectangle-container">
+                <div id="submit-all" type="submit" class="fourth-rectangle-button"
+                     onclick="submitForm()">
+                    <div class="">
+                        <i class="bi bi-file-earmark-play content-image text-center" aria-hidden="true"></i>
+                    </div>
+                    <div class="content-text">
+                        Convertir
+                    </div>
+                </div>
+            </div>
+            <div id="download-container" class="card-body main fourth-rectangle-container" style="display: none;">
+                <a id="download" href="" download class="download-link">
+                    <div class="fourth-rectangle-button">
+                        <div class="">
+                            <i class="bi bi-file-earmark-arrow-down content-image" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            Télécharger
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div id="loader-container" class="card-body main fourth-rectangle-container" style="display:none;">
+                <div class="fourth-rectangle-button-no-hover">
+                    <div class="">
+                        <div class="spinner-border" role="status" id="loader">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div>
+                        Conversion...
+                    </div>
+                </div>
+            </div>
+            <div id="redo-container" class="card-body main" style="display: none;">
+                Recommencez :
+                <ul>
+                    <li>
+                        <a href="#" onclick="redoForm(true, true)">Avec les mêmes fichiers et les mêmes paramètres</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="redoForm(true, false)">Avec les mêmes fichiers</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="redoForm(false, true)">Avec les mêmes paramètres</a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="redoForm()">À partir de zéro</a>
+                    </li>
+                </ul>
+            </div>
+    </main>
+</form>
+
+<footer>
+    <div class="footer">
+        <div class="footer-help">
+            <p>Vous rencontrez un problème ? </p>
+            <a href="mailto:lettres-ceres@sorbonne-universite.fr" class="mail" target="_blank">
+                Écrivez-nous à l’adresse : <span class="actual-mail">lettres-ceres@sorbonne-universite.fr</span>
+            </a>
+        </div>
+        <div class="footer-credits">
+            <a href="https://ceres.sorbonne-universite.fr/outils/" class="pretty-link big-boi outils-du-ceres"
+               target="_blank">
+                Outils du CERES
+                <span style="padding-left: 0.3em;"></span>
+                <img src="{{ host + '/static/logo.svg' }}" alt="CERES" class="logo">
+            </a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>
