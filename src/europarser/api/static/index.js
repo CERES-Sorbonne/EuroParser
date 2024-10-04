@@ -385,3 +385,6 @@ window.closeThis = closeThis
 window.closeParentModal = closeParentModal
 window.seeHelp = seeHelp
 window.redoForm = redoForm
+
+window.hearPedro = hearPedro
+window.mutePedro = mutePedro
