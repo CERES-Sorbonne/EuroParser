@@ -31,6 +31,9 @@ class PivotTransformer(Transformer):
         self.bad_articles = []
         self.ids = set()
         self.all_keywords = Counter()
+        self.doublons_count = 0
+        self.articles_count = 0
+        self.good_articles_count = 0
 
     def subspaces(self, s: str) -> str:
         return self.double_spaces_and_beyond.sub(r"\1", s).strip()
@@ -41,6 +44,8 @@ class PivotTransformer(Transformer):
             soup = BeautifulSoup(file.file, 'lxml')
             articles = soup.find_all("article")
 
+            self.articles_count += len(articles)
+
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = [executor.submit(self.transform_article, article) for article in articles]
                 concurrent.futures.wait(futures, return_when=concurrent.futures.ALL_COMPLETED)
@@ -50,6 +55,14 @@ class PivotTransformer(Transformer):
         self.persist_json()
         self._persist_errors(datetime.now().strftime("%Y%m%d"))
         self.apply_parameters()
+
+        if self.doublons_count:
+            self._logger.warn(f"Nombre d'articles doublons : {self.doublons_count}")
+        else:
+            self._logger.info("Pas d'articles doublons")
+
+        self._logger.info(f"Nombre d'articles traités : {self.good_articles_count}")
+        self._logger.info(f"Nombre d'articles au total : {self.articles_count}")
 
         return sorted(self.corpus, key=lambda x: x.epoch)
 
@@ -204,6 +217,9 @@ class PivotTransformer(Transformer):
                     "Article déjà présent dans le corpus : "
                     f"{doc['titre'] = }, {doc['date'] = }, {doc['journal'] = }, {identifiant = }"
                 )
+                self.doublons_count += 1
+
+            self.good_articles_count += 1
 
         except BadArticle as e:
             if self._logger.isEnabledFor(logging.DEBUG):
