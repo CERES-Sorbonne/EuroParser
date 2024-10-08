@@ -1,5 +1,9 @@
 import {spawn_dropzone} from './dropzone_handler.js'
 
+const debug = getDebugFromParam();
+if (debug) {
+    console.log("Debug mode activated, will see the console logs");
+}
 
 function getBaseURL() {
     let base_url = window.location.href;
@@ -74,7 +78,9 @@ async function createFileUploadUrl() {
     let url_promise = fetch(addBaseURL("/create_file_upload_url"))
         .then(response => response.json())
         .then(data => {
-            console.log(data);
+            if (debug) {
+                console.log(data);
+            }
             url = addBaseURL(data.upload_url);
             uuid_ = data.uuid;
         })
@@ -85,8 +91,12 @@ async function createFileUploadUrl() {
         });
 
     await url_promise;
-    console.log("upload url : " + url);
-    console.log("upload uuid : " + uuid_);
+    if (debug) {
+        console.log("upload url : " + url);
+    }
+    if (debug) {
+        console.log("upload uuid : " + uuid_);
+    }
     return [url, uuid_];
 }
 
@@ -151,8 +161,12 @@ function submitForm() {
     //     formData.append(key, base_params[key]);
     // }
 
-    console.log(formData.get("output"))
-    console.log(formData.get("uuid"))
+    if (debug) {
+        console.log(formData.get("output"));
+    }
+    if (debug) {
+        console.log(formData.get("uuid"));
+    }
 
     xhr.open("POST", addBaseURL("convert"));
 
@@ -242,7 +256,9 @@ function redoForm(keep_files = false, keep_params = false) {
 }
 
 function saveBlob(blob, fileName) {
-    console.log("saveBlob")
+    if (debug) {
+        console.log("saveBlob");
+    }
 
     let download_container = document.getElementById('download-container');
     let download = document.getElementById('download');
@@ -318,11 +334,16 @@ function seeCeres() {
 function hearPedro() {
     if (urlParam === 'pedro') {
         window.audio = new Audio('static/pedro.mp3');
-        audio.play().then(
-            console.log("audio played")
-        ).catch(
-            console.error("audio not played")
-        )
+
+        let audio_promise = audio.play()
+
+        if (debug) {
+            audio_promise.then(
+                console.log("Pedro is speaking")
+            ).catch(
+                console.error("Pedro is not speaking")
+            )
+        }
     }
 }
 
@@ -333,10 +354,14 @@ function mutePedro() {
 }
 
 const base_url = getBaseURL();
-console.log("base url : " + base_url)
+if (debug) {
+    console.log("base url : " + base_url);
+}
 
 const urlParam = getURLParam();
-console.log("url param : " + urlParam)
+if (debug) {
+    console.log("url param : " + urlParam);
+}
 
 
 addModalEvents()
