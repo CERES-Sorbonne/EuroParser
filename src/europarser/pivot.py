@@ -213,7 +213,7 @@ class PivotTransformer(Transformer):
                 self.corpus.append(Pivot(**doc))
                 self.ids.add(identifiant)
             else:
-                self._logger(
+                self._logger.warn(
                     "Article déjà présent dans le corpus : "
                     f"{doc['titre'] = }, {doc['date'] = }, {doc['journal'] = }, {identifiant = }"
                 )
