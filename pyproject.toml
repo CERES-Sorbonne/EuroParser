@@ -25,11 +25,8 @@ classifiers = [
 ]
 dependencies = [
     "cython",
-    "uvloop @git+https://github.com/MagicStack/uvloop.git ; python_version == '3.13'",
-    "PyArrow @git+htthttps://github.com/apache/arrow.git#egg=PyArrow&subdirectory=python ; python_version == '3.13'",
     "PyArrow; python_version <= '3.12'",
-    "faust-cchardet", # ; python_version <= '3.12'",
-    #    "cchardet; python_version == '3.13'",
+    "faust-cchardet",
     "beautifulsoup4~=4.12.3",
     "pydantic~=2.9.2",
     "polars~=1.9.0",
