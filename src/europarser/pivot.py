@@ -2,6 +2,7 @@ import concurrent.futures
 import json
 import logging
 import re
+from _datetime import datetime
 from collections import Counter
 from hashlib import sha256
 from typing import Optional, Any, Union
@@ -47,6 +48,7 @@ class PivotTransformer(Transformer):
         self._logger.info(f"Nombre d'articles : {len(self.corpus)}")
 
         self.persist_json()
+        self._persist_errors(datetime.now().strftime("%Y%m%d"))
         self.apply_parameters()
 
         return sorted(self.corpus, key=lambda x: x.epoch)
