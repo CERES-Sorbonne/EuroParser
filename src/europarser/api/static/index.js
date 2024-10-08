@@ -18,36 +18,29 @@ function getBaseURL() {
     return base_url + "/";
 }
 
-function getURLParam() {
+function parseURLParams() {
     const urlParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
-    // let ceres = false;
-    // let pedro = false;
-    //
-    // for (let key in urlParams) {
-    //     if (key === "ceres") {
-    //         ceres = true;
-    //     } else if (key === "pedro") {
-    //         pedro = true;
-    //     }
-    // }
-    //
-    // if (ceres && pedro) {
-    //     return null;
-    // }
-    // if (ceres) {
-    //     return "ceres";
-    // }
-    // if (pedro) {
-    //     return "pedro";
-    // }
+    return urlParams;
+}
+
+function getURLParam() {
+    const urlParams = parseURLParams();
 
     // If both ceres and pedro are present, return null to indicate an error else return the present key
-
-    if (Object.keys(urlParams).length !== 1) {
+    if ("ceres" in urlParams && "pedro" in urlParams) {
         return null;
     }
-    return Object.keys(urlParams)[0] // return the key
+    if ("ceres" in urlParams) {
+        return "ceres";
+    }
+    if ("pedro" in urlParams) {
+        return "pedro";
+    }
+}
 
+function getDebugFromParam() {
+    const urlParams = parseURLParams();
+    return "debug" in urlParams;
 }
 
 
