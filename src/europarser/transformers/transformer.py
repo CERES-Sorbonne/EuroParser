@@ -57,10 +57,11 @@ class Transformer(ABC):
         """
         dir_path = Path.home() / "europarser"
         dir_path.mkdir(parents=True, exist_ok=True)
-        path = os.path.join(dir_path, f"errors-{filename}.json")
-        mode = "a" if os.path.exists(path) else "w"
-        with open(path, mode, encoding="utf-8") as f:
+        path = dir_path / f"errors-{filename}.json"
+        mode = "a" if path.exists() else "w"
+        with path.open(mode, encoding="utf-8") as f:
             json.dump([e.dict() for e in self.errors], f, ensure_ascii=False)
+        print(f"Errors saved to {path}")
 
     @staticmethod
     def _format_value(value: str) -> str:
