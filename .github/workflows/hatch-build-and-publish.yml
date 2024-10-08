@@ -162,15 +162,13 @@ jobs:
       - name : Check stuff
         run: |
           ls -Al
-          ls -Al dist
-          ls -Al dist/europarser
-          
+          ls -Al dist          
 
       - name: Deploy artifacts
         uses: actions/upload-artifact@v4
         with:
           name: europarser
-          path: ./dist/europarser/*
+          path: ./dist/*
           if-no-files-found: 'error'
 
   release:
