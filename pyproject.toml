@@ -24,20 +24,23 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "beautifulsoup4~=4.12.2",
     "cython",
-    "faust-cchardet",
-    "langid~=1.1.6",
+    "uvloop @git+https://github.com/MagicStack/uvloop.git ; python_version == '3.13'",
+    "PyArrow @git+htthttps://github.com/apache/arrow.git#egg=PyArrow&subdirectory=python ; python_version == '3.13'",
+    "PyArrow; python_version <= '3.12'",
+    "faust-cchardet", # ; python_version <= '3.12'",
+    #    "cchardet; python_version == '3.13'",
+    "beautifulsoup4~=4.12.3",
+    "pydantic~=2.9.2",
+    "polars~=1.9.0",
+    "langid",
     "lxml",
-    "matplotlib~=3.7.2",
+    "matplotlib",
     "numpy",
     "pandas",
-    "PyArrow",
     "plotly",
-    "polars~=0.19.12",
     "py3langid",
-    "pydantic>=2.0.0",
-    "python-dateutil~=2.8.2",
+    "python-dateutil",
     "tqdm",
     "XlsxWriter",
     "fastapi",
@@ -54,6 +57,9 @@ Source = "https://github.com/CERES-sorbonne/europarser"
 
 [tool.hatch.version]
 path = "src/europarser/__about__.py"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.envs.default]
 dependencies = [
