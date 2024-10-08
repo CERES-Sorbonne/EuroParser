@@ -217,6 +217,7 @@ class PivotTransformer(Transformer):
                     "Article déjà présent dans le corpus : "
                     f"{doc['titre'] = }, {doc['date'] = }, {doc['journal'] = }, {identifiant = }"
                 )
+                self._add_error(ValueError("Article déjà présent dans le corpus"), article)
                 self.doublons_count += 1
 
             self.good_articles_count += 1
