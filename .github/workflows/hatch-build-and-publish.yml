@@ -98,7 +98,7 @@ jobs:
     environment: release
     needs:
         - get-ref
-        - get-tag
+        - envs
     steps:
       - name: Decode ref
         id: decode_ref
@@ -134,7 +134,7 @@ jobs:
       - name: Version from tag
         if : ${{ github.event_name == 'push' }}
         run: |
-          TAG=${{ needs.get-tag.outputs.tag }}
+          TAG=${{ needs.envs.outputs.tag }}
           echo "TAG=$TAG"
           hatch version $TAG 
           # && echo "Version set to $TAG" || echo "Version already exists" && exit 1
@@ -162,7 +162,7 @@ jobs:
       - name: Deploy artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: *
+          name: europarser
           path: ./dist/europarser
           if-no-files-found: 'error'
 
@@ -170,7 +170,7 @@ jobs:
     if: '!cancelled()'
     needs:
         - deploy
-        - get-tag
+        - envs
         - get-ref
     name: Release wheel and source distribution to GitHub
     runs-on: ubuntu-latest
