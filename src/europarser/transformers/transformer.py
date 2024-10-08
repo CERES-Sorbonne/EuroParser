@@ -1,6 +1,6 @@
 import json
 import logging
-import os
+from os import getenv
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import List, Optional, Any, Union
@@ -13,7 +13,7 @@ from ..models import Error, Pivot, TransformerOutput, Params
 
 # Transformer initialization, allows all transformers to access the output path end prevents to set it multiple times
 
-output_path = os.getenv("EUROPARSER_OUTPUT", None)
+output_path = getenv("EUROPARSER_OUTPUT", None)
 
 if output_path is None:
     logging.warning("EUROPARSER_OUTPUT not set, disabling output")
