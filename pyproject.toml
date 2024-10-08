@@ -11,17 +11,17 @@ requires-python = ">=3.9"
 license = "AGPL-3.0-or-later"
 keywords = []
 authors = [
-  { name = "Marceau", email = "pypi@marceau-h.fr" },
+    { name = "Marceau", email = "pypi@marceau-h.fr" },
 ]
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
     "cython",
@@ -63,20 +63,20 @@ allow-direct-references = true
 
 [tool.hatch.envs.default]
 dependencies = [
-  "coverage[toml]>=6.5",
-  "pytest",
-  "requests",
+    "coverage[toml]>=6.5",
+    "pytest",
+    "requests",
 ]
 [tool.hatch.envs.default.scripts]
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
-  "- coverage combine",
-  "coverage report",
+    "- coverage combine",
+    "coverage report",
 ]
 cov = [
-  "test-cov",
-  "cov-report",
+    "test-cov",
+    "cov-report",
 ]
 
 [[tool.hatch.envs.all.matrix]]
@@ -84,7 +84,7 @@ python = ["3.9", "3.10", "3.11", "3.12"]
 
 [tool.hatch.envs.types]
 dependencies = [
-  "mypy>=1.0.0",
+    "mypy>=1.0.0",
 ]
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/europarser tests}"
@@ -94,7 +94,7 @@ source_pkgs = ["europarser", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/europarser/__about__.py",
+    "src/europarser/__about__.py",
 ]
 
 [tool.coverage.paths]
@@ -103,9 +103,9 @@ tests = ["tests", "*/europarser/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
+    "no cov",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]
 
 
