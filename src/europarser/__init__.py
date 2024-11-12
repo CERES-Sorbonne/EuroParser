@@ -5,4 +5,4 @@ from .models import FileToTransform, Params, Outputs, OutputFormat
 from .pipeline import pipeline
 from .main import main
 
-__all__ = ["FileToTransform", "Params", "Output", "OutputFormat", "pipeline", "main"]
+__all__ = ["FileToTransform", "Params", "Outputs", "OutputFormat", "pipeline", "main"]
