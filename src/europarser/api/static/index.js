@@ -334,6 +334,7 @@ function seeCeres() {
 function hearPedro() {
     if (urlParam === 'pedro') {
         window.audio = new Audio('static/pedro.mp3');
+        audio.loop = true;
 
         let audio_promise = audio.play()
 
