@@ -201,8 +201,9 @@ class PivotTransformer(Transformer):
             self.all_keywords.update(doc["keywords"])
 
             identifiant = sha256(
-                ' '.join((doc["titre"], doc["journal_clean"], doc["date"])
-                         ).encode()).hexdigest()
+                ' '.join(
+                    (doc["titre"], doc["journal"], doc["date"])
+                ).encode()).hexdigest()
 
             langue = detect_lang(doc["texte"])
             if langue:
