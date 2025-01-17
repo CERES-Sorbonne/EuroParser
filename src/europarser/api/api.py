@@ -95,7 +95,7 @@ async def convert(
 
     # parse all files
     try:
-        to_process = [FileToTransform(name=f.name, file=f.read_text()) for f in files]
+        to_process = [FileToTransform(name=f.name, file=f.read_text(encoding="utf-8")) for f in files]
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
 

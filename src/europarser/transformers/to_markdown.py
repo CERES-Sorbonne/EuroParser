@@ -25,9 +25,9 @@ class MarkdownTransformer(Transformer):
     def generate_markdown(self, pivot: Pivot):
         # Générer le contenu du fichier markdown
         frontmatter = {
-            "journal": clean_string(pivot.journal_clean),
-            "auteur": clean_string(pivot.auteur),
-            "titre": clean_string(pivot.titre),
+            "journal": pivot.journal_clean,
+            "auteur": pivot.auteur,
+            "titre": pivot.titre,
             "date": pivot.date,
             "langue": clean_string(pivot.langue),
             "tags": [clean_string(tag) for tag in pivot.keywords],
@@ -41,7 +41,7 @@ class MarkdownTransformer(Transformer):
         # Nom du fichier markdown
         # Si le titre est trop long, on le tronque à 100 caractères
         # Si le titre est vide (une fois nettoyé), on utilise le hash du texte
-        base_nom = frontmatter["titre"][:100].strip("_") or hashlib.md5(pivot.texte.encode()).hexdigest()
+        base_nom = clean_string(pivot.titre).strip("_")[:100] or hashlib.md5(pivot.texte.encode()).hexdigest()
 
         nom = f"{frontmatter['journal']}/{base_nom}.md"
         if nom in self.seen_names:

@@ -155,7 +155,8 @@ function submitForm() {
     let params = document.getElementsByClassName('params-input');
     let params_dict = {};
     for (let param of params) {
-        formData.append(param.id, param.value);
+        const value = param.type === 'checkbox' ? param.checked : param.value
+        formData.append(param.id, value);
     }
     // for (let key in base_params) {
     //     formData.append(key, base_params[key]);

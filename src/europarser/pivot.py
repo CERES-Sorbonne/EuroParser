@@ -238,12 +238,12 @@ class PivotTransformer(Transformer):
     def apply_parameters(self) -> list[Pivot]:
         if self.params.filter_keywords is True:
             for article in self.corpus:
-                article.keywords = list(filter(self.filter_kw, article.keywords))
+                article.keywords = list(filter(lambda kw: self.filter_kw(kw, self.params.minimal_support_kw or 1), article.keywords))
 
         return self.corpus
 
-    def filter_kw(self, keyword: str) -> bool:
-        return self.all_keywords[keyword] > 1
+    def filter_kw(self, keyword: str, minimum_shared_kw: int = 1) -> bool:
+        return self.all_keywords[keyword] > minimum_shared_kw
 
     def get_bad_articles(self) -> None:
         print(self.bad_articles)
