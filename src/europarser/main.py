@@ -1,9 +1,12 @@
 from pathlib import Path
 from typing import Optional
 
-from . import pipeline
-from .models import FileToTransform, TransformerOutput, Params, Outputs
-
+try:
+    from . import pipeline
+    from .models import FileToTransform, TransformerOutput, Params, Outputs
+except ImportError:
+    from europarser import pipeline
+    from europarser.models import FileToTransform, TransformerOutput, Params, Outputs
 
 def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = None) -> None:
     if params is None:
@@ -43,8 +46,7 @@ def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = 
 
 
 if __name__ == '__main__':
-    folder = Path('/home/marceau/Nextcloud/eurocollectes/15-18')
-    outputs = ["json", "txm", "iramuteq", "csv", "excel", "stats", "processed_stats", "plots", "markdown"]
+    folder = Path('/mnt/P2/PycharmProjects/EuropressParser/test_emile')
     outputs = ["json", "txm", "iramuteq", "csv", "excel", "stats", "processedStats", "markdown", "dynamicGraphs"]
     # outputs = ["json", "stats", "processed_stats", "plots"]
     params = Params(
