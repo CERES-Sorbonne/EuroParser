@@ -493,10 +493,10 @@ if __name__ == '__main__':
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         # ps.print_stats()
 
-        with open(f"../../profiler/results/{mode}/stats.json", "w") as f:
+        with open(f"../../profiler/results/{mode}/stats.json", "w", encoding="utf-8") as f:
             json.dump(res, f, indent=4)
 
-        with open(f"../../profiler/results/{mode}/profiler.tsv", "w") as f:
+        with open(f"../../profiler/results/{mode}/profiler.tsv", "w", encoding="utf-8") as f:
             profiler_res = s.getvalue().splitlines()
 
             # print(f"{mode = }\n\tprofiler => {profiler_res[0].strip()}")

@@ -122,55 +122,54 @@ def find_datetime(txt: [str]) -> Optional[datetime]:
         # return day, real_month, year
 
     match = time_regex.search(txt)
-    file = open("test.txt", "a")
-    if match:
-        print(f"Found time {match[0]} in {txt}", file=file)
-        match = match[0]
-        if ":" in match:
-            parts = match.split(":")
+    with open("test.txt", "a", encoding="utf-8") as file:
+        if match:
+            print(f"Found time {match[0]} in {txt}", file=file)
+            match = match[0]
+            if ":" in match:
+                parts = match.split(":")
 
-            if len(parts) == 2:
-                hour, minute = parts
-                minute = minute.split()[0]
-            elif len(parts) == 3:
-                hour, minute, second = parts
-                second = second.split()[0]
+                if len(parts) == 2:
+                    hour, minute = parts
+                    minute = minute.split()[0]
+                elif len(parts) == 3:
+                    hour, minute, second = parts
+                    second = second.split()[0]
+            else:
+                hour = match.split()[0]
+                minute = "00"
+                second = "00"
+
+            if "p" in match.lower():
+                hour = str(int(hour) + 12)
+            elif "a" in match.lower():
+                hour = str(int(hour) + 12)
+
+            hour, minute, second = [x.strip() for x in [hour, minute, second]]
+
+            if "+" in match:
+                tz = f"UTC+{match.split('+')[1]}:00"
+            elif "-" in match:
+                tz = f"UTC-{match.split('-')[1]}:00"
+
+            tz = tzutil.gettz(tz)  # if tz is None, gettz() returns tzlocal()
+
+            if not second:
+                second = 0
+
+            try:
+                assert int(hour) < 24
+                assert int(minute) < 60
+                assert int(second) < 60
+            except AssertionError:
+                raise
+
+            dt = datetime(int(year), int(real_month), int(day), int(hour), int(minute), int(second), tzinfo=tz)
         else:
-            hour = match.split()[0]
-            minute = "00"
-            second = "00"
+            print(f"No time found in {txt}", file=file)
+            # dt = datetime(int(year), int(real_month), int(day))
+            dt = datetime(int(year), int(real_month), int(day), tzinfo=tz)
 
-        if "p" in match.lower():
-            hour = str(int(hour) + 12)
-        elif "a" in match.lower():
-            hour = str(int(hour) + 12)
-
-        hour, minute, second = [x.strip() for x in [hour, minute, second]]
-
-        if "+" in match:
-            tz = f"UTC+{match.split('+')[1]}:00"
-        elif "-" in match:
-            tz = f"UTC-{match.split('-')[1]}:00"
-
-        tz = tzutil.gettz(tz)  # if tz is None, gettz() returns tzlocal()
-
-        if not second:
-            second = 0
-
-        try:
-            assert int(hour) < 24
-            assert int(minute) < 60
-            assert int(second) < 60
-        except AssertionError:
-            raise
-
-        dt = datetime(int(year), int(real_month), int(day), int(hour), int(minute), int(second), tzinfo=tz)
-    else:
-        print(f"No time found in {txt}", file=file)
-        # dt = datetime(int(year), int(real_month), int(day))
-        dt = datetime(int(year), int(real_month), int(day), tzinfo=tz)
-
-    file.close()
     return dt
 
 
