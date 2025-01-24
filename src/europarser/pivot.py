@@ -27,6 +27,7 @@ class PivotTransformer(Transformer):
 
     def __init__(self, params: Optional[Params] = None, **kwargs: Optional[Any]) -> None:
         super().__init__(params, **kwargs)
+        self._logger.setLevel(logging.DEBUG)
         self.corpus = []
         self.bad_articles = []
         self.ids = set()
@@ -34,6 +35,9 @@ class PivotTransformer(Transformer):
         self.doublons_count = 0
         self.articles_count = 0
         self.good_articles_count = 0
+
+    def clean_name(self, doc):
+        return f"{doc.year}_{doc.month}_{doc.day}_{doc.journal}_{self.clean_string(doc.titre)[:50]}"
 
     def subspaces(self, s: str) -> str:
         return self.double_spaces_and_beyond.sub(r"\1", s).strip()

@@ -72,6 +72,11 @@ def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Param
         if output in stats_outputs and output != "markdown":
             func = getattr(st, transformer_factory[output])
             to_process.append((func, []))
+            
+        elif output == "txm":
+            func = transformer_factory[output]
+            args = [pivots, params.txm_mode]
+            to_process.append((func, args))
 
         else:
             func = transformer_factory[output]

@@ -3,10 +3,10 @@ from typing import Optional
 
 try:
     from . import pipeline
-    from .models import FileToTransform, TransformerOutput, Params, Outputs
+    from .models import FileToTransform, TransformerOutput, Params, Outputs, TXM_MODE
 except ImportError:
     from europarser import pipeline
-    from europarser.models import FileToTransform, TransformerOutput, Params, Outputs
+    from europarser.models import FileToTFileToTransform, TransformerOutput, Params, Outputs, TXM_MODE
 
 def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = None) -> None:
     if params is None:
@@ -47,12 +47,16 @@ def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = 
 
 if __name__ == '__main__':
     folder = Path('/mnt/P2/PycharmProjects/EuropressParser/test_emile')
-    outputs = ["json", "txm", "iramuteq", "csv", "excel", "stats", "processedStats", "markdown", "dynamicGraphs"]
+    # outputs = ["json", "txm", "iramuteq", "csv", "excel", "stats", "processedStats", "markdown", "dynamicGraphs"]
     # outputs = ["json", "stats", "processed_stats", "plots"]
+    outputs = ["txm"]
     params = Params(
         minimal_support_kw=5,
         minimal_support_authors=2,
         minimal_support_journals=8,
         minimal_support_dates=3,
+        filter_keywords=True,
+        filter_lang=True,
+        txm_mode="multiple_files"
     )
     main(folder, outputs, params=params)

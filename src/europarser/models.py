@@ -45,6 +45,11 @@ class Pivot(BaseModel):
 
 OutputFormat = Literal["csv", "excel", "json", "txt", "xml", "zip"]
 
+class TXM_MODE(str, Enum):
+    MULTIPLE_FILES = "multiple_files"
+    ONE_FILE_PB = "one_file_pb"
+    LEGACY = "legacy"
+
 class Outputs(str, Enum):
     iramuteq = "iramuteq"
     txm = "txm"
@@ -74,6 +79,7 @@ class Params:
             minimal_support_journals: Optional[int] = None,
             minimal_support_authors: Optional[int] = None,
             minimal_support_dates: Optional[int] = None,
+            txm_mode: TXM_MODE | str = TXM_MODE.MULTIPLE_FILES
     ):
         assert all((isinstance(x, int) and x > 0) or x is None
                    for x in [minimal_support, minimal_support_kw, minimal_support_journals, minimal_support_authors,
@@ -87,3 +93,4 @@ class Params:
         self.minimal_support_journals: int = minimal_support_journals or minimal_support
         self.minimal_support_authors: int = minimal_support_authors or minimal_support
         self.minimal_support_dates: int = minimal_support_dates or minimal_support
+        self.txm_mode: TXM_MODE = TXM_MODE(txm_mode) if isinstance(txm_mode, str) else txm_mode if isinstance(txm_mode, TXM_MODE) else TXM_MODE.MULTIPLE_FILES
