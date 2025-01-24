@@ -1,11 +1,14 @@
+import warnings
 import xml.dom.minidom as dom
 import zipfile
 from io import BytesIO, StringIO
+from random import randint
 from typing import List, Optional, Any
 from xml.sax.saxutils import quoteattr, escape
 
 from ..models import Pivot, TransformerOutput, TXM_MODE, Params
 from ..transformers.transformer import Transformer
+from ..utils import super_writestr
 
 
 class TXMTransformer(Transformer):
@@ -17,6 +20,9 @@ class TXMTransformer(Transformer):
         self.output = TransformerOutput(
             data=None, output=self.output_type, filename=f'{self.name}_output.{self.output_type}'
         )
+
+    def clean_name(self, pivot: Pivot, i=None) -> str:
+        return f"{pivot.annee}_{pivot.mois}_{pivot.jour}_{pivot.journal_clean.replace(' ', '-')}_{self.clean_string(pivot.titre)[:50]}{f'_{i}' if i else ''}.xml"
 
     def do_one_article(self, pivot: Pivot, stream, pb=False) -> None:
         pivot_dict = {
@@ -64,18 +70,41 @@ class TXMTransformer(Transformer):
             with BytesIO() as zio:
                 with zipfile.ZipFile(zio, 'w', compression=zipfile.ZIP_DEFLATED) as z:
                     for pivot in pivot_list:
+
+
                         with StringIO() as f:
                             f.write(self.XML_HEADER)
                             self.do_one_article(pivot, f)
                             value = f.getvalue()
+                            # try:
+                            #     warnings.filterwarnings("error", category=UserWarning)
+                            #     z.writestr(
+                            #         self.clean_name(pivot),
+                            #         dom.parseString(f.getvalue()).toprettyxml()
+                            #     )
+                            #     warnings.resetwarnings()
+                            # except UserWarning:
+                            #     try:
+                            #         z.writestr(
+                            #             self.clean_name(pivot, i=randint(0, 1000)),
+                            #             dom.parseString(f.getvalue()).toprettyxml()
+                            #         )
+                            #     except Exception as e:
+                            #         pass
+                            #         raise e
+                            #     finally:
+                            #         warnings.resetwarnings()
+
                             try:
-                                z.writestr(
-                                    f"{pivot.annee}_{pivot.mois}_{pivot.jour}_{pivot.identifiant}.xml",
+                                super_writestr(
+                                    z,
+                                    self.clean_name(pivot),
                                     dom.parseString(f.getvalue()).toprettyxml()
                                 )
                             except Exception as e:
                                 pass
                                 raise e
+
                 self.output.data = zio.getvalue()
         else:
             raise ValueError(f"Invalid TXM mode: {self.params.txm_mode}")

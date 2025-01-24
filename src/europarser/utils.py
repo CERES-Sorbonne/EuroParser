@@ -1,10 +1,7 @@
 import hashlib
 import json
 import sys
-
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
+import warnings
 import re
 from pathlib import Path
 from typing import Tuple, Optional
@@ -171,6 +168,34 @@ def find_datetime(txt: [str]) -> Optional[datetime]:
             dt = datetime(int(year), int(real_month), int(day), tzinfo=tz)
 
     return dt
+
+def super_writestr(zip_io, arcname, data, **kwargs):
+    """
+    Solves the `duplicate` error of the zipfile.writestr method
+    """
+
+    warnings.filterwarnings("error", category=UserWarning)
+
+    try:
+        zip_io.writestr(arcname, data, **kwargs)
+    except UserWarning:
+        arcname = Path(arcname)
+        names = zip_io.namelist()
+        matchs = [name for name in names if re.match(rf"{arcname.stem}(?:_[0-9]+)?", name)]
+        if matchs:
+            arcname = arcname.stem + f"_{len(matchs) + 1}" + arcname.suffix
+            zip_io.writestr(arcname, data, **kwargs)
+        else:
+            raise UserWarning
+    except Exception as e:
+        raise e
+    finally:
+        warnings.resetwarnings()
+
+
+
+
+
 
 
 STOP_WORDS = [

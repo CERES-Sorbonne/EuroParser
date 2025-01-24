@@ -10,6 +10,7 @@ import yaml
 
 from ..models import Pivot, TransformerOutput
 from ..transformers.transformer import Transformer
+from ..utils import super_writestr
 
 
 class MarkdownTransformer(Transformer):
@@ -57,7 +58,7 @@ class MarkdownTransformer(Transformer):
         with zipfile.ZipFile(in_memory_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
             for pivot in pivots:
                 filename, content = self.generate_markdown(pivot)
-                zipf.writestr(filename, content)
+                super_writestr(zipf, filename, content)
             zipf.writestr("Statistiques.md", self.make_waffle())
 
         in_memory_zip.seek(0)
