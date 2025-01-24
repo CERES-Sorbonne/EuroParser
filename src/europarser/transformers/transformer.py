@@ -27,6 +27,8 @@ else:
 if output_path:
     output_path.mkdir(parents=True, exist_ok=True)
 
+caracteres_speciaux = re.compile(r"[^\w\s]", re.UNICODE)
+espaces_et_slashs = re.compile(r'(\s+)|([/\\]+)', re.UNICODE)
 
 class Transformer(ABC):
     output_path = output_path
@@ -89,12 +91,15 @@ class Transformer(ABC):
 
     @staticmethod
     def clean_string(s):
-        # Fonction pour nettoyer les chaînes de caractères
-        s = re.sub(r"[^\w\s]", "", s)  # Supprimer les caractères spéciaux
-        s = s.lower()  # Mettre en minuscule
-        s = s.strip()  # Supprimer les espaces au début et à la fin
-        s = re.sub(r'\s+', '_', s)  # Remplacer les espaces par des underscores
+        """
+        Fonction pour nettoyer les chaînes de caractères pour les noms de fichiers (et le frontmatter YAML)
+        """
+        s = caracteres_speciaux.sub("", s)
+        s = s.lower()
+        s = s.strip()
+        s = espaces_et_slashs.sub('_', s)
         return s
+
 
 def strip_accents(string: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) != 'Mn')
