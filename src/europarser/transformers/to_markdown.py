@@ -29,10 +29,10 @@ class MarkdownTransformer(Transformer):
             "auteur": pivot.auteur,
             "titre": pivot.titre,
             "date": pivot.date,
-            "langue": clean_string(pivot.langue),
-            "tags": [clean_string(tag) for tag in pivot.keywords],
-            "journal_charts": "journal_" + clean_string(pivot.journal_clean),
-            "auteur_charts": "auteur_" + clean_string(pivot.journal_clean),
+            "langue": self.clean_string(pivot.langue),
+            "tags": [self.clean_string(tag) for tag in pivot.keywords],
+            "journal_charts": "journal_" + self.clean_string(pivot.journal_clean),
+            "auteur_charts": "auteur_" + self.clean_string(pivot.journal_clean),
             "url": pivot.url,
         }
 
@@ -41,12 +41,12 @@ class MarkdownTransformer(Transformer):
         # Nom du fichier markdown
         # Si le titre est trop long, on le tronque à 100 caractères
         # Si le titre est vide (une fois nettoyé), on utilise le hash du texte
-        base_nom = clean_string(pivot.titre).strip("_")[:100] or hashlib.md5(pivot.texte.encode()).hexdigest()
+        base_nom = self.clean_string(pivot.titre).strip("_")[:100] or hashlib.md5(pivot.texte.encode()).hexdigest()
 
         nom = f"{frontmatter['journal']}/{base_nom}.md"
         if nom in self.seen_names:
             # Si le nom existe déjà, on ajoute la date à la fin (sans l'heure)
-            nom = f"{nom[:-3]}_{clean_string(pivot.date).split('t')[0]}.md"
+            nom = f"{nom[:-3]}_{self.clean_string(pivot.date).split('t')[0]}.md"
         self.seen_names.add(nom)
 
         return nom, markdown_content
@@ -93,17 +93,10 @@ class MarkdownTransformer(Transformer):
         }
         for journal, value in self.stats.items():
             # do this to avoid searching in the Statistics.md file
-            search_value = 'journal_' + clean_string(journal) + '" -file:(Statistiques) "'
+            search_value = 'journal_' + self.clean_string(journal) + '" -file:(Statistiques) "'
             chart['data']['children'].append({'name': journal, 'value': value, 'journal_chart': search_value})
 
         output += yaml.dump(chart)
         output += "```"
         return output
 
-def clean_string(s):
-    # Fonction pour nettoyer les chaînes de caractères
-    s = re.sub(r"[^\w\s]", "", s)  # Supprimer les caractères spéciaux
-    s = s.lower()  # Mettre en minuscule
-    s = s.strip()  # Supprimer les espaces au début et à la fin
-    s = re.sub(r'\s+', '_', s)  # Remplacer les espaces par des underscores
-    return s

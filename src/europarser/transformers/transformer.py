@@ -87,6 +87,14 @@ class Transformer(ABC):
             for i, x in enumerate(string.lower().split("_"))
         )
 
+    @staticmethod
+    def clean_string(s):
+        # Fonction pour nettoyer les chaînes de caractères
+        s = re.sub(r"[^\w\s]", "", s)  # Supprimer les caractères spéciaux
+        s = s.lower()  # Mettre en minuscule
+        s = s.strip()  # Supprimer les espaces au début et à la fin
+        s = re.sub(r'\s+', '_', s)  # Remplacer les espaces par des underscores
+        return s
 
 def strip_accents(string: str) -> str:
     return ''.join(c for c in unicodedata.normalize('NFKD', string) if unicodedata.category(c) != 'Mn')
