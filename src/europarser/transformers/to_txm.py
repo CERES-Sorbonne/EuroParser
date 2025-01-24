@@ -75,26 +75,6 @@ class TXMTransformer(Transformer):
                         with StringIO() as f:
                             f.write(self.XML_HEADER)
                             self.do_one_article(pivot, f)
-                            value = f.getvalue()
-                            # try:
-                            #     warnings.filterwarnings("error", category=UserWarning)
-                            #     z.writestr(
-                            #         self.clean_name(pivot),
-                            #         dom.parseString(f.getvalue()).toprettyxml()
-                            #     )
-                            #     warnings.resetwarnings()
-                            # except UserWarning:
-                            #     try:
-                            #         z.writestr(
-                            #             self.clean_name(pivot, i=randint(0, 1000)),
-                            #             dom.parseString(f.getvalue()).toprettyxml()
-                            #         )
-                            #     except Exception as e:
-                            #         pass
-                            #         raise e
-                            #     finally:
-                            #         warnings.resetwarnings()
-
                             try:
                                 super_writestr(
                                     z,

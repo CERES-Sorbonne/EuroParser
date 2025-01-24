@@ -17,8 +17,9 @@ class MarkdownTransformer(Transformer):
     def __init__(self):
         super().__init__()
         self.output_type = "zip"
-        self.output = TransformerOutput(data=None, output=self.output_type,
-                                        filename=f'{self.name}_output.{self.output_type}')
+        self.output = TransformerOutput(
+            data=None, output=self.output_type, filename=f'{self.name}_output.{self.output_type}'
+        )
         self.seen_names = set()
         self.stats = None
         self.stats_output = ""

@@ -189,9 +189,6 @@ def super_writestr(zip_io, arcname, data, **kwargs):
             raise UserWarning
     except Exception as e:
         raise e
-    finally:
-        warnings.resetwarnings()
-
 
 
 
