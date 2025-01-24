@@ -173,7 +173,7 @@ def super_writestr(zip_io, arcname, data, **kwargs):
     """
     Solves the `duplicate` error of the zipfile.writestr method
     """
-
+    warnings.filterwarnings("ignore", category=UserWarning)
     warnings.filterwarnings("error", category=UserWarning)
 
     try:
