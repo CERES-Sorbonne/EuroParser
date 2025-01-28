@@ -16,13 +16,15 @@ This readme is also available in [English](https://github.com/CERES-Sorbonne/Eur
 - [License](#license)
 
 ## Installation
-### PyPi
+
+Vous aurez besoin soit de python soit de docker pour pouvoir utiliser Europarser sur votre ordinateur.
+
+### Python
 Europarser est disponible sur PyPi, vous pouvez l'installer avec pip à l'aide de la commande suivante:
 ```bash
 pip install europarser
 ```
-Vous pouvez ensuite vérifier que l'installation s'est bien passée en lançant la commande `europarser --version`
-Une fois installé, vous pouvez lancer l'interface graphique avec la commande `europarser`.
+Vous pouvez ensuite vérifier que l'installation s'est bien passée en lançant europarser à l'aide de `europarser --api`
 
 ### Docker
 ```bash

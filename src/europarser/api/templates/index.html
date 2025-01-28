@@ -150,6 +150,10 @@
                 <br>
 
                 <div>
+                    <div class="see-help btn btn-primary" onclick="seeHelp('keyword_compute_help')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Comment sont calculés les mots clés ? </span>
+                    </div>
                     <div class="see-help btn btn-primary" onclick="seeHelp('keywords_help')">
                         <i class="bi bi-question-circle"></i>
                         <span>À quoi servent les filtres ? (mots clés &amp; langues)</span>
@@ -159,6 +163,7 @@
                         <span>Qu'est-ce que le support minimal ?</span>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -214,6 +219,15 @@
             <div class="figure-caption">
                 Figure 2 : Graphique du nombre d'articles par journal filtré avec un support minimal de 100
             </div>
+        </div>
+
+        <div class="modal-content help-container" id="keyword_compute_help">
+            <h3>
+                Comment sont calculés les mots clés produits par Europarser ?
+            </h3>
+            <br>
+            Les mots clés sont calculés à partir du contenu du titre ainsi que celui du chapeau.
+            <a href="https://lejeunegael.fr/papers/JADT-2010.pdf">Le détail de l'article peut être trouvé ici. </a>
         </div>
     </dialog>
     <main>
@@ -528,6 +542,7 @@
             <a href="mailto:lettres-ceres@sorbonne-universite.fr" class="mail" target="_blank">
                 Écrivez-nous à l’adresse : <span class="actual-mail">lettres-ceres@sorbonne-universite.fr</span>
             </a>
+            <a class="mail" href="https://github.com/CERES-Sorbonne/EuroParser#installation"> <span class="actual-mail">🔗 Ou installez europarser sur votre ordinateur</span> </a>
         </div>
         <div class="footer-credits">
             <a href="https://ceres.sorbonne-universite.fr/outils/" class="pretty-link big-boi outils-du-ceres"

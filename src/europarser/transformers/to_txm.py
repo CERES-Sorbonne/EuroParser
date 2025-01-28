@@ -43,7 +43,9 @@ class TXMTransformer(Transformer):
         for key, value in pivot_dict.items():
             if value:
                 stream.write(f"{key}={quoteattr(str(value))} ")
-        stream.write(f"> {escape(pivot.texte.strip().replace('\n', '<lb/>\n')) if pivot.texte else ''} </text>\n")
+
+        cleaned_string = escape(pivot.texte.strip().replace('\n', '<lb/>\n')) if pivot.texte else ''
+        stream.write(f"> {cleaned_string} </text>\n")
         if pb:
             stream.write("<pb/>\n")
 
