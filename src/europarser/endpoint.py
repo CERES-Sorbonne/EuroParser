@@ -30,8 +30,13 @@ parser.add_argument("--version", action="version", version=f"%(prog)s {__version
 
 def main():
     args = parser.parse_args()
+    if args.cli:
+        if not all([args.folder, args.output]):
+            print("You need to specify a input folder and outputs")
+            parser.print_help()
+            exit(1)
 
-    if args.api or all([args.host, args.port]) or args.expose:
+    else:
         import uvicorn
         from .api import app
 
@@ -40,12 +45,6 @@ def main():
 
         uvicorn.run(app, host=args.host or "127.0.0.1", port=args.port or 8000)
         exit(0)
-
-    if args.cli:
-        if not all([args.folder, args.output]):
-            print("You need to specify a input folder and outputs")
-            parser.print_help()
-            exit(1)
 
     if not all([args.folder, args.output]):
         parser.print_help()
