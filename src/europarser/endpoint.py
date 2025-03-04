@@ -55,10 +55,10 @@ def main():
 
     try:
         from europarser import main
-        from europarser import Params, Output
+        from europarser import Params, Outputs
     except ImportError:
         from .main import main
-        from .models import Params, Output
+        from .models import Params, Outputs
 
     from typing import get_args
 
