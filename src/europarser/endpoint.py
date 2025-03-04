@@ -1,7 +1,10 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from .__about__ import __version__
+try:
+    from europarser.__about__ import __version__
+except ImportError:
+    from .__about__ import __version__
 
 parser = ArgumentParser()
 
@@ -50,8 +53,13 @@ def main():
         parser.print_help()
         exit(1)
 
-    from . import main
-    from . import Params, Output
+    try:
+        from europarser import main
+        from europarser import Params, Output
+    except ImportError:
+        from .main import main
+        from .models import Params, Output
+
     from typing import get_args
 
     possible_outputs = get_args(Output)
