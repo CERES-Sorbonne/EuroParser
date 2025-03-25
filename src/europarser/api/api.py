@@ -91,7 +91,7 @@ async def convert(
     if len(files) == 0:
         raise HTTPException(status_code=404, detail="No files found")
     elif len(files) != len(other_files):
-        raise HTTPException(status_code=400, detail="Only HTML files are supported")
+        raise HTTPException(status_code=400, detail=f"Only HTML files are supported.\nList of files :{other_files}")
 
     # parse all files
     try:
