@@ -13,6 +13,7 @@ from .transformers.to_json import JSONTransformer
 from .transformers.to_markdown import MarkdownTransformer
 from .transformers.to_stats import StatsTransformer
 from .transformers.to_txm import TXMTransformer
+from .pivots_from_files import pivots_from_files
 
 transformer_factory = {
     "json": JSONTransformer().transform,
@@ -50,14 +51,21 @@ def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Param
         if output not in transformer_factory:
             raise ValueError(f"Unknown output type: {output}")
 
-        # if not isinstance(outputs, (Output, str, OutputFormat)):
-        #     raise ValueError(f"Unknown output type: {output}")
-
     if not isinstance(params, Params):
         raise ValueError(f"Unknown params type: {params}")
 
-    transformer = PivotTransformer(params)
-    pivots = transformer.transform(files_to_transform=files)
+    # Séparer les fichiers HTML et JSON en se basant sur le suffixe
+    html_files = [f for f in files if f.name.lower().endswith('.html')]
+    json_files = [f for f in files if f.name.lower().endswith('.json')]
+
+    pivots = []
+    if html_files:
+        transformer = PivotTransformer(params)
+        pivots.extend(transformer.transform(files_to_transform=html_files))
+    if json_files:
+        pivots.extend(pivots_from_files(json_files))
+
+    pivots = sorted(pivots, key=lambda x: x.epoch)
 
     to_process = []
     st = None
@@ -92,3 +100,4 @@ def pipeline(files: list[FileToTransform], outputs: list[Outputs], params: Param
             results.append(res)
 
     return results
+
