@@ -17,6 +17,7 @@ from starlette.responses import FileResponse, StreamingResponse
 from europarser import FileToTransform, pipeline
 from europarser.api.utils import get_mimetype
 from europarser.models import TransformerOutput, Params, Outputs
+from src.europarser.file_finder import file_finder
 
 # root_dir = os.path.dirname(__file__)
 root_dir = Path(__file__).parent
@@ -86,8 +87,9 @@ async def convert(
     if not folder.exists():
         raise HTTPException(status_code=404, detail="UUID not found")
 
-    files = list(folder.glob("*.[hH][tT][mM][lL]"))
-    other_files = list(folder.glob("*"))
+    files = list(file_finder(folder, file_type_s=["html", "json"]))
+    other_files = list(file_finder(folder))
+
     if len(files) == 0:
         raise HTTPException(status_code=404, detail="No files found")
     elif len(files) != len(other_files):
@@ -137,7 +139,8 @@ async def convert(
         return StreamingResponse(
             result.data,
             media_type=get_mimetype(result.output),
-            headers={'Content-Disposition': f"attachment; filename=EuroParser_{date.today().strftime('%d-%m-%Y')}_{result.filename}"}
+            headers={
+                'Content-Disposition': f"attachment; filename=EuroParser_{date.today().strftime('%d-%m-%Y')}_{result.filename}"}
         )
 
     # else let's create a zip with all files

@@ -20,8 +20,8 @@ def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = 
     # parse all files
     files = []
     for file in folder.iterdir():
-        if file.suffix.lower() != ".html":
-            print(f"Skipping {file.name} (not an HTML file)")
+        if file.suffix.lower() not in [".html", ".json"]:
+            print(f"Skipping {file.name} (not an HTML or pivot JSON file)")
             continue
         if file.is_file():
             with open(file, 'r', encoding='utf-8') as f:

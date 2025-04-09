@@ -16,7 +16,7 @@ export function spawn_dropzone(id_, url) {
         url: url,
         paramName: "file",
         maxFiles: 1_000,
-        acceptedFiles: "text/html", // "text/html, application/zip",
+        acceptedFiles: "text/html, application/json", // "text/html, application/zip",
         autoProcessQueue: true,
         parallelUploads: 10,
         uploadMultiple: false,
