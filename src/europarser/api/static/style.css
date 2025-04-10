@@ -27,8 +27,8 @@ body {
     --box-color-hover: var(--secondary-text-color);
     --box-background: transparent;
     --box-background-hover: rgba(72, 255, 0, 0.21);
-    --box-border-color : var(--main-text-color);
-    --box-border-color-hover : var(--secondary-text-color);
+    --box-border-color: var(--main-text-color);
+    --box-border-color-hover: var(--secondary-text-color);
     --box-border-radius: 10px;
     --box-border-width: 2px;
     --box-border-width-hover: 2px;
@@ -451,17 +451,19 @@ footer {
 
     .dz-preview {
         margin: .5em !important;
+
         .dz-image {
             background: var(--secondary-text-on-bg-color) !important;
             width: 100px !important;
             height: 100px !important;
         }
+
         .dz-details {
             padding: 1.2em 1em;
             line-height: 200%;
             color: var(--secondary-text-color) !important;
-            span
-            {
+
+            span {
                 color: var(--secondary-text-color) !important;
                 /*background-color: rgba(255, 255, 255, 0.1) !important;*/
             }
@@ -503,7 +505,6 @@ footer {
     color: var(--box-color-hover);
     display: block;
 }
-
 
 
 .params-button-container {
@@ -548,8 +549,8 @@ footer {
 }
 
 .modal[open] {
-  position: fixed;
-  display: flex;
+    position: fixed;
+    display: flex;
 }
 
 .modal-content {
@@ -582,17 +583,17 @@ footer {
 }
 
 .close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: #aaaaaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .help-container {
@@ -679,3 +680,11 @@ footer {
     background-size: contain;
 }
 
+.restore-modal-buttons-container {
+    margin-top: 1em;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1em;
+}

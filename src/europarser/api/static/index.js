@@ -55,7 +55,8 @@ const base_params = {
     "minimal_support_kw": 1,
     "minimal_support_journals": 1,
     "minimal_support_authors": 1,
-    "minimal_support_dates": 1
+    "minimal_support_dates": 1,
+    "txm_mode": "multiple_files"
 
 }
 
@@ -366,7 +367,137 @@ if (debug) {
 }
 
 
-addModalEvents()
+function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : null;
+}
+
+function setCookie(name, value) {
+    document.cookie = name + "=" + value + "; path=/";
+}
+
+function saveUserParamsToCookie() {
+    let params = {};
+    document.querySelectorAll('.params-input').forEach(input => {
+        params[input.id] = (input.type === "checkbox") ? input.checked : input.value;
+    });
+    let outputs = [];
+    document.querySelectorAll('input[name="formats"]').forEach(chk => {
+        if (chk.checked) outputs.push(chk.id);
+    });
+    params["selected_outputs"] = outputs;
+    setCookie("user_params", JSON.stringify(params));
+}
+
+
+
+function showRestoreModal(params) {
+    let shouldWeShow = false;
+
+    let modal = document.getElementById("restore-params-modal");
+    let container = document.getElementById("restore-params-container");
+    container.innerHTML = `
+        <p>Veuillez sélectionner les paramètres et / ou les sorties que vous souhaitez restaurer.</p>
+        `;
+
+    let paramsDiv = document.createElement("div");
+    paramsDiv.innerHTML = `
+        <h4>Paramètres à restaurer:</h4>
+     `;
+    paramsDiv.className = "restore-params-header";
+    paramsDiv.style.display = "none";
+    container.appendChild(paramsDiv);
+
+    for (let key in params) {
+        let value = params[key];
+
+        if (
+            key === "selected_outputs" ||
+            (key in base_params && value == base_params[key]) // not === because of string vs number comparison, we could cast but yolo
+        ) continue;
+
+        paramsDiv.style.display = "";
+        shouldWeShow = true;
+
+        let div = document.createElement("div");
+        div.innerHTML = `
+            <input type="checkbox" id="restore_${key}" data-param="${key}" checked>
+            <label for="restore_${key}">
+                ${key}: ${value}
+            </label>
+            `;
+        container.appendChild(div);
+    }
+
+    if (params.selected_outputs && params.selected_outputs.length > 0) {
+        shouldWeShow = true;
+
+        let outputsDiv = document.createElement("div");
+        outputsDiv.innerHTML = `<h4>Sorties choisies:</h4>`;
+        container.appendChild(outputsDiv);
+
+        params.selected_outputs.forEach(output => {
+            let div = document.createElement("div");
+            div.innerHTML = `
+                <input type="checkbox" id="restore_output_${output}" data-param="output" value="${output}" checked>
+                <label for="restore_output_${output}">
+                    ${output}
+                </label>
+                `;
+            container.appendChild(div);
+        });
+    }
+    if (shouldWeShow) modal.showModal();
+}
+
+function applyRestoredParams() {
+    let params = JSON.parse(getCookie("user_params"));
+    let modal = document.getElementById("restore-params-modal");
+    let checkboxes = modal.querySelectorAll('input[type="checkbox"][data-param]');
+    let restoredParams = {};
+    checkboxes.forEach(chk => {
+        if(chk.checked) {
+            let key = chk.getAttribute("data-param");
+            if(key === "output") {
+                if(!restoredParams["selected_outputs"]) restoredParams["selected_outputs"] = [];
+                restoredParams["selected_outputs"].push(chk.value);
+            } else {
+                restoredParams[key] = params[key];
+            }
+        }
+    });
+    for (let key in restoredParams) {
+        if (key === "selected_outputs") {
+            document.querySelectorAll('input[name="formats"]').forEach(input => {
+                input.checked = restoredParams[key].includes(input.id);
+            });
+        } else {
+            let input = document.getElementById(key);
+            if (input) {
+                input.type === "checkbox" ? input.checked = restoredParams[key] : input.value = restoredParams[key];
+            }
+        }
+    }
+    modal.close();
+}
+
+function onPageLoadRestore() {
+    const userParamsCookie = getCookie("user_params");
+    if (userParamsCookie) {
+        try {
+            let params = JSON.parse(userParamsCookie);
+            if (Object.keys(params).length > 0) {
+                showRestoreModal(params);
+            }
+        } catch(e) {
+            console.error("Error parsing user_params cookie", e);
+        }
+    }
+}
+
+
+addModalEvents();
+onPageLoadRestore();
 
 const uploadUrl = await createFileUploadUrl()
 const url = uploadUrl[0]
@@ -396,6 +527,21 @@ myDropzone.on("error", function (file) {
     // }
 });
 
+document.querySelectorAll('.params-input, input[name="formats"]').forEach(input => {
+    input.addEventListener("change", saveUserParamsToCookie);
+});
+
+document.querySelectorAll('dialog').forEach(modal => {
+    modal.addEventListener('close', function () {
+        let params = {};
+        document.querySelectorAll('.params-input').forEach(input => {
+            params[input.id] = (input.type === "checkbox") ? input.checked : input.value;
+        });
+        setCookie("user_params", JSON.stringify(params));
+    });
+});
+
+
 seePedro();
 seeCeres();
 
@@ -405,6 +551,8 @@ window.closeThis = closeThis
 window.closeParentModal = closeParentModal
 window.seeHelp = seeHelp
 window.redoForm = redoForm
+window.applyRestoredParams = applyRestoredParams
 
 window.hearPedro = hearPedro
 window.mutePedro = mutePedro
+

@@ -67,7 +67,29 @@
     </div>
 </header>
 
+
+ <dialog class="modal" id="restore-params-modal" onclick="if(event.target===this){this.close();}">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h3 class="modal-title">Restaurer les paramètres précédents ?</h3>
+                <div id="some_space" style="height: 100%; width: 1em;"></div>
+                <button type="button" class="close" id="formats_params_close" onclick="closeParentModal(this)">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="restore-params-container">
+                </div>
+                <div class="restore-modal-buttons-container">
+                    <button class="switch" type="button" onclick="applyRestoredParams()">Restaurer les options cochées</button>
+                    <button class="switch" type="button" onclick="this.parentElement.parentElement.close()">Annuler</button>
+                </div>
+            </div>
+        </div>
+</dialog>
+
 <form method="post" enctype="multipart/form-data" action="/convert" id="myForm">
+
     <dialog class="modal" id="formats_params_modal" onclick="closeThis(this)">
         <div class="modal-content" id="format_params_main_content">
             <div class="modal-header">
@@ -532,8 +554,11 @@
                     </li>
                 </ul>
             </div>
+        </div>
     </main>
 </form>
+
+
 
 <footer>
     <div class="footer">
