@@ -5,7 +5,6 @@ from ..models import Pivot, TransformerOutput
 from ..transformers.transformer import Transformer
 
 import pandas as pd
-from pandas import ExcelWriter
 
 
 class ExcelTransformer(Transformer):

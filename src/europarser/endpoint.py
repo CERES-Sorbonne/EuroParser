@@ -60,8 +60,6 @@ def main():
         from .main import main
         from .models import Params, Outputs
 
-    from typing import get_args
-
     possible_outputs = [output.value for output in Outputs]
 
     folder = Path(args.folder)

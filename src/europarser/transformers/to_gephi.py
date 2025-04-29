@@ -3,8 +3,6 @@ from typing import List
 from ..models import Pivot
 from ..transformers.transformer import Transformer
 
-import pandas as pd
-
 
 class GephiTransformer(Transformer):
     def __init__(self):

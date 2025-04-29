@@ -1,8 +1,3 @@
-import sys
-
-# if sys.version_info < (3, 9):
-#     from __future__ import annotations
-
 import re
 from europarser.utils import STOP_WORDS
 

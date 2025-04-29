@@ -1,6 +1,5 @@
 import hashlib
 import io
-import re
 import zipfile
 from collections import defaultdict
 
