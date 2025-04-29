@@ -13,11 +13,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.responses import FileResponse, StreamingResponse
+from filedetect import FileDetect
 
 from europarser import FileToTransform, pipeline
 from europarser.api.utils import get_mimetype
 from europarser.models import TransformerOutput, Params, Outputs
-from src.europarser.file_finder import file_finder
 
 # root_dir = os.path.dirname(__file__)
 root_dir = Path(__file__).parent
@@ -87,17 +87,17 @@ async def convert(
     if not folder.exists():
         raise HTTPException(status_code=404, detail="UUID not found")
 
-    files = list(file_finder(folder, file_type_s=["html", "json"]))
-    other_files = list(file_finder(folder))
+    to_process_files = FileDetect.find(path=folder, suffixes={".html", ".json"}).result
+    all_files = FileDetect.find(path=folder).result
 
-    if len(files) == 0:
+    if len(to_process_files) == 0:
         raise HTTPException(status_code=404, detail="No files found")
-    elif len(files) != len(other_files):
-        raise HTTPException(status_code=400, detail=f"Only HTML files are supported.\nList of files :{other_files}")
+    elif len(to_process_files) != len(all_files):
+        raise HTTPException(status_code=400, detail=f"Only HTML files are supported.\nList of files :{all_files}")
 
     # parse all files
     try:
-        to_process = [FileToTransform(name=f.name, file=f.read_text(encoding="utf-8")) for f in files]
+        to_process = [FileToTransform(name=f.name, file=f.read_text(encoding="utf-8")) for f in to_process_files]
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Invalid File Provided")
 

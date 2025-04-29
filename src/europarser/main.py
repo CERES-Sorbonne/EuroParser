@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Optional
 
+from filedetect import FileDetect
+
 try:
     from . import pipeline
     from .models import FileToTransform, TransformerOutput, Params, Outputs, TXM_MODE
@@ -17,16 +19,19 @@ def main(folder: Path | str, outputs: list[Outputs], params: Optional[Params] = 
     elif not isinstance(folder, Path):
         raise ValueError(f"folder must be a Path or a string, not {type(folder)}")
 
-    # parse all files
-    files = []
-    for file in folder.iterdir():
-        if file.suffix.lower() not in [".html", ".json"]:
-            print(f"Skipping {file.name} (not an HTML or pivot JSON file)")
-            continue
-        if file.is_file():
-            with open(file, 'r', encoding='utf-8') as f:
-                files.append(FileToTransform(name=file.name, file=f.read()))
-    print(f"Processing {len(files)} files...")
+
+    files = FileDetect.find(
+        path=folder,
+        suffixes={".html", ".json"},
+    )
+    if len(files) == 0:
+        raise ValueError(f"No files found in {folder}")
+
+    print(f"Found {len(files)} files")
+
+    files = [
+        FileToTransform(name=f.name, file=f.read_text(encoding="utf-8")) for f in files
+    ]
 
     # process result
     results: list[TransformerOutput] = pipeline(files, outputs, params=params)
