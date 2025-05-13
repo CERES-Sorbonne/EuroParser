@@ -149,20 +149,20 @@ class PivotTransformer(Transformer):
                 doc_sub_section = ""
 
             try:
-                datetime = find_datetime(doc_header or doc_sub_section)
+                datetime_ = find_datetime(doc_header or doc_sub_section)
             except ValueError:
                 raise BadArticle("datetime")
 
-            if datetime:
+            if datetime_:
                 doc.update({
-                    "date": datetime.strftime("%Y %m %dT%H:%M:%S"),
-                    "annee": datetime.year,
-                    "mois": datetime.month,
-                    "jour": datetime.day,
-                    "heure": datetime.hour,
-                    "minute": datetime.minute,
-                    "seconde": datetime.second,
-                    "epoch": datetime.timestamp()
+                    "date": datetime_.strftime("%Y %m %dT%H:%M:%S"),
+                    "annee": datetime_.year,
+                    "mois": datetime_.month,
+                    "jour": datetime_.day,
+                    "heure": datetime_.hour,
+                    "minute": datetime_.minute,
+                    "seconde": datetime_.second,
+                    "epoch": datetime_.timestamp()
                 })
 
             try:
