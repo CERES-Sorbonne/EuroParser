@@ -56,8 +56,8 @@ const base_params = {
     "minimal_support_journals": 1,
     "minimal_support_authors": 1,
     "minimal_support_dates": 1,
-    "txm_mode": "multiple_files"
-
+    "txm_mode": "multiple_files",
+    "keep_p_tags": false,
 }
 
 function addBaseURL(path) {
