@@ -81,6 +81,7 @@ async def convert(
         minimal_support_authors: Annotated[int, Form(...)] = None,
         minimal_support_dates: Annotated[int, Form(...)] = None,
         txm_mode: Annotated[str, Form(...)] = None,
+        keep_p_tags: Annotated[bool, Form(...)] = None,
 ):
     folder = temp_dir / uuid
 
@@ -112,6 +113,7 @@ async def convert(
                 "minimal_support_authors": minimal_support_authors,
                 "minimal_support_dates": minimal_support_dates,
                 "txm_mode": txm_mode,
+                "keep_p_tags": keep_p_tags,
             }.items() if v is not None}
         )
     except ValueError as e:

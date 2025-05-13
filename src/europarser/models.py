@@ -79,12 +79,20 @@ class Params:
             minimal_support_journals: Optional[int] = None,
             minimal_support_authors: Optional[int] = None,
             minimal_support_dates: Optional[int] = None,
-            txm_mode: TXM_MODE | str = TXM_MODE.MULTIPLE_FILES
+            txm_mode: Union[TXM_MODE, str] = TXM_MODE.MULTIPLE_FILES,
+            keep_p_tags: bool = False,
     ):
-        assert all((isinstance(x, int) and x > 0) or x is None
-                   for x in [minimal_support, minimal_support_kw, minimal_support_journals, minimal_support_authors,
-                             minimal_support_dates])
-        assert all(isinstance(x, bool) for x in [filter_keywords, filter_lang])
+        assert all(
+            (isinstance(x, int) and x > 0) or x is None
+             for x in [
+                minimal_support,
+                minimal_support_kw,
+                minimal_support_journals,
+                minimal_support_authors,
+                minimal_support_dates
+            ]
+        )
+        assert all(isinstance(x, bool) for x in [filter_keywords, filter_lang, keep_p_tags])
 
         self.filter_keywords: bool = filter_keywords
         self.filter_lang: bool = filter_lang
@@ -94,3 +102,4 @@ class Params:
         self.minimal_support_authors: int = minimal_support_authors or minimal_support
         self.minimal_support_dates: int = minimal_support_dates or minimal_support
         self.txm_mode: TXM_MODE = TXM_MODE(txm_mode) if isinstance(txm_mode, str) else txm_mode if isinstance(txm_mode, TXM_MODE) else TXM_MODE.MULTIPLE_FILES
+        self.keep_p_tags: bool = keep_p_tags
