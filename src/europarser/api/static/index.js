@@ -122,7 +122,7 @@ function submitForm() {
 
     // Ensure that at least one output format is selected
     let checkboxes = document.getElementsByTagName('input');
-    checkboxes = [...checkboxes].filter(checkbox => "restore_" !== checkbox.id && "restore_output_" !== checkbox.id);
+    checkboxes = [...checkboxes].filter(checkbox => !checkbox.id.startsWith("restore_"));
     let checked = false;
     for (let checkbox of checkboxes) {
         if (checkbox.type === 'checkbox' && checkbox.checked) {
@@ -155,7 +155,7 @@ function submitForm() {
 
     // Params (for the server to know which parameters to use)
     let params = document.getElementsByClassName('params-input');
-    params = [...params].filter(param => "restore_" !== param.id && "restore_output_" !== param.id);
+    params = [...params].filter(param => !param.id.startsWith("restore_"));
     let params_dict = {};
     for (let param of params) {
         const value = param.type === 'checkbox' ? param.checked : param.value
