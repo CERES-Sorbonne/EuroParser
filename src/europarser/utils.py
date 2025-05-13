@@ -21,7 +21,7 @@ trad_months = {"January": "janvier", "February": "février", "March": "mars", "A
 time_regex = re.compile(r'\d{1,2}:\d{1,2}(?::\d{1,2})?(?:\s?[ap]\.?m\.?)?(?:\s?[GU][MT][TC]\s[+-]\d{1,2})?')
 
 
-def find_date(txt: [str]) -> Optional[date]:
+def find_date(txt: str) -> Optional[date]:
     """
     Utility function to extract a date from aa given string
     :return: a date object with the date
@@ -68,7 +68,7 @@ def find_date(txt: [str]) -> Optional[date]:
         return date(int(year), int(real_month), int(day))
 
 
-def find_datetime(txt: [str]) -> Optional[datetime]:
+def find_datetime(txt: str) -> Optional[datetime]:
     """
     Utility function to extract date and time from a given string
     :return: a datetime object with the date and time
