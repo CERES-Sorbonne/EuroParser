@@ -2,12 +2,13 @@ import concurrent.futures
 import json
 import logging
 import re
-from _datetime import datetime
+from io import StringIO
+from datetime import datetime
 from collections import Counter
 from hashlib import sha256
 from typing import Optional, Any, Union
 
-from bs4 import BeautifulSoup, element
+from bs4 import BeautifulSoup, element, Tag
 from tqdm.auto import tqdm
 
 from .daniel_light import get_KW
@@ -41,6 +42,38 @@ class PivotTransformer(Transformer):
 
     def subspaces(self, s: str) -> str:
         return self.double_spaces_and_beyond.sub(r"\1", s).strip()
+
+    def to_text_with_p(self, doc_text: Tag) -> str:
+        """
+        Utility function to convert a bs4 Tag to text, keeping the <p> tags
+        :param doc_text: bs4 Tag
+        :return: str
+        """
+        if not isinstance(doc_text, Tag):
+            raise ValueError("doc_text is not a bs4 Tag")
+        
+        if not self.params.keep_p_tags:
+            return self.subspaces(doc_text.text.strip())
+
+        content = doc_text.contents
+        if not content:
+            return ""
+
+        sio = StringIO()
+        for e in content:
+            if isinstance(e, str):
+                sio.write(e.strip())
+            elif isinstance(e, Tag):
+                if e.name == "p":
+                    sio.write(f"<p>{e.text.strip()}</p>")
+                else:
+                    sio.write(e.text.strip())
+            else:
+                raise ValueError(f"Unknown type {type(e)} in doc_text")
+
+        return self.subspaces(sio.getvalue())
+
+
 
     def transform(self, files_to_transform: list[FileToTransform]) -> list[Pivot]:
         for file in files_to_transform:
@@ -189,7 +222,7 @@ class PivotTransformer(Transformer):
                     doc["url"] = u.get("href")
                     break
 
-            doc["texte"] = self.subspaces(doc_text.text.strip())
+            doc["texte"] = self.to_text_with_p(doc_text)
 
             doc_auteur = doc_titre_full.find_next_sibling('p')
 
