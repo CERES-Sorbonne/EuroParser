@@ -88,120 +88,127 @@ class StatsTransformer(Transformer):
         }
 
     def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
-        self._logger.debug("Starting to compute stats")
-        t1 = time.time()
+        try:
+            self._logger.debug("Starting to compute stats")
+            t1 = time.time()
 
-        self.pivot_list = pivot_list
-        self.df = pl.from_records([p.model_dump() for p in self.pivot_list])
+            self.pivot_list = pivot_list
+            self.df = pl.from_records([p.model_dump() for p in self.pivot_list])
 
-        self.df = self.df.with_columns(
-            pl.col('journal_clean').str.strip_chars().alias('journal_clean'),
+            self.df = self.df.with_columns(
+                pl.col('journal_clean').str.strip_chars().alias('journal_clean'),
 
-            pl.col('epoch').map_elements(self.int_to_monthyear_intversion).alias('mois'),
+                pl.col('epoch').map_elements(
+                    self.int_to_monthyear_intversion,
+                    return_dtype=pl.Int32
+                ).alias('mois'),
 
-            pl.col('keywords')
-            .str.replace_all(r"[(\[\])']", "")
-            .str.split(',')
-            .list.eval(pl.element().filter(pl.element() != ""))
-            .list.eval(pl.element().str.strip_chars(" ,\n\t"))
-            .list.drop_nulls(),
-        ).with_row_count()
+                pl.col('keywords')
+                .str.replace_all(r"[(\[\])']", "")
+                .str.split(',')
+                .list.eval(pl.element().filter(pl.element() != ""))
+                .list.eval(pl.element().str.strip_chars(" ,\n\t"))
+                .list.drop_nulls(),
+            ).with_row_count()
 
-        self.list_mois = list(self.df.select("mois").to_series().unique().map_elements(self.for_display))
+            self.list_mois = list(self.df.select("mois").to_series().unique().map_elements(self.for_display, return_dtype=pl.Utf8))
 
-        self.data = {
-            "journal": (
-                self.df
-                .group_by("journal_clean")
-                .agg(pl.col("row_nr").agg_groups())
-                .sort("journal_clean")
-                .select(pl.col("journal_clean").alias("journal"), pl.col("row_nr").alias("index_list"))
-            ),
-            "mois": (
-                self.df
-                .group_by("mois")
-                .agg(pl.col("row_nr").agg_groups())
-                .sort("mois")
-                .select(pl.col("mois").alias("mois"), pl.col("row_nr").alias("index_list"))
-                .with_columns(pl.col("mois").map_elements(self.for_display))
-            )
-            ,
-            "auteur": (
-                self.df
-                .group_by("auteur")
-                .agg(pl.col("row_nr").agg_groups())
-                .sort("auteur")
-                .select(pl.col("auteur").alias("auteur"), pl.col("row_nr").alias("index_list"))
-            ),
-            "mot_cle": (
-                self.df
-                .explode("keywords")
-                .drop_nulls()
-                .group_by("keywords")
-                .agg(pl.col("row_nr").agg_groups())
-                .sort("keywords")
-                .select(pl.col("keywords").alias("mot_cle"), pl.col("row_nr").alias("index_list"))
-            ),
-
-            "mois_journal": (
-                self.df
-                .group_by(["mois", "journal_clean"])
-                .agg(pl.col("row_nr").agg_groups())
-                .sort(["journal_clean", "mois"])
-                .select(pl.col("journal_clean").alias("journal"), pl.col("mois").alias("mois"),
-                        pl.col("row_nr").alias("index_list"))
-                .with_columns(
-                    pl.col("mois").map_elements(self.for_display)
+            self.data = {
+                "journal": (
+                    self.df
+                    .group_by("journal_clean")
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort("journal_clean")
+                    .select(pl.col("journal_clean").alias("journal"), pl.col("row_nr").alias("index_list"))
+                ),
+                "mois": (
+                    self.df
+                    .group_by("mois")
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort("mois")
+                    .select(pl.col("mois").alias("mois"), pl.col("row_nr").alias("index_list"))
+                    .with_columns(pl.col("mois").map_elements(self.for_display, return_dtype=pl.Utf8))
                 )
-            ),
-            "mois_kw": (
-                self.df
-                .explode("keywords")
-                .group_by(["mois", "keywords"])
-                .agg(pl.col("row_nr").agg_groups())
-                .sort(["mois", "keywords"])
-                .select(pl.col("mois").alias("mois"), pl.col("keywords").alias("mot_cle"),
-                        pl.col("row_nr").alias("index_list"))
-                .with_columns(
-                    pl.col("mois").map_elements(self.for_display)
-                )
-            ),
-            "mois_auteur": (
-                self.df
-                .group_by(["mois", "auteur"])
-                .agg(pl.col("row_nr").agg_groups())
-                .sort(["auteur", "mois"])
-                .select(pl.col("auteur").alias("auteur"), pl.col("mois").alias("mois"),
-                        pl.col("row_nr").alias("index_list"))
-                .with_columns(
-                    pl.col("mois").map_elements(self.for_display)
-                )
-            ),
-        }
+                ,
+                "auteur": (
+                    self.df
+                    .group_by("auteur")
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort("auteur")
+                    .select(pl.col("auteur").alias("auteur"), pl.col("row_nr").alias("index_list"))
+                ),
+                "mot_cle": (
+                    self.df
+                    .explode("keywords")
+                    .drop_nulls()
+                    .group_by("keywords")
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort("keywords")
+                    .select(pl.col("keywords").alias("mot_cle"), pl.col("row_nr").alias("index_list"))
+                ),
 
-        self.res = {
-            key: {
-                key2: val2
-                for key2, val2 in list(zip(*val.to_dict(as_series=False).values()))
+                "mois_journal": (
+                    self.df
+                    .group_by(["mois", "journal_clean"])
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort(["journal_clean", "mois"])
+                    .select(pl.col("journal_clean").alias("journal"), pl.col("mois").alias("mois"),
+                            pl.col("row_nr").alias("index_list"))
+                    .with_columns(
+                        pl.col("mois").map_elements(self.for_display, return_dtype=pl.Utf8)
+                    )
+                ),
+                "mois_kw": (
+                    self.df
+                    .explode("keywords")
+                    .group_by(["mois", "keywords"])
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort(["mois", "keywords"])
+                    .select(pl.col("mois").alias("mois"), pl.col("keywords").alias("mot_cle"),
+                            pl.col("row_nr").alias("index_list"))
+                    .with_columns(
+                        pl.col("mois").map_elements(self.for_display, return_dtype=pl.Utf8)
+                    )
+                ),
+                "mois_auteur": (
+                    self.df
+                    .group_by(["mois", "auteur"])
+                    .agg(pl.col("row_nr").agg_groups())
+                    .sort(["auteur", "mois"])
+                    .select(pl.col("auteur").alias("auteur"), pl.col("mois").alias("mois"),
+                            pl.col("row_nr").alias("index_list"))
+                    .with_columns(
+                        pl.col("mois").map_elements(self.for_display, return_dtype=pl.Utf8)
+                    )
+                ),
             }
-            for key, val in self.data.items() if len(val.columns) == 2
-        }
 
-        self.res.update({
-            key: {
-                f"{key2}_{key2_bis}": val2
-                for key2, key2_bis, val2 in list(zip(*val.to_dict(as_series=False).values()))
+            self.res = {
+                key: {
+                    key2: val2
+                    for key2, val2 in list(zip(*val.to_dict(as_series=False).values()))
+                }
+                for key, val in self.data.items() if len(val.columns) == 2
             }
-            for key, val in self.data.items() if len(val.columns) == 3
-        })
 
-        self._logger.debug(f"Time to compute stats: {time.time() - t1:.2f}s")
-        self.stats_done = True
+            self.res.update({
+                key: {
+                    f"{key2}_{key2_bis}": val2
+                    for key2, key2_bis, val2 in list(zip(*val.to_dict(as_series=False).values()))
+                }
+                for key, val in self.data.items() if len(val.columns) == 3
+            })
 
-        self._transform_processed()
+            self._logger.debug(f"Time to compute stats: {time.time() - t1:.2f}s")
+            self.stats_done = True
 
-        self.output["stats"].data = json.dumps(self.res)
-        return self.output["stats"]
+            self._transform_processed()
+
+            self.output["stats"].data = json.dumps(self.res)
+            return self.output["stats"]
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise
 
     def _transform_processed(self, *args, **kwargs):
         if not self.stats_done:
@@ -211,21 +218,21 @@ class StatsTransformer(Transformer):
             "journal":
                 (
                     self.data["journal"]
-                    .select("journal", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("journal", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .filter(pl.col("count") >= self.params.minimal_support_journals)
                     .sort("count", descending=True)
                 ),
             "mois":
                 (
                     self.data["mois"]
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .filter(pl.col("count") >= self.params.minimal_support_dates)
                     .sort("mois")
                 ),
             "auteur":
                 (
                     self.data["auteur"]
-                    .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select(pl.col("auteur").cast(pl.Utf8), pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .sort("count", descending=True)
                     .filter(pl.col("count") >= self.params.minimal_support_authors)
                     .filter(pl.col("auteur") != "Unknown")
@@ -233,7 +240,7 @@ class StatsTransformer(Transformer):
             "mot_cle":
                 (
                     self.data["mot_cle"]
-                    .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("mot_cle", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .filter(pl.col("count") >= self.params.minimal_support_kw)
                     .sort("count", descending=True)
                 ),
@@ -248,7 +255,7 @@ class StatsTransformer(Transformer):
                 journal: (
                     self.data["mois_journal"]
                     .filter(pl.col("journal") == journal)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .sort("mois")
                 ) for journal in self.journal_order
             },
@@ -256,7 +263,7 @@ class StatsTransformer(Transformer):
                 kw: (
                     self.data["mois_kw"]
                     .filter(pl.col("mot_cle") == kw)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .sort("mois")
                 ) for kw in self.mot_cle_order
             },
@@ -264,7 +271,7 @@ class StatsTransformer(Transformer):
                 auteur: (
                     self.data["mois_auteur"]
                     .filter(pl.col("auteur") == auteur)
-                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x)).alias("count"))
+                    .select("mois", pl.col("index_list").map_elements(lambda x: len(x), return_dtype=pl.UInt32).alias("count"))
                     .sort("mois")
                 ) for auteur in self.auteur_order
             },

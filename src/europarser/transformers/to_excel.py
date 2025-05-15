@@ -14,12 +14,13 @@ class ExcelTransformer(Transformer):
                                         filename=f'{self.name}_output.xlsx')
 
     def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
-        df = pd.DataFrame.from_records([p.model_dump() for p in pivot_list])
-        with BytesIO() as output:
-            df.to_excel(output, index=False)
-            output.seek(0)
-            self.output.data = output.read()
-        return self.output
-
+        try:
             df = pl.DataFrame([p.model_dump() for p in pivot_list])
+            with BytesIO() as output:
                 df.write_excel(output)
+                output.seek(0)
+                self.output.data = output.read()
+            return self.output
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise

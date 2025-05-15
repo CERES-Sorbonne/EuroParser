@@ -48,45 +48,49 @@ class TXMTransformer(Transformer):
             stream.write("<pb/>\n")
 
     def transform(self, pivot_list: List[Pivot], mode=None) -> TransformerOutput:
-        if mode:
-            self.params.txm_mode = mode
-            self.output_type = "zip" if self.params.txm_mode == TXM_MODE.MULTIPLE_FILES else "xml"
-            self.output = TransformerOutput(
-                data=None, output=self.output_type, filename=f'{self.name}_output.{self.output_type}'
-            )
+        try:
+            if mode:
+                self.params.txm_mode = mode
+                self.output_type = "zip" if self.params.txm_mode == TXM_MODE.MULTIPLE_FILES else "xml"
+                self.output = TransformerOutput(
+                    data=None, output=self.output_type, filename=f'{self.name}_output.{self.output_type}'
+                )
 
-        if self.params.txm_mode in {TXM_MODE.LEGACY, TXM_MODE.ONE_FILE_PB}:
-            with StringIO() as f:
-                f.write(self.XML_HEADER + "<corpus>\n")
-                length = len(pivot_list)
-                for i, pivot in enumerate(pivot_list):
-                    if i + 1 == length:
-                        self.do_one_article(pivot, f)
-                    else:
-                        self.do_one_article(pivot, f, pb=self.params.txm_mode == TXM_MODE.ONE_FILE_PB)
-                f.write("</corpus>")
-                self.output.data = dom.parseString(f.getvalue()).toprettyxml()
-        elif self.params.txm_mode == TXM_MODE.MULTIPLE_FILES:
-            with BytesIO() as zio:
-                with zipfile.ZipFile(zio, 'w', compression=zipfile.ZIP_DEFLATED) as z:
-                    for pivot in pivot_list:
-
-
-                        with StringIO() as f:
-                            f.write(self.XML_HEADER)
+            if self.params.txm_mode in {TXM_MODE.LEGACY, TXM_MODE.ONE_FILE_PB}:
+                with StringIO() as f:
+                    f.write(self.XML_HEADER + "<corpus>\n")
+                    length = len(pivot_list)
+                    for i, pivot in enumerate(pivot_list):
+                        if i + 1 == length:
                             self.do_one_article(pivot, f)
-                            try:
-                                super_writestr(
-                                    z,
-                                    self.clean_name(pivot),
-                                    dom.parseString(f.getvalue()).toprettyxml()
-                                )
-                            except Exception as e:
-                                pass
-                                raise e
+                        else:
+                            self.do_one_article(pivot, f, pb=self.params.txm_mode == TXM_MODE.ONE_FILE_PB)
+                    f.write("</corpus>")
+                    self.output.data = dom.parseString(f.getvalue()).toprettyxml()
+            elif self.params.txm_mode == TXM_MODE.MULTIPLE_FILES:
+                with BytesIO() as zio:
+                    with zipfile.ZipFile(zio, 'w', compression=zipfile.ZIP_DEFLATED) as z:
+                        for pivot in pivot_list:
 
-                self.output.data = zio.getvalue()
-        else:
-            raise ValueError(f"Invalid TXM mode: {self.params.txm_mode}")
 
-        return self.output
+                            with StringIO() as f:
+                                f.write(self.XML_HEADER)
+                                self.do_one_article(pivot, f)
+                                try:
+                                    super_writestr(
+                                        z,
+                                        self.clean_name(pivot),
+                                        dom.parseString(f.getvalue()).toprettyxml()
+                                    )
+                                except Exception as e:
+                                    pass
+                                    raise e
+
+                    self.output.data = zio.getvalue()
+            else:
+                raise ValueError(f"Invalid TXM mode: {self.params.txm_mode}")
+
+            return self.output
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise

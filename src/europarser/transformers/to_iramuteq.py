@@ -15,11 +15,15 @@ class IramuteqTransformer(Transformer):
                                         filename=f'{self.name}_output.{self.output_type}')
 
     def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
-        with io.StringIO() as f:
-            for pivot in pivot_list:
-                dic = pivot.model_dump(exclude=self.banned_keys)
-                f.write(f"""**** {' '.join([f"*{self._to_camel(k)}_{self._format_value(str(v))}" for k, v in dic.items()])}\n""")
-                f.write(pivot.texte)
-                f.write('\n\n')
-            self.output.data = f.getvalue()
-            return self.output
+        try:
+            with io.StringIO() as f:
+                for pivot in pivot_list:
+                    dic = pivot.model_dump(exclude=self.banned_keys)
+                    f.write(f"""**** {' '.join([f"*{self._to_camel(k)}_{self._format_value(str(v))}" for k, v in dic.items()])}\n""")
+                    f.write(pivot.texte)
+                    f.write('\n\n')
+                self.output.data = f.getvalue()
+                return self.output
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise
