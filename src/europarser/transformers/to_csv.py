@@ -13,9 +13,11 @@ class CSVTransformer(Transformer):
         self.output = TransformerOutput(data=None, output=self.output_type, filename=f'{self.name}_output.{self.output_type}')
 
     def transform(self, pivot_list: List[Pivot]) -> TransformerOutput:
-        df = pd.DataFrame.from_records([p.model_dump() for p in pivot_list])
-        self.output.data = df.to_csv(sep=",", index=False)
-        return self.output
+        try:
             df = pl.DataFrame([p.model_dump() for p in pivot_list])
             self.output.data = df.write_csv()
+            return self.output
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise
             

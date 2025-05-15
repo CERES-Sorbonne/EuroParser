@@ -53,17 +53,21 @@ class MarkdownTransformer(Transformer):
         return nom, markdown_content
 
     def transform(self, pivots: List[Pivot]) -> TransformerOutput:
-        self.compute_stats(pivots)
-        in_memory_zip = io.BytesIO()
-        with zipfile.ZipFile(in_memory_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
-            for pivot in pivots:
-                filename, content = self.generate_markdown(pivot)
-                super_writestr(zipf, filename, content)
-            zipf.writestr("Statistiques.md", self.make_waffle())
+        try:
+            self.compute_stats(pivots)
+            in_memory_zip = io.BytesIO()
+            with zipfile.ZipFile(in_memory_zip, "w", zipfile.ZIP_DEFLATED) as zipf:
+                for pivot in pivots:
+                    filename, content = self.generate_markdown(pivot)
+                    super_writestr(zipf, filename, content)
+                zipf.writestr("Statistiques.md", self.make_waffle())
 
-        in_memory_zip.seek(0)
-        self.output.data = in_memory_zip.getvalue()
-        return self.output
+            in_memory_zip.seek(0)
+            self.output.data = in_memory_zip.getvalue()
+            return self.output
+        except Exception as e:
+            print(self.__class__.__name__, e)
+            raise
 
     def compute_stats(self, pivots, key="journal"):
         articles_par_cle = defaultdict(int)
