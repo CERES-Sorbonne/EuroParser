@@ -4,8 +4,7 @@ from typing import List
 from ..models import Pivot, TransformerOutput
 from ..transformers.transformer import Transformer
 
-import pandas as pd
-
+import polars as pl
 
 class ExcelTransformer(Transformer):
     def __init__(self):
@@ -22,3 +21,5 @@ class ExcelTransformer(Transformer):
             self.output.data = output.read()
         return self.output
 
+            df = pl.DataFrame([p.model_dump() for p in pivot_list])
+                df.write_excel(output)

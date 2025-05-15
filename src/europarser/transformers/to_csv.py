@@ -3,7 +3,7 @@ from typing import List
 from ..models import Pivot, TransformerOutput
 from ..transformers.transformer import Transformer
 
-import pandas as pd
+import polars as pl
 
 
 class CSVTransformer(Transformer):
@@ -16,4 +16,6 @@ class CSVTransformer(Transformer):
         df = pd.DataFrame.from_records([p.model_dump() for p in pivot_list])
         self.output.data = df.to_csv(sep=",", index=False)
         return self.output
+            df = pl.DataFrame([p.model_dump() for p in pivot_list])
+            self.output.data = df.write_csv()
             
