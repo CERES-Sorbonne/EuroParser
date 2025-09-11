@@ -43,7 +43,7 @@ class Pivot(BaseModel):
         return ', '.join(kw)
 
 
-OutputFormat = Literal["csv", "excel", "json", "txt", "xml", "zip"]
+OutputFormat = Literal["csv", "excel", "json", "txt", "xml", "zip", "bib"]
 
 class TXM_MODE(str, Enum):
     MULTIPLE_FILES = "multiple_files"
@@ -56,6 +56,7 @@ class Outputs(str, Enum):
     json = "json"
     csv = "csv"
     excel = "excel"
+    bibtex = "bibtex"
     markdown = "markdown"
     stats = "stats"
     processedStats = "processedStats"

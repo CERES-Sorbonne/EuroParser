@@ -228,6 +228,11 @@ class PivotTransformer(Transformer):
 
             if doc_auteur and "class" in doc_auteur.attrs and doc_auteur.attrs['class'] == ['sm-margin-bottomNews']:
                 doc["auteur"] = self.subspaces(doc_auteur.text.strip().lower())
+            else:
+                doc_auteur = article.find("div", attrs={"class": "docAuthors"})
+                if doc_auteur:
+                    doc["auteur"] = self.subspaces(doc_auteur.text.strip().lower())
+            # TODO ? capitalize auteur ? ou alors on l'a lowercase pour une bonne raison ?
 
             # on garde uniquement le titre (sans les fioritures)
             journal_clean = self.journal_split.split(doc["journal"])[0]

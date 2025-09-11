@@ -33,5 +33,7 @@ def get_mimetype(output_type: OutputFormat) -> MimeType:
         return "text/html"
     elif output_type == "txt":
         return "text/plain"
+    elif output_type == "bib":
+        return "text/plain"
     else:
         raise ValueError(f"Unknown output type: {output_type}")
