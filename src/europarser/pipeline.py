@@ -6,6 +6,7 @@ from tqdm.auto import tqdm
 
 from .models import Outputs, FileToTransform, TransformerOutput, Params
 from .pivot import PivotTransformer
+from .transformers.to_bibtex import BibtexTransformer
 from .transformers.to_csv import CSVTransformer
 from .transformers.to_excel import ExcelTransformer
 from .transformers.to_iramuteq import IramuteqTransformer
@@ -21,6 +22,7 @@ transformer_factory = {
     "iramuteq": IramuteqTransformer().transform,
     "gephi": None,
     "csv": CSVTransformer().transform,
+    "bibtex": BibtexTransformer().transform,
     "excel": ExcelTransformer().transform,
     "stats": "get_stats",
     "processedStats": "get_processed_stats",
