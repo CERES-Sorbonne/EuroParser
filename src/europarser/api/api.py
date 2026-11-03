@@ -36,7 +36,7 @@ logger.setLevel(logging.DEBUG)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
-    return templates.TemplateResponse('index.html', {'request': request, 'host': host})
+    return templates.TemplateResponse(request, 'index.html', {'host': host})
 
 
 @app.get("/favicon.ico", include_in_schema=False)
