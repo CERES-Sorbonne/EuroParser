@@ -36,38 +36,15 @@ fi
 # git pull origin master --quiet || exit
 
 
-if [ ! -d "venv" ]
+if [ ! -d ".venv" ]
 then
-    python3.11 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+   uv venv
+   uv add --dev .
 fi
 
-source "$FOLDER"/"venv/bin/activate"
+uv sync
 
-set +e
-sed "s/\(.*\)\(--\|#\).*/\1/g" "requirements.txt" | grep -v '^ *#' | while IFS= read -r package
-do
-    if [[ "git" == *"$package"* ]]
-    then
-      package_name=$(echo "$package" | cut -d'@' -f1)
-      package_url=$(echo "$package" | cut -d'@' -f2)
-      if ! pip show "$package_name" > /dev/null
-      then
-          echo "Missing $package, trying to install it..."
-          pip install git+"$package_url"@master
-      fi
-    else
-      if ! pip show "$package" > /dev/null
-      then
-          echo "Missing $package, trying to install it..."
-          pip install "$package"
-      fi
-    fi
-done
-set -e
-
-COMMAND="source $FOLDER/venv/bin/activate; python -m uvicorn src.europarser.api.api:app --host ${EUROPARSER_HOST:-'0.0.0.0'} --port ${EUROPARSER_PORT:-'8000'} --root-path ${ROOT_PATH:-'/'} --workers 8 --timeout-keep-alive 1000 --log-config log.conf"
+COMMAND="uv run python -m uvicorn src.europarser.api.api:app --host ${EUROPARSER_HOST:-'0.0.0.0'} --port ${EUROPARSER_PORT:-'8000'} --root-path ${ROOT_PATH:-'/'} --workers 8 --timeout-keep-alive 1000 --log-config log.conf"
 
 printf "Starting europarser with command:\n"
 echo "$COMMAND"
